@@ -1,41 +1,33 @@
 @import "tailwindcss";
-
 :root {
   --background: #fafafa; /* zinc-50 — อุ่นกว่าขาวบริสุทธิ์ */
   --foreground: #18181b; /* zinc-900 — body text เข้มชัด */
 }
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
-
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #09090b; /* zinc-950 */
     --foreground: #fafafa; /* zinc-50 */
   }
 }
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  /* line-height 1.65 ช่วยให้ข้อความยาวๆ อ่านง่ายขึ้น */
-  line-height: 1.65;
-  /* font-feature เปิด ligature สำหรับ monospace */
+  font-family:
+    var(--font-geist-sans), Arial, Helvetica, sans-serif; /* line-height 1.65 ช่วยให้ข้อความยาวๆ อ่านง่ายขึ้น */
+  line-height: 1.65; /* font-feature เปิด ligature สำหรับ monospace */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-}
-
-/* เพิ่ม contrast สำหรับข้อความใน antd Typography */
+} /* เพิ่ม contrast สำหรับข้อความใน antd Typography */
 .ant-typography {
   color: inherit;
 }
-
 .ant-typography.ant-typography-secondary {
   color: var(--foreground);
   opacity: 0.75;

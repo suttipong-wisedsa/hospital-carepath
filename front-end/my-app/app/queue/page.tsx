@@ -441,10 +441,10 @@ export default function QueuePage() {
         <section className="mb-4">
           <div className="mb-2 flex items-center gap-2">
             <TagOutlined className="text-sky-700 dark:text-sky-400" />
-            <p className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-700">
               ฟิลเตอร์ตาม Care Pathway
             </p>
-            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs font-semibold text-zinc-600">
               · ดูเฉพาะคิวของแม่แบบที่สนใจ
             </span>
             {hasActiveFilter && (
@@ -472,7 +472,7 @@ export default function QueuePage() {
               palette={{
                 bg: "from-zinc-700 to-zinc-900",
                 ring: "ring-zinc-300 dark:ring-zinc-700",
-                accent: "text-zinc-800",
+                accent: "text-white",
               }}
             />
             {pathwayCounts.map((p) => {
@@ -504,10 +504,10 @@ export default function QueuePage() {
         <section className="mb-6">
           <div className="mb-2 flex items-center gap-2">
             <EnvironmentOutlined className="text-teal-700 dark:text-teal-400" />
-            <p className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-700">
               ฟิลเตอร์ตามจุดรักษา
             </p>
-            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <span className="text-xs font-semibold text-zinc-600">
               · เลือกดูเฉพาะคิวของจุดที่รับผิดชอบ
             </span>
           </div>
@@ -548,10 +548,10 @@ export default function QueuePage() {
             styles={{ image: { height: 96 } }}
             description={
               <div>
-                <p className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <p className="text-lg font-bold text-zinc-900">
                   คิวว่างเปล่า
                 </p>
-                <p className="mt-1 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                <p className="mt-1 text-sm font-semibold text-zinc-600">
                   ยังไม่มี visit ที่ active — ลงทะเบียนผู้ป่วยและกำหนด pathway
                   เพื่อเริ่มคิว
                 </p>
@@ -565,7 +565,7 @@ export default function QueuePage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-center dark:border-zinc-700 dark:bg-zinc-900">
-          <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+          <p className="text-sm font-semibold text-zinc-700">
             ไม่พบคิวที่ตรงกับ
             {pathwayFilter !== "all" && (
               <>
@@ -681,10 +681,10 @@ function QueueCard({
               >
                 Visit #{entry.visit_id}
               </p>
-              <p className="truncate text-lg font-black text-zinc-950 dark:text-zinc-50">
+              <p className="truncate text-lg font-black text-zinc-950">
                 {entry.patient_name}
               </p>
-              <p className="font-mono text-sm font-bold text-zinc-800 dark:text-zinc-200">
+              <p className="font-mono text-sm font-bold text-zinc-800">
                 {entry.patient_code}
               </p>
             </div>
@@ -720,9 +720,9 @@ function QueueCard({
             >
               {entry.pathway_template_name ?? "ไม่มี pathway"}
             </span>
-            <span className="font-mono font-extrabold text-zinc-900 dark:text-zinc-100">
+            <span className="font-mono font-extrabold text-zinc-900">
               {entry.completed_steps}/{entry.total_steps}
-              <span className="ml-1.5 text-[10px] font-bold text-zinc-700 dark:text-zinc-300">
+              <span className="ml-1.5 text-[10px] font-bold text-zinc-700">
                 · {percent}%
               </span>
             </span>
@@ -811,24 +811,24 @@ function QueueCard({
                     <span
                       className={`text-[15px] ${
                         step.status === "pending"
-                          ? "font-semibold text-zinc-700 dark:text-zinc-300"
+                          ? "font-semibold text-zinc-700"
                           : step.status === "skipped"
-                          ? "font-bold text-zinc-500 line-through decoration-zinc-400 dark:text-zinc-400 dark:decoration-zinc-600"
+                          ? "font-bold text-zinc-500 line-through decoration-zinc-400"
                           : step.status === "in_progress"
-                          ? "font-extrabold text-teal-900 dark:text-teal-100"
-                          : "font-extrabold text-zinc-950 dark:text-zinc-50"
+                          ? "font-extrabold text-teal-900"
+                          : "font-extrabold text-zinc-950"
                       }`}
                     >
                       {step.stage}
                     </span>
                     {isCurrent && (
-                      <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-teal-900 dark:bg-teal-950 dark:text-teal-200">
+                      <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-teal-900">
                         <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
                         กำลังตรวจ
                       </span>
                     )}
                     {isPendingCall && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-900">
                         รอเรียก
                       </span>
                     )}
@@ -839,12 +839,12 @@ function QueueCard({
                     </p>
                   )}
                   {step.started_at && step.status === "in_progress" && (
-                    <p className="mt-0.5 text-xs font-bold text-teal-800 dark:text-teal-300">
+                    <p className="mt-0.5 text-xs font-bold text-teal-800">
                       ▶ เริ่ม {formatTime(step.started_at)}
                     </p>
                   )}
                   {step.notes && (
-                    <p className="mt-1.5 rounded-md border-l-4 border-teal-400 bg-teal-50 px-2.5 py-1.5 text-xs font-semibold text-zinc-800 dark:border-teal-600 dark:bg-teal-950/40 dark:text-zinc-100">
+                    <p className="mt-1.5 rounded-md border-l-4 border-teal-400 bg-teal-50 px-2.5 py-1.5 text-xs font-semibold text-zinc-800">
                       💬 {step.notes}
                     </p>
                   )}
@@ -955,7 +955,7 @@ function PathwayFilterPill({
       onClick={onClick}
       className={`group inline-flex shrink-0 items-center gap-2 rounded-full border-2 px-3.5 py-1.5 text-sm font-bold transition-all duration-150 ${
         active
-          ? `border-transparent bg-linear-to-r ${palette.bg} text-white shadow-md ring-2 ${palette.ring}`
+          ? `border-transparent bg-linear-to-r ${palette.bg} ${palette.accent} shadow-md ring-2 ${palette.ring}`
           : `border-zinc-200 bg-white text-zinc-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-sky-700 dark:hover:bg-sky-950/40 dark:hover:text-sky-200`
       }`}
     >
@@ -964,7 +964,7 @@ function PathwayFilterPill({
       <span
         className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-black tabular-nums leading-none ${
           active
-            ? "bg-white/25 text-white"
+            ? "bg-white/75 text-zinc-900"
             : "bg-zinc-100 text-zinc-700 group-hover:bg-sky-100 group-hover:text-sky-800 dark:bg-zinc-800 dark:text-zinc-200 dark:group-hover:bg-sky-900 dark:group-hover:text-sky-100"
         }`}
       >

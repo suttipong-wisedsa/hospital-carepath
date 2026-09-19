@@ -266,10 +266,10 @@ export default function PatientViewPage() {
           <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-4xl dark:bg-amber-950">
             🛣️
           </div>
-          <p className="text-xl font-black text-zinc-900 dark:text-zinc-50">
+          <p className="text-xl font-black text-zinc-900">
             ยังไม่ได้ลงทะเบียน Care Pathway
           </p>
-          <p className="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <p className="mt-2 text-sm font-semibold text-zinc-700">
             เจ้าหน้าที่จะช่วยกำหนดลำดับขั้นตอนการดูแลให้คุณในขั้นตอนถัดไป
           </p>
         </section>
@@ -278,14 +278,14 @@ export default function PatientViewPage() {
           <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 text-5xl text-white shadow-lg shadow-emerald-500/40">
             ✅
           </div>
-          <p className="text-2xl font-black text-emerald-900 dark:text-emerald-100">
+          <p className="text-2xl font-black text-emerald-900">
             ตรวจเสร็จเรียบร้อยแล้ว
           </p>
-          <p className="mt-2 text-base font-bold text-emerald-800 dark:text-emerald-200">
+          <p className="mt-2 text-base font-bold text-emerald-800">
             ขอบคุณที่ใช้บริการ 🙏
           </p>
           {visit.completed_at && (
-            <p className="mt-3 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+            <p className="mt-3 text-xs font-bold text-emerald-700">
               เสร็จเมื่อ {hhmm(visit.completed_at)}
             </p>
           )}
@@ -295,7 +295,7 @@ export default function PatientViewPage() {
           <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-zinc-400 text-5xl text-white">
             ⛔
           </div>
-          <p className="text-2xl font-black text-zinc-700 dark:text-zinc-200">
+          <p className="text-2xl font-black text-zinc-700">
             visit ถูกยกเลิก
           </p>
         </section>
@@ -313,7 +313,7 @@ export default function PatientViewPage() {
               className={`text-xs font-black uppercase tracking-[0.15em] ${
                 current.status === "in_progress"
                   ? "text-white/80"
-                  : "text-teal-700 dark:text-teal-400"
+                  : "text-teal-700"
               }`}
             >
               📍 ตำแหน่งปัจจุบัน
@@ -340,7 +340,7 @@ export default function PatientViewPage() {
                 className={`text-sm font-bold ${
                   current.status === "in_progress"
                     ? "text-white/80"
-                    : "text-zinc-600 dark:text-zinc-400"
+                    : "text-zinc-600"
                 }`}
               >
                 ขั้นตอนที่ {current.step_order} จาก {totalSteps}
@@ -352,7 +352,7 @@ export default function PatientViewPage() {
                 className={`mt-3 text-sm font-bold ${
                   current.status === "in_progress"
                     ? "text-white/90"
-                    : "text-teal-700 dark:text-teal-400"
+                    : "text-teal-700"
                 }`}
               >
                 ▶ เริ่มเมื่อ {hhmm(current.started_at)}
@@ -363,10 +363,10 @@ export default function PatientViewPage() {
           {/* progress bar */}
           <section className="mt-4 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+              <p className="text-sm font-black uppercase tracking-wider text-zinc-700">
                 ความคืบหน้า
               </p>
-              <p className="font-mono text-2xl font-black tabular-nums text-teal-700 dark:text-teal-400">
+              <p className="font-mono text-2xl font-black tabular-nums text-teal-700">
                 {percent}%
               </p>
             </div>
@@ -376,7 +376,7 @@ export default function PatientViewPage() {
                 style={{ width: `${percent}%` }}
               />
             </div>
-            <p className="mt-2 text-xs font-bold text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 text-xs font-bold text-zinc-600">
               ผ่านแล้ว {completedSteps} จาก {totalSteps} ขั้นตอน
             </p>
           </section>
@@ -389,13 +389,13 @@ export default function PatientViewPage() {
                   ⏳
                 </span>
                 <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                  <p className="text-xs font-black uppercase tracking-wider text-amber-800">
                     รอเรียกคิว
                   </p>
-                  <p className="mt-1 text-lg font-black text-amber-900 dark:text-amber-100">
+                  <p className="mt-1 text-lg font-black text-amber-900">
                     {friendlyStage(current.stage)}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-amber-800 dark:text-amber-300">
+                  <p className="mt-1 text-sm font-bold text-amber-800">
                     เจ้าหน้าที่จะเรียกคุณเข้ารับการตรวจ โปรดรอสักครู่
                   </p>
                 </div>
@@ -410,13 +410,13 @@ export default function PatientViewPage() {
                   <RightOutlined />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-wider text-teal-800 dark:text-teal-300">
+                  <p className="text-xs font-black uppercase tracking-wider text-teal-800">
                     ขั้นต่อไป
                   </p>
-                  <p className="mt-1 text-lg font-black text-teal-900 dark:text-teal-100">
+                  <p className="mt-1 text-lg font-black text-teal-900">
                     {friendlyStage(nextStep.stage)}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-teal-800 dark:text-teal-300">
+                  <p className="mt-1 text-sm font-bold text-teal-800">
                     หลังเสร็จขั้นนี้ ระบบจะพาคุณไปขั้นถัดไปอัตโนมัติ
                   </p>
                 </div>
@@ -426,7 +426,7 @@ export default function PatientViewPage() {
 
           {/* ลำดับขั้นตอนทั้งหมด — read-only timeline */}
           <section className="mt-5 rounded-3xl border border-zinc-200 bg-white p-5 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="mb-4 text-sm font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+            <p className="mb-4 text-sm font-black uppercase tracking-wider text-zinc-700">
               🛣️ ลำดับขั้นตอนทั้งหมด
             </p>
             <ol className="space-y-3">
@@ -444,10 +444,10 @@ export default function PatientViewPage() {
           {/* ข้อมูลเพิ่มเติม */}
           {patient?.symptom && (
             <section className="mt-4 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-xs font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs font-black uppercase tracking-wider text-zinc-600">
                 อาการที่ลงทะเบียน
               </p>
-              <p className="mt-1.5 text-base font-bold text-zinc-900 dark:text-zinc-50">
+              <p className="mt-1.5 text-base font-bold text-zinc-900">
                 {patient.symptom}
               </p>
             </section>
@@ -530,32 +530,32 @@ function PatientStepRow({
         <p
           className={`text-lg ${
             isSkipped
-              ? "font-medium text-zinc-500 line-through decoration-zinc-400 dark:text-zinc-500"
+              ? "font-medium text-zinc-500 line-through decoration-zinc-400"
               : isPending && !isCurrent
-              ? "font-bold text-zinc-700 dark:text-zinc-300"
+              ? "font-bold text-zinc-700"
               : isActive || (isCurrent && isPending)
-              ? "font-black text-zinc-950 dark:text-zinc-50"
+              ? "font-black text-zinc-950"
               : isDone
-              ? "font-extrabold text-emerald-900 dark:text-emerald-200"
-              : "font-extrabold text-zinc-950 dark:text-zinc-50"
+              ? "font-extrabold text-emerald-900"
+              : "font-extrabold text-zinc-950"
           }`}
         >
           {friendlyStage(step.stage)}
         </p>
         <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs font-bold">
           {isDone && step.completed_at && (
-            <span className="text-emerald-700 dark:text-emerald-400">
+            <span className="text-emerald-700">
               ✓ เสร็จเมื่อ {hhmm(step.completed_at)}
             </span>
           )}
           {isActive && step.started_at && (
-            <span className="text-teal-700 dark:text-teal-400">
+            <span className="text-teal-700">
               ▶ เริ่ม {hhmm(step.started_at)}
             </span>
           )}
           {isSkipped && <span className="text-zinc-500">ข้าม</span>}
           {isCurrent && isPending && (
-            <span className="text-amber-700 dark:text-amber-300">
+            <span className="text-amber-700">
               ⏳ รอเรียกคิว
             </span>
           )}

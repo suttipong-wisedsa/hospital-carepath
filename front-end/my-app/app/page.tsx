@@ -39,20 +39,20 @@ export default function Home() {
               →
             </span>
           </div>
-          <h2 className="mt-4 text-lg font-bold text-zinc-950 dark:text-zinc-50">
+          <h2 className="mt-4 text-lg font-bold text-zinc-950">
             รายชื่อผู้ป่วย
           </h2>
-          <p className="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <p className="mt-2 text-sm font-semibold text-zinc-700">
             ดูภาพรวม กรองตามสถานะ ค้นหาชื่อหรืออาการ
           </p>
           <div className="mt-4 flex flex-wrap gap-1.5">
-            <span className="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-800 dark:bg-sky-950 dark:text-sky-300">
+            <span className="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-800">
               admitted
             </span>
-            <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+            <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800">
               treating
             </span>
-            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
               discharged
             </span>
           </div>
@@ -75,13 +75,11 @@ export default function Home() {
               →
             </span>
           </div>
-          <h2 className="mt-4 text-lg font-black text-teal-950 dark:text-teal-50">
-            คิวตรวจ
-          </h2>
-          <p className="mt-2 text-sm font-medium text-teal-900 dark:text-teal-200">
+          <h2 className="mt-4 text-lg font-black text-teal-950">คิวตรวจ</h2>
+          <p className="mt-2 text-sm font-semibold text-teal-900">
             เรียกคิว บันทึกการตรวจ ดูตำแหน่งปัจจุบันของผู้ป่วย
           </p>
-          <div className="mt-4 flex items-center gap-1.5 text-[11px] font-bold text-teal-800 dark:text-teal-300">
+          <div className="mt-4 flex items-center gap-1.5 text-[11px] font-bold text-teal-800">
             <span>📍 กรองตามจุดรักษา</span>
             <span className="text-teal-400">·</span>
             <span>🛣️ กรองตาม Pathway</span>
@@ -101,20 +99,20 @@ export default function Home() {
               →
             </span>
           </div>
-          <h2 className="mt-4 text-lg font-bold text-zinc-950 dark:text-zinc-50">
+          <h2 className="mt-4 text-lg font-bold text-zinc-950">
             ลงทะเบียนผู้ป่วยใหม่
           </h2>
-          <p className="mt-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <p className="mt-2 text-sm font-semibold text-zinc-700">
             กรอกข้อมูลเบื้องต้น ระบบจะออกรหัส P0001, P0002 ให้อัตโนมัติ
           </p>
           <div className="mt-4 flex flex-wrap gap-1.5">
-            <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+            <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-bold text-zinc-700">
               ชื่อ-อาการ
             </span>
-            <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+            <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-bold text-zinc-700">
               เพศ/อายุ
             </span>
-            <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+            <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-bold text-zinc-700">
               เบอร์โทร
             </span>
           </div>
@@ -144,20 +142,23 @@ export default function Home() {
       <section className="mt-12">
         <Link
           href="/patient-view"
+          target="_blank"
+          rel="noopener noreferrer"
           className="group flex items-center gap-4 rounded-2xl border-2 border-dashed border-teal-300 bg-linear-to-r from-teal-50/50 via-emerald-50/50 to-cyan-50/50 p-5 transition hover:border-teal-400 hover:from-teal-50 hover:via-emerald-50 hover:to-cyan-50 hover:shadow-md dark:border-teal-700 dark:from-teal-950/30 dark:via-emerald-950/20 dark:to-cyan-950/30 dark:hover:border-teal-600"
         >
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-500 text-2xl text-white shadow-md shadow-teal-500/30">
             🧑‍⚕️
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-base font-black text-teal-950 dark:text-teal-100">
+            <p className="text-base font-black text-teal-950">
               หน้าสำหรับผู้ป่วย
               <span className="ml-2 inline-flex items-center rounded-full bg-teal-500 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
                 Kiosk
               </span>
             </p>
-            <p className="mt-0.5 text-sm font-semibold text-teal-800 dark:text-teal-300">
-              ผู้ป่วยสามารถดูสถานะคิวและลำดับขั้นตอนของตัวเองได้ — กรอกรหัส P0001 เพื่อทดลอง
+            <p className="mt-0.5 text-sm font-semibold text-teal-800">
+              ผู้ป่วยสามารถดูสถานะคิวและลำดับขั้นตอนของตัวเองได้ — กรอกรหัส
+              P0001 เพื่อทดลอง
             </p>
           </div>
           <span className="text-2xl text-teal-500 transition group-hover:translate-x-1 dark:text-teal-400">
@@ -169,7 +170,8 @@ export default function Home() {
       {/* ─── footer ──────────────────────────────────── */}
       <footer className="mt-16 text-center">
         <p className="text-xs font-medium text-zinc-500 dark:text-zinc-500">
-          Hospital Carepath · ติดตามดูแลผู้ป่วยอย่างต่อเนื่อง ตั้งแต่ลงทะเบียนจนกลับบ้าน
+          Hospital Carepath · ติดตามดูแลผู้ป่วยอย่างต่อเนื่อง
+          ตั้งแต่ลงทะเบียนจนกลับบ้าน
         </p>
       </footer>
     </main>
@@ -193,12 +195,8 @@ function FeatureChip({
         {icon}
       </span>
       <div className="min-w-0">
-        <p className="text-sm font-extrabold text-zinc-950 dark:text-zinc-50">
-          {label}
-        </p>
-        <p className="mt-0.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">
-          {sub}
-        </p>
+        <p className="text-sm font-extrabold text-zinc-950">{label}</p>
+        <p className="mt-0.5 text-xs font-semibold text-zinc-600">{sub}</p>
       </div>
     </div>
   );

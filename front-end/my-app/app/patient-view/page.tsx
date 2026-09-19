@@ -53,7 +53,7 @@ export default function PatientViewEntryPage() {
       {/* ─── form ──────────────────────────────── */}
       <section className="mt-6 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <label className="block">
-          <span className="text-sm font-black text-zinc-900 dark:text-zinc-50">
+          <span className="text-sm font-black text-zinc-900">
             รหัสผู้ป่วย
           </span>
           <div className="mt-2">
@@ -72,7 +72,7 @@ export default function PatientViewEntryPage() {
             />
           </div>
         </label>
-        <p className="mt-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+        <p className="mt-3 text-xs font-semibold text-zinc-600">
           รหัสผู้ป่วยอยู่บนบัตรคิวหรือเอกสารลงทะเบียนของคุณ
         </p>
       </section>
@@ -118,10 +118,10 @@ function InfoChip({
         {icon}
       </span>
       <div className="min-w-0">
-        <p className="text-sm font-extrabold text-zinc-950 dark:text-zinc-50">
+        <p className="text-sm font-extrabold text-zinc-950">
           {title}
         </p>
-        <p className="mt-0.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+        <p className="mt-0.5 text-xs font-semibold text-zinc-600">
           {desc}
         </p>
       </div>

@@ -199,7 +199,7 @@ export default function PatientListPage() {
             styles={{ image: { height: 80 } }}
             description={
               <div>
-                <p className="text-base font-medium text-zinc-900 dark:text-zinc-100">
+                <p className="text-base font-semibold text-zinc-900">
                   ยังไม่มีผู้ป่วยในระบบ
                 </p>
                 <p className="text-sm text-zinc-500">
@@ -257,7 +257,7 @@ export default function PatientListPage() {
           {visible.length === 0 ? (
             <Empty
               description={
-                <span className="text-zinc-600 dark:text-zinc-400">
+                  <span className="text-zinc-600">
                   ไม่พบผู้ป่วยที่ตรงกับเงื่อนไข
                 </span>
               }
@@ -287,10 +287,10 @@ export default function PatientListPage() {
                           {initials(p.name)}
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                          <p className="truncate text-sm font-bold text-zinc-900">
                             {p.name}
                           </p>
-                          <p className="font-mono text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                          <p className="font-mono text-xs font-semibold text-zinc-600">
                             {p.id}
                           </p>
                         </div>
@@ -303,18 +303,18 @@ export default function PatientListPage() {
 
                     {/* meta */}
                     <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
-                      <dt className="text-zinc-600 dark:text-zinc-400">เพศ</dt>
-                      <dd className="font-medium text-zinc-900 dark:text-zinc-50">
+                      <dt className="font-medium text-zinc-600">เพศ</dt>
+                      <dd className="font-semibold text-zinc-900">
                         {p.gender || "—"}
                       </dd>
-                      <dt className="text-zinc-600 dark:text-zinc-400">อายุ</dt>
-                      <dd className="font-medium text-zinc-900 dark:text-zinc-50">
+                      <dt className="font-medium text-zinc-600">อายุ</dt>
+                      <dd className="font-semibold text-zinc-900">
                         {p.age != null ? `${p.age} ปี` : "—"}
                       </dd>
                       {p.phone && (
                         <>
-                          <dt className="text-zinc-600 dark:text-zinc-400">โทร</dt>
-                          <dd className="font-mono font-medium text-zinc-900 dark:text-zinc-50">
+                          <dt className="font-medium text-zinc-600">โทร</dt>
+                          <dd className="font-mono font-semibold text-zinc-900">
                             {p.phone}
                           </dd>
                         </>
@@ -323,7 +323,7 @@ export default function PatientListPage() {
 
                     {/* symptom */}
                     {p.symptom && (
-                      <p className="mt-3 line-clamp-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-300">
+                      <p className="mt-3 line-clamp-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm font-medium text-zinc-700">
                         <span className="mr-1.5">💬</span>
                         {p.symptom}
                       </p>
@@ -349,8 +349,8 @@ export default function PatientListPage() {
             </ul>
           )}
 
-          <p className="mt-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
-            แสดง <span className="font-semibold text-zinc-900 dark:text-zinc-50">{visible.length}</span> จาก <span className="font-semibold text-zinc-900 dark:text-zinc-50">{patients.length}</span> คน
+          <p className="mt-6 text-center text-sm font-medium text-zinc-600">
+            แสดง <span className="font-semibold text-zinc-900">{visible.length}</span> จาก <span className="font-semibold text-zinc-900">{patients.length}</span> คน
           </p>
         </>
       )}

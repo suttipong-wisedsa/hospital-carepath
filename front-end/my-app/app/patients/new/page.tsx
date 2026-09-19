@@ -65,12 +65,12 @@ export default function NewPatientPage() {
         <p className="text-xs font-semibold tracking-widest uppercase text-teal-700 dark:text-teal-400">
           Hospital Carepath · Frontend
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-900">
           ลงทะเบียนผู้ป่วยใหม่
         </h1>
-        <p className="mt-3 text-base text-zinc-700 dark:text-zinc-300">
+        <p className="mt-3 text-base font-medium text-zinc-700">
           กรอกข้อมูลด้านล่างแล้วกดบันทึก — ระบบจะ POST ไปยัง{" "}
-          <code className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-sm font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+          <code className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-sm font-bold text-zinc-900">
             POST /patients
           </code>
         </p>
@@ -154,26 +154,26 @@ export default function NewPatientPage() {
       {/* success card */}
       {created && (
         <Card
-          className="mt-6 border-emerald-300! bg-emerald-50! dark:border-emerald-900 dark:bg-emerald-950!"
+          className="mt-6 border-emerald-300! bg-emerald-50!"
           styles={{ body: { padding: 20 } }}
         >
-          <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-100">
+          <div className="flex items-center gap-2 text-emerald-800">
             <CheckCircleOutlined style={{ fontSize: 20 }} />
             <p className="text-lg font-semibold">ลงทะเบียนสำเร็จ</p>
           </div>
           <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-            <dt className="text-emerald-700 dark:text-emerald-400">
+            <dt className="font-semibold text-emerald-700">
               รหัสผู้ป่วย
             </dt>
-            <dd className="font-mono font-semibold text-emerald-900 dark:text-emerald-50">
+            <dd className="font-mono font-bold text-emerald-900">
               {created.id}
             </dd>
-            <dt className="text-emerald-700 dark:text-emerald-400">ชื่อ</dt>
-            <dd className="font-semibold text-emerald-900 dark:text-emerald-50">
+            <dt className="font-semibold text-emerald-700">ชื่อ</dt>
+            <dd className="font-bold text-emerald-900">
               {created.name}
             </dd>
-            <dt className="text-emerald-700 dark:text-emerald-400">สถานะ</dt>
-            <dd className="font-medium text-emerald-900 dark:text-emerald-50">
+            <dt className="font-semibold text-emerald-700">สถานะ</dt>
+            <dd className="font-bold text-emerald-900">
               {created.status}
             </dd>
           </dl>
@@ -206,7 +206,7 @@ export default function NewPatientPage() {
         </Link>
       </div>
 
-      <p className="mt-6 text-center text-sm font-medium text-zinc-600 dark:text-zinc-400">
+      <p className="mt-6 text-center text-sm font-semibold text-zinc-600">
         หากเจอ CORS error ตอนรัน ให้เปิด CORS middleware ที่ backend หรือใช้
         Next.js proxy
       </p>

@@ -260,10 +260,10 @@ export default function AssignPathwayPage() {
             📋
           </span>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+            <h2 className="text-lg font-semibold text-zinc-900">
               เลือกแม่แบบ Care Pathway
             </h2>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="mt-1 text-sm text-zinc-600">
               เลือก 1 แม่แบบ — ระบบจะสร้าง visit และขั้นตอนให้อัตโนมัติ
             </p>
           </div>
@@ -272,7 +272,7 @@ export default function AssignPathwayPage() {
         {templates.length === 0 ? (
           <Empty
             description={
-              <span className="text-zinc-600 dark:text-zinc-400">
+                <span className="text-zinc-600">
                 ไม่มีแม่แบบในระบบ
               </span>
             }
@@ -311,19 +311,19 @@ export default function AssignPathwayPage() {
                           className={`text-base font-semibold ${
                             selected
                               ? palette.accent
-                              : "text-zinc-900 dark:text-zinc-50"
+                              : "text-zinc-900"
                           }`}
                         >
                           {tpl.name}
                         </h3>
-                        <p className="mt-0.5 font-mono text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                        <p className="mt-0.5 font-mono text-xs font-semibold text-zinc-600">
                           {tpl.code}
                         </p>
                       </div>
                     </div>
 
                     {tpl.description && (
-                      <p className="mt-2 line-clamp-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      <p className="mt-2 line-clamp-2 text-sm font-medium text-zinc-700">
                         {tpl.description}
                       </p>
                     )}
@@ -332,7 +332,7 @@ export default function AssignPathwayPage() {
                       <Tag className="m-0!" color={selected ? "default" : undefined}>
                         {tpl.stages.length} ขั้นตอน
                       </Tag>
-                      <span className="line-clamp-1 font-medium text-zinc-600 dark:text-zinc-400">
+                      <span className="line-clamp-1 font-medium text-zinc-600">
                         {tpl.stages.slice(0, 3).join(" → ")}
                         {tpl.stages.length > 3 && " …"}
                       </span>
@@ -353,10 +353,10 @@ export default function AssignPathwayPage() {
               👁️
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              <h2 className="text-lg font-semibold text-zinc-900">
                 ตัวอย่างขั้นตอน
               </h2>
-              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              <p className="mt-1 text-sm text-zinc-600">
                 ระบบจะสร้าง visit และ visit_step ตามลำดับนี้
               </p>
             </div>
@@ -364,11 +364,11 @@ export default function AssignPathwayPage() {
 
           {selectedTemplate ? (
             <>
-              <div className="rounded-xl border border-emerald-200 bg-linear-to-r from-emerald-50 to-teal-50 p-4 dark:border-emerald-900 dark:from-emerald-950/40 dark:to-teal-950/40">
-                <p className="text-base font-semibold text-emerald-900 dark:text-emerald-200">
+              <div className="rounded-xl border border-emerald-700 bg-emerald-100 p-4">
+                <p className="text-base font-bold text-emerald-950">
                   {selectedTemplate.name}
                 </p>
-                <p className="mt-0.5 font-mono text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                <p className="mt-0.5 font-mono text-xs font-bold text-emerald-700">
                   {selectedTemplate.code}
                 </p>
               </div>
@@ -380,12 +380,12 @@ export default function AssignPathwayPage() {
                   current={selectedTemplate.stages.length - 1}
                   items={selectedTemplate.stages.map((stage: string, idx: number) => ({
                     title: (
-                      <span className="font-semibold text-zinc-900 dark:text-zinc-50">
+                      <span className="font-bold text-zinc-950">
                         {stage}
                       </span>
                     ),
                     description: (
-                      <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                      <span className="text-xs font-semibold text-zinc-600">
                         ขั้นตอนที่ {idx + 1} จาก {selectedTemplate.stages.length}
                       </span>
                     ),
@@ -398,11 +398,11 @@ export default function AssignPathwayPage() {
               </div>
             </>
           ) : (
-            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-10 text-center dark:border-zinc-700 dark:bg-zinc-800/40">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 text-2xl dark:bg-zinc-800">
+            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-10 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 text-2xl">
                 👆
               </div>
-              <p className="mt-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+              <p className="mt-3 text-sm font-semibold text-zinc-700">
                 เลือกแม่แบบด้านบนเพื่อดูตัวอย่าง
               </p>
             </div>
@@ -415,10 +415,10 @@ export default function AssignPathwayPage() {
               ⚠️
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              <h2 className="text-lg font-semibold text-zinc-900">
                 เงื่อนไขพิเศษ
               </h2>
-              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              <p className="mt-1 text-sm text-zinc-600">
                 เพิ่ม tag ที่ต้องระวังในการดูแล
               </p>
             </div>
@@ -464,7 +464,7 @@ export default function AssignPathwayPage() {
           )}
 
           <div className="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-700">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-700">
               ตัวเลือกด่วน
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -482,7 +482,7 @@ export default function AssignPathwayPage() {
                 )
               )}
               {conditions.length === 0 && QUICK_CONDITIONS.length > 0 && (
-                <span className="self-center text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                <span className="self-center text-xs font-semibold text-zinc-600">
                   พิมพ์เองหรือเลือกจากด้านบน
                 </span>
               )}

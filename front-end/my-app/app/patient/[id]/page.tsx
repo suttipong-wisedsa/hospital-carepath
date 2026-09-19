@@ -270,10 +270,10 @@ export default function PatientDetailPage() {
               </div>
 
               <div className="pb-1">
-                <Text className="text-xs! font-bold! uppercase! tracking-[0.2em]! text-zinc-700! dark:text-zinc-300!">
+                <Text className="text-xs! font-bold! uppercase! tracking-[0.2em]! text-zinc-700!">
                   รหัสผู้ป่วย
                 </Text>
-                <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl dark:text-zinc-50">
+                <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">
                   {patient.name}
                 </h1>
                 <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-sm">
@@ -311,7 +311,7 @@ export default function PatientDetailPage() {
                 {statusCfg.label}
               </Tag>
               {patient.updated_at && (
-                <Text className="text-sm! font-medium! text-zinc-700! dark:text-zinc-300!">
+                <Text className="text-sm! font-semibold! text-zinc-700!">
                   อัปเดตล่าสุด {formatDateTime(patient.updated_at)}
                 </Text>
               )}
@@ -327,12 +327,12 @@ export default function PatientDetailPage() {
             🔄
           </span>
           <div className="flex-1">
-            <h2 className="text-xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50">
+            <h2 className="text-xl font-extrabold tracking-tight text-zinc-950">
               อัปเดตสถานะ
             </h2>
-            <Text className="mt-1 block text-sm! text-zinc-600! dark:text-zinc-400!">
+            <Text className="mt-1 block text-sm! font-medium! text-zinc-600!">
               เปลี่ยนสถานะผู้ป่วย —{" "}
-              <code className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-sm font-bold text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+              <code className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-sm font-bold text-zinc-900">
                 PATCH /patients/{patient.id}/status
               </code>
             </Text>
@@ -381,7 +381,7 @@ export default function PatientDetailPage() {
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-lg dark:bg-sky-950">
               👤
             </span>
-            <h2 className="text-xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50">
+            <h2 className="text-xl font-extrabold tracking-tight text-zinc-950">
               ข้อมูลส่วนตัว
             </h2>
           </div>
@@ -415,16 +415,16 @@ export default function PatientDetailPage() {
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-lg dark:bg-amber-950">
               💬
             </span>
-            <h2 className="text-xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50">
+            <h2 className="text-xl font-extrabold tracking-tight text-zinc-950">
               อาการเบื้องต้น
             </h2>
           </div>
           {patient.symptom ? (
-            <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium leading-relaxed text-zinc-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-zinc-100">
+            <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-relaxed text-zinc-900">
               {patient.symptom}
             </p>
           ) : (
-            <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm font-medium text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/40 dark:text-zinc-400">
+            <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm font-semibold text-zinc-600">
               ไม่มีข้อมูลอาการ
             </div>
           )}
@@ -435,7 +435,7 @@ export default function PatientDetailPage() {
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-lg dark:bg-rose-950">
               ⚠️
             </span>
-            <h2 className="text-xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50">
+            <h2 className="text-xl font-extrabold tracking-tight text-zinc-950">
               เงื่อนไขพิเศษ
             </h2>
           </div>
@@ -455,7 +455,7 @@ export default function PatientDetailPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm font-medium text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/40 dark:text-zinc-400">
+            <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm font-semibold text-zinc-600">
               ไม่มีเงื่อนไขพิเศษ
             </div>
           )}
@@ -470,10 +470,10 @@ export default function PatientDetailPage() {
               🛣️
             </span>
             <div>
-              <h2 className="text-xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50">
+              <h2 className="text-xl font-extrabold tracking-tight text-zinc-950">
                 Care Pathway · ตำแหน่งปัจจุบัน
               </h2>
-              <Text className="mt-1 block text-sm! text-zinc-700! dark:text-zinc-300!">
+              <Text className="mt-1 block text-sm! font-semibold! text-zinc-700!">
                 {pathway?.visit
                   ? `Visit #${pathway.visit.id} · ${pathway.visit.completed_steps}/${pathway.visit.total_steps} ผ่านแล้ว`
                   : "ลำดับขั้นตอนการดูแลผู้ป่วยตามแม่แบบ"}
@@ -491,13 +491,13 @@ export default function PatientDetailPage() {
 
         {pathway?.pathway_template ? (
           <>
-            <div className="rounded-xl border border-teal-300 bg-linear-to-r from-teal-50 to-emerald-50 p-4 dark:border-teal-900 dark:from-teal-950/40 dark:to-emerald-950/40">
+            <div className="rounded-xl border border-teal-500 bg-linear-to-r from-teal-50 to-emerald-50 p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p className="text-lg font-bold text-teal-900 dark:text-teal-100">
+                  <p className="text-lg font-black text-teal-950">
                     {pathway.pathway_template.name}
                   </p>
-                  <p className="mt-0.5 font-mono text-sm font-semibold text-teal-800 dark:text-teal-300">
+                  <p className="mt-0.5 font-mono text-sm font-bold text-teal-800">
                     {pathway.pathway_template.code}
                   </p>
                 </div>
@@ -522,7 +522,7 @@ export default function PatientDetailPage() {
                 )}
               </div>
               {pathway.pathway_template.description && (
-                <p className="mt-2 text-sm font-medium leading-relaxed text-teal-900 dark:text-teal-100">
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-teal-900">
                   {pathway.pathway_template.description}
                 </p>
               )}
@@ -530,20 +530,20 @@ export default function PatientDetailPage() {
 
             {/* ─── ตำแหน่งปัจจุบัน highlight ───────────── */}
             {pathway.visit?.current_step && (
-              <div className="mt-4 rounded-xl border-2 border-teal-400 bg-linear-to-br from-teal-50 via-emerald-50 to-cyan-50 p-4 shadow-sm dark:border-teal-700 dark:from-teal-950/40 dark:via-emerald-950/30 dark:to-cyan-950/30">
+              <div className="mt-4 rounded-xl border-2 border-teal-500 bg-linear-to-br from-teal-50 via-emerald-50 to-cyan-50 p-4 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal-500 text-2xl text-white shadow-md ring-4 ring-teal-200 dark:ring-teal-900">
                       📍
                     </span>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">
+                      <p className="text-xs font-bold uppercase tracking-wider text-teal-700">
                         ขณะนี้อยู่ที่
                       </p>
-                      <p className="mt-1 text-xl font-black text-teal-950 dark:text-teal-50">
+                      <p className="mt-1 text-xl font-black text-teal-950">
                         {pathway.visit.current_step.stage}
                       </p>
-                      <p className="mt-0.5 text-sm font-semibold text-teal-800 dark:text-teal-200">
+                      <p className="mt-0.5 text-sm font-bold text-teal-800">
                         ขั้นตอนที่{" "}
                         <span className="font-bold">
                           {pathway.visit.current_step.step_order}
@@ -574,7 +574,7 @@ export default function PatientDetailPage() {
                       </Tag>
                     )}
                     {pathway.visit.current_step.started_at && (
-                      <span className="text-xs font-semibold text-teal-700 dark:text-teal-300">
+                      <span className="text-xs font-bold text-teal-700">
                         เริ่ม{" "}
                         {new Date(
                           pathway.visit.current_step.started_at
@@ -590,10 +590,10 @@ export default function PatientDetailPage() {
                 {/* progress bar */}
                 <div className="mt-4">
                   <div className="flex items-center justify-between text-xs font-bold">
-                    <span className="text-teal-700 dark:text-teal-300">
+                    <span className="text-teal-700">
                       ความคืบหน้า
                     </span>
-                    <span className="font-mono text-teal-900 dark:text-teal-100">
+                    <span className="font-mono text-teal-900">
                       {pathway.visit.completed_steps}/{pathway.visit.total_steps}{" "}
                       ·{" "}
                       {Math.round(
@@ -655,7 +655,7 @@ export default function PatientDetailPage() {
 
             {/* ─── ลำดับขั้นตอนทั้งหมด ───────────────────── */}
             <div className="mt-5">
-              <p className="mb-3 text-sm font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
+              <p className="mb-3 text-sm font-bold uppercase tracking-wider text-zinc-800">
                 ลำดับขั้นตอนทั้งหมด
               </p>
               {pathway.visit?.steps && pathway.visit.steps.length > 0 ? (
@@ -716,25 +716,25 @@ export default function PatientDetailPage() {
                             <span
                               className={`text-sm ${
                                 step.status === "pending"
-                                  ? "font-medium text-zinc-500 dark:text-zinc-400"
-                                  : "font-bold text-zinc-950 dark:text-zinc-50"
+                                  ? "font-semibold text-zinc-700"
+                                  : "font-bold text-zinc-950"
                               }`}
                             >
                               {step.stage}
                             </span>
                             {isCurrent && step.status === "in_progress" && (
-                              <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+                              <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-teal-800">
                                 กำลังตรวจ
                               </span>
                             )}
                             {isCurrent && step.status === "pending" && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
                                 รอเรียก
                               </span>
                             )}
                           </div>
                           {step.completed_at && (
-                            <p className="mt-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                            <p className="mt-0.5 text-xs font-bold text-emerald-700">
                               ✓ ผ่านเมื่อ{" "}
                               {new Date(step.completed_at).toLocaleTimeString(
                                 "th-TH",
@@ -743,7 +743,7 @@ export default function PatientDetailPage() {
                             </p>
                           )}
                           {step.notes && (
-                            <p className="mt-1 rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                            <p className="mt-1 rounded-md bg-zinc-100 px-2 py-1 text-xs font-semibold text-zinc-700">
                               💬 {step.notes}
                             </p>
                           )}
@@ -760,14 +760,14 @@ export default function PatientDetailPage() {
                   items={pathway.pathway_template.stages.map(
                     (stage, idx) => ({
                       title: (
-                        <span className="text-base font-bold text-zinc-950 dark:text-zinc-50">
+                        <span className="text-base font-bold text-zinc-950">
                           {stage}
                         </span>
                       ),
                       description: (
-                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        <span className="text-sm font-semibold text-zinc-700">
                           ขั้นตอนที่ {idx + 1} จาก{" "}
-                          <span className="font-bold text-zinc-900 dark:text-zinc-50">
+                          <span className="font-bold text-zinc-900">
                             {pathway.pathway_template!.stages.length}
                           </span>
                         </span>
@@ -784,10 +784,10 @@ export default function PatientDetailPage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-teal-100 text-3xl dark:bg-teal-950">
               🛣️
             </div>
-            <p className="mt-3 text-lg font-bold text-zinc-800 dark:text-zinc-100">
+            <p className="mt-3 text-lg font-bold text-zinc-800">
               ยังไม่ได้กำหนด Care Pathway
             </p>
-            <Text className="mt-1 block text-sm! text-zinc-700! dark:text-zinc-300!">
+            <Text className="mt-1 block text-sm! font-semibold! text-zinc-700!">
               เลือกแม่แบบเพื่อกำหนดลำดับขั้นตอนการดูแล
             </Text>
             <Link href={`/patient/${patient.id}/pathway`}>
@@ -799,7 +799,7 @@ export default function PatientDetailPage() {
         )}
       </Card>
 
-      <Text className="mx-auto mt-8 block text-center text-sm! font-semibold! text-zinc-600! dark:text-zinc-400!">
+      <Text className="mx-auto mt-8 block text-center text-sm! font-semibold! text-zinc-600!">
         ข้อมูลจาก GET /patients/{patient.id}
       </Text>
     </main>
@@ -821,15 +821,15 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zinc-200 text-base font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zinc-200 text-base font-bold text-zinc-700">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-bold uppercase tracking-wide text-zinc-700 dark:text-zinc-300">
+        <p className="text-xs font-bold uppercase tracking-wide text-zinc-700">
           {label}
         </p>
         <p
-          className={`truncate text-sm font-bold text-zinc-900 dark:text-zinc-50 ${mono ? "font-mono" : ""}`}
+          className={`truncate text-sm font-bold text-zinc-900 ${mono ? "font-mono" : ""}`}
         >
           {value}
         </p>
