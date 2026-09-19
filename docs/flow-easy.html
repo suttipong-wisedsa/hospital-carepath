@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hospital Carepath — อธิบายง่ายๆ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #fffaf3;
+      --surface: #ffffff;
+      --surface-2: #fff4e3;
+      --border: #f3e4cb;
+      --text: #2b2418;
+      --text-2: #5b4f3d;
+      --text-3: #8a7e6b;
+      --primary: #c2410c;
+      --primary-soft: #ffedd5;
+      --accent: #0d9488;
+      --accent-soft: #ccfbf1;
+      --success: #16a34a;
+      --warning: #ca8a04;
+      --code-bg: #2b2418;
+      --code-text: #fef3c7;
+      --shadow: 0 1px 3px rgba(180, 130, 60, 0.08), 0 6px 18px rgba(180, 130, 60, 0.05);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sarabun', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 24px 20px 80px;
+    }
+
+    header.hero {
+      background: linear-gradient(135deg, #fb923c 0%, #ea580c 60%, #c2410c 100%);
+      color: white;
+      padding: 48px 32px;
+      border-radius: 20px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+    header.hero .tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      backdrop-filter: blur(4px);
+    }
+    header.hero h1 {
+      font-size: 28px;
+      margin: 0 0 10px;
+      font-weight: 700;
+    }
+    header.hero p {
+      margin: 0;
+      font-size: 16px;
+      opacity: 0.95;
+    }
+
+    /* ---------- Story card ---------- */
+    .story {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .story::before {
+      content: attr(data-step);
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      font-size: 90px;
+      font-weight: 700;
+      color: var(--primary-soft);
+      opacity: 0.5;
+      line-height: 1;
+    }
+    .story .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .story h2 {
+      font-size: 22px;
+      margin: 0 0 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .story .analogy {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin: 14px 0;
+      font-size: 15px;
+      color: #134e4a;
+    }
+    .story .analogy strong {
+      color: var(--accent);
+    }
+    .story p { margin: 8px 0; }
+    .story .flow-text {
+      background: var(--surface-2);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+
+    /* ---------- API endpoint pill ---------- */
+    .api-pill {
+      display: inline-block;
+      font-family: 'Sarabun', monospace;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      margin: 6px 4px 6px 0;
+    }
+    .api-pill .verb {
+      color: #fbbf24;
+      margin-right: 6px;
+    }
+
+    /* ---------- Compare table ---------- */
+    .compare {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    .compare th, .compare td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare th {
+      background: var(--surface-2);
+      font-weight: 600;
+      color: var(--text-2);
+    }
+    .compare td:first-child { font-weight: 500; }
+
+    /* ---------- Big picture summary ---------- */
+    .bigpic {
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+    }
+    .bigpic h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+    .bigpic ol {
+      margin: 0;
+      padding-left: 22px;
+    }
+    .bigpic ol li {
+      margin: 8px 0;
+      font-size: 15px;
+    }
+    .bigpic ol li code {
+      background: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+    }
+
+    /* ---------- Timeline visual ---------- */
+    .timeline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .tl-step {
+      flex: 1 1 110px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      text-align: center;
+      position: relative;
+    }
+    .tl-step.done { background: #dcfce7; border-color: #86efac; }
+    .tl-step.now  { background: #fef3c7; border-color: #fcd34d; font-weight: 600; }
+    .tl-step .n { font-size: 11px; color: var(--text-3); }
+
+    footer.foot {
+      text-align: center;
+      color: var(--text-3);
+      font-size: 13px;
+      margin-top: 32px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="tag">📖 อธิบายง่ายๆ · ไม่ใช้ศัพท์เทคนิค</span>
+    <h1>Hospital Carepath ทำงานยังไง?</h1>
+    <p>เปรียบเทียบกับการไปโรงพยาบาลจริงๆ ให้เห็นภาพ</p>
+  </header>
+
+  <!-- ============ BIG PICTURE ============ -->
+  <section class="bigpic">
+    <h2>🗺️ ภาพรวมทั้งหมด (อ่านก่อน)</h2>
+    <p style="margin: 0 0 10px;">ระบบทำงานเป็น <strong>4 ขั้นตอนต่อผู้ป่วย 1 คน</strong> ตั้งแต่เดินเข้าโรงพยาบาลจนกลับบ้าน:</p>
+    <ol>
+      <li>เดินเข้ามา → <code>POST /patients</code> (ลงทะเบียน)</li>
+      <li>หมอตรวจเสร็จ → <code>PATCH /patients/{id}/pathway</code> (เลือกแผนการรักษา)</li>
+      <li>พยาบาล/หมอต้องดูสถานะ → <code>GET /patients/{id}/pathway</code> (ดูขั้นตอนปัจจุบัน)</li>
+      <li>ทำเสร็จแต่ละขั้น → <code>PATCH /visits/{id}/steps/{n}</code> (ติ๊กว่าเสร็จ)</li>
+    </ol>
+  </section>
+
+  <!-- ============ FLOW 1 ============ -->
+  <article class="story" data-step="1">
+    <span class="label">ขั้นที่ 1 · ลงทะเบียน</span>
+    <h2>🚪 เดินเข้าโรงพยาบาล กรอกประวัติที่เคาน์เตอร์</h2>
+
+    <div class="analogy">
+      <strong>เปรียบเหมือน:</strong> คุณเดินเข้าโรงพยาบาล ไปยื่นบัตรประชาชนที่เคาน์เตอร์
+      พนักงานถามชื่อ อาการ เบอร์โทร แล้วออกบัตรคิวให้ (เช่น <strong>A023</strong>)
+    </div>
+
+    <p><strong>ระบบทำอะไร:</strong></p>
+    <ul>
+      <li>รับชื่อ อาการ เบอร์โทรจากผู้ป่วย</li>
+      <li>สร้างรหัสผู้ป่วยอัตโนมัติ (เช่น <code>P0002</code>) — เหมือนบัตรคิว</li>
+      <li>บันทึกสถานะเริ่มต้น = <strong>"admitted"</strong> (เพิ่งมาถึง)</li>
+      <li><strong>ยังไม่รู้ว่าต้องรักษาอะไร</strong> — รอหมอตรวจ</li>
+    </ul>
+
+    <div class="flow-text">
+      <strong>ผลลัพธ์:</strong> ผู้ป่วย P0002 อยู่ในระบบแล้ว แต่ยังไม่มีแผนการรักษา
+    </div>
+
+    <div>
+      <span class="api-pill"><span class="verb">POST</span>/patients</span>
+    </div>
+  </article>
+
+  <!-- ============ FLOW 2 ============ -->
+  <article class="story" data-step="2">
+    <span class="label">ขั้นที่ 2 · เลือกแผนการรักษา</span>
+    <h2>🩺 หมอตรวจเสร็จ เลือกแผนว่าต้องทำอะไรบ้าง</h2>
+
+    <div class="analogy">
+      <strong>เปรียบเหมือน:</strong> หมอตรวจเสร็จแล้วบอกว่า "คุณเป็นเบาหวาน ต้องติดตามอาการ"
+      แล้วหมอเปิด <strong>"แผนติดตามเบาหวาน"</strong> ซึ่งระบุไว้แล้วว่า
+      <em>ต้องเจาะเลือด → เช็คเท้า → พบหมอ → รับยา → กลับบ้าน</em>
+    </div>
+
+    <p><strong>ระบบทำอะไร:</strong></p>
+    <ul>
+      <li>Frontend ส่ง <code>template_code: "diabetic_followup"</code> มาบอก</li>
+      <li>Backend เปิดแผนนี้ในฐานข้อมูล → เห็นว่ามี <strong>7 ขั้นตอน</strong></li>
+      <li>ระบบสร้าง "Visit" ใหม่ (เหมือนเปิดครั้งใหม่ของการรักษา)</li>
+      <li>ระบบสร้าง "VisitSteps" ทั้ง 7 ขั้นตอนอัตโนมัติ สถานะเริ่มต้น <strong>"pending"</strong> (รอทำ)</li>
+      <li>บันทึกหมายเหตุพิเศษ เช่น <code>["fast_required", "wheelchair"]</code> = งดน้ำงดอาหาร + ใช้รถเข็น</li>
+    </ul>
+
+    <div class="flow-text">
+      <strong>ผลลัพธ์:</strong> ตอนนี้ผู้ป่วยมี "ตารางงาน" ชัดเจน — ทุกคนรู้ว่าต้องทำอะไร เรียงลำดับยังไง
+    </div>
+
+    <div>
+      <span class="api-pill"><span class="verb">PATCH</span>/patients/{id}/pathway</span>
+    </div>
+  </article>
+
+  <!-- ============ FLOW 3 ============ -->
+  <article class="story" data-step="3">
+    <span class="label">ขั้นที่ 3 · ดูสถานะ</span>
+    <h2>📺 เปิดจอดูว่าตอนนี้อยู่ขั้นไหน</h2>
+
+    <div class="analogy">
+      <strong>เปรียบเหมือน:</strong> หน้าห้องตรวจมีจอทีวีใหญ่ บอกว่า
+      <em>"P0002 สมชาย — กำลังรอเจาะเลือด"</em>
+      พยาบาลเดินผ่านก็รู้ได้ว่าคนไหนต้องไปทำอะไรต่อ
+    </div>
+
+    <p><strong>ระบบทำอะไร:</strong></p>
+    <ul>
+      <li>Frontend ถาม backend: "ตอนนี้ P0002 อยู่ขั้นไหน?"</li>
+      <li>Backend ดึงข้อมูลจาก 3 ตารางมารวมกัน:
+        <ul>
+          <li>patients → ชื่อ อาการ</li>
+          <li>pathway_templates → แผนการรักษา + ขั้นตอนทั้งหมด</li>
+          <li>visits + visit_steps → สถานะปัจจุบัน</li>
+        </ul>
+      </li>
+      <li>ส่งกลับเป็น JSON ให้ frontend เอาไปวาดเป็นตาราง/การ์ด</li>
+    </ul>
+
+    <div class="flow-text">
+      <strong>ผลลัพธ์:</strong> Frontend ได้ข้อมูลครบ เอาไปแสดงในจอหรือหน้าจอมือถือของหมอ/พยาบาล
+    </div>
+
+    <div>
+      <span class="api-pill"><span class="verb">GET</span>/patients/{id}/pathway</span>
+    </div>
+
+    <h4 style="margin-top: 18px; font-size: 14px; color: var(--text-2);">ตัวอย่าง timeline ที่ frontend อาจวาด:</h4>
+    <div class="timeline">
+      <div class="tl-step done"><div class="n">1</div>ลงทะเบียน</div>
+      <div class="tl-step done"><div class="n">2</div>เช็คชีพจร</div>
+      <div class="tl-step now"><div class="n">3</div>รอเจาะเลือด</div>
+      <div class="tl-step"><div class="n">4</div>พบหมอ</div>
+      <div class="tl-step"><div class="n">5</div>ตรวจเลือด</div>
+      <div class="tl-step"><div class="n">6</div>รักษา</div>
+      <div class="tl-step"><div class="n">7</div>กลับบ้าน</div>
+    </div>
+    <p style="font-size: 13px; color: var(--text-3); margin: 6px 0 0;">
+      🟢 เขียว = เสร็จแล้ว · 🟡 เหลือง = กำลังทำ · ⚪ เทา = รอทำ
+    </p>
+  </article>
+
+  <!-- ============ FLOW 4 ============ -->
+  <article class="story" data-step="4">
+    <span class="label">ขั้นที่ 4 · อัปเดตความคืบหน้า</span>
+    <h2>✅ พยาบาล/หมอติ๊กว่าทำเสร็จขั้นตอนนั้นแล้ว</h2>
+
+    <div class="analogy">
+      <strong>เปรียบเหมือน:</strong> พยาบาลเช็คชีพจรเสร็จ เธอหยิบ Tablet มากด
+      <em>"ขั้นที่ 2 เสร็จแล้ว ใช้เวลา 5 นาที"</em>
+      ระบบก็บันทึกเวลาเริ่ม-เวลาจบ + ชื่อคนทำ + หมายเหตุให้อัตโนมัติ
+    </div>
+
+    <p><strong>ระบบทำอะไร:</strong></p>
+    <ul>
+      <li>รับสถานะใหม่: <code>pending</code> → <code>in_progress</code> → <code>completed</code></li>
+      <li>ถ้าเริ่มทำ → ระบบบันทึกเวลาเริ่มให้อัตโนมัติ (ไม่ต้องกรอกเอง)</li>
+      <li>ถ้าเสร็จ → ระบบบันทึกเวลาจบให้อัตโนมัติ</li>
+      <li>เก็บชื่อคนทำ (<code>performed_by</code>) และหมายเหตุ (<code>notes</code>) เพิ่มเติมได้</li>
+    </ul>
+
+    <div class="flow-text">
+      <strong>ผลลัพธ์:</strong> ผู้ป่วย P0002 ขั้นที่ 2 เปลี่ยนเป็น "completed" ทันที
+      คนอื่นเปิดดูก็เห็นว่าเสร็จแล้ว
+    </div>
+
+    <div>
+      <span class="api-pill"><span class="verb">PATCH</span>/visits/{id}/steps/{stepOrder}</span>
+    </div>
+  </article>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section class="bigpic">
+    <h2>📋 สรุปสั้น — จำแค่นี้ก็พอ</h2>
+    <table class="compare">
+      <thead>
+        <tr><th>เหตุการณ์ในชีวิตจริง</th><th>API ที่ใช้</th><th>เหมือนอะไร</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🟢 ผู้ป่วยเดินเข้ามา</td>
+          <td><code>POST /patients</code></td>
+          <td>กรอกประวัติที่เคาน์เตอร์ รับบัตรคิว</td>
+        </tr>
+        <tr>
+          <td>🟡 หมอเลือกแผนการรักษา</td>
+          <td><code>PATCH /patients/{id}/pathway</code></td>
+          <td>เปิด "คอร์สการรักษา" พร้อมรายการขั้นตอน</td>
+        </tr>
+        <tr>
+          <td>🔵 พยาบาลเปิดดูสถานะ</td>
+          <td><code>GET /patients/{id}/pathway</code></td>
+          <td>ดูจอทีวีหน้าห้องตรวจ</td>
+        </tr>
+        <tr>
+          <td>🟠 ทำเสร็จขั้นตอนหนึ่ง</td>
+          <td><code>PATCH /visits/{id}/steps/{n}</code></td>
+          <td>ติ๊ก checkbox บน Tablet ว่าเสร็จแล้ว</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin: 24px 0 8px; font-size: 17px;">🧠 จุดสังเกต</h3>
+    <ul style="margin: 0; padding-left: 22px;">
+      <li><strong>POST</strong> = สร้างใหม่ · <strong>GET</strong> = ดูอย่างเดียว · <strong>PATCH</strong> = แก้บางส่วน</li>
+      <li>หลังจากเลือกแผน ทุกอย่างทำงานอัตโนมัติ — ไม่ต้องสร้าง Visit/Steps เอง</li>
+      <li>ขั้นตอนทั้งหมดเก็บ "ใครทำ · ทำเมื่อไหร่ · หมายเหตุอะไร" — เพื่อตรวจสอบย้อนหลังได้</li>
+      <li>ผู้ป่วย 1 คนสามารถมีหลาย Visit ได้ (เช่น กลับมาติดตามครั้งใหม่)</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    📖 เอกสารนี้เขียนเพื่อให้คนไม่ใช่โปรแกรมเมอร์เข้าใจระบบ Hospital Carepath ได้
+  </footer>
+
+</div>
+
+</body>
+</html>
