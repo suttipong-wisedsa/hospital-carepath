@@ -1,0 +1,19 @@
+# Binary
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+*.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# Build artifacts
+/bin/
+/dist/
+carepath-server
+hospital-carepath
