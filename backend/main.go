@@ -9,11 +9,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/suttipong/hospital-carepath/config"
+	"github.com/suttipong/hospital-carepath/internal/model"
 	"github.com/suttipong/hospital-carepath/internal/patient"
 )
 
-// config โหลดค่าจาก environment variable (รองรับ .env แบบง่าย)
-type config struct {
+// appConfig โหลดค่าจาก environment variable (รองรับ .env แบบง่าย)
+type appConfig struct {
 	port string
 	db   dbConfig
 }
@@ -50,8 +52,8 @@ func loadEnv(path string) error {
 	return nil
 }
 
-func loadConfig() config {
-	return config{
+func loadConfig() appConfig {
+	return appConfig{
 		port: getenv("PORT", "8080"),
 		db: dbConfig{
 			host:     getenv("DB_HOST", "localhost"),
@@ -114,13 +116,20 @@ func main() {
 
 	cfg := loadConfig()
 
+	// เชื่อมต่อฐานข้อมูล (GORM)
+	config.ConnectDB()
+
+	// สร้าง/อัปเดตตารางจาก model
+	if err := config.DB.AutoMigrate(&model.Patient{}); err != nil {
+		log.Fatalf("db migrate error: %v", err)
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", rootHandler)
 	mux.HandleFunc("/health", healthHandler)
 
-	// ลงทะเบียน patient routes
-	patientStore := patient.NewStore()
-	patient.Seed(patientStore)
+	// ลงทะเบียน patient routes (ใช้ GORM ต่อ DB จริง)
+	patientStore := patient.NewStore(config.DB)
 	patientHandler := patient.NewHandler(patientStore)
 	patientHandler.Register(mux)
 

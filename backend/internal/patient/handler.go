@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+
+	"github.com/suttipong/hospital-carepath/internal/model"
 )
 
 // Handler รับผิดชอบ HTTP routes สำหรับผู้ป่วย
@@ -17,7 +19,7 @@ func NewHandler(store *Store) *Handler {
 	return &Handler{store: store}
 }
 
-// Register ลงทะเชื่อม route ทั้งหมดเข้ากับ mux
+// Register ลงทะเบียน route ทั้งหมดเข้ากับ mux
 func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /patients", h.create)
 	mux.HandleFunc("GET /patients", h.list)
@@ -25,8 +27,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("PATCH /patients/{id}/status", h.updateStatus)
 }
 
-// createRegisterRequest คือ body สำหรับลงทะเบียนผู้ป่วยใหม่
-type createRegisterRequest struct {
+type createRequest struct {
 	Name    string `json:"name"`
 	Gender  string `json:"gender"`
 	Age     int    `json:"age"`
@@ -35,7 +36,7 @@ type createRegisterRequest struct {
 }
 
 func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
-	var req createRegisterRequest
+	var req createRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid JSON body")
 		return
@@ -47,18 +48,27 @@ func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p := h.store.Create(Patient{
+	p := &model.Patient{
 		Name:    name,
 		Gender:  req.Gender,
 		Age:     req.Age,
 		Phone:   req.Phone,
 		Symptom: req.Symptom,
-	})
-	writeJSON(w, http.StatusCreated, p)
+	}
+	created, err := h.store.Create(p)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusCreated, created)
 }
 
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
-	patients := h.store.List()
+	patients, err := h.store.List()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"count":    len(patients),
 		"patients": patients,
