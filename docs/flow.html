@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hospital Carepath — Flow การทำงาน</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --surface: #ffffff;
+      --surface-2: #f0f5fa;
+      --border: #e2eaf2;
+      --text: #1a2b3c;
+      --text-2: #4a5b6e;
+      --text-3: #7a8a9c;
+      --primary: #0f7e8a;
+      --primary-soft: #e0f3f5;
+      --accent: #2563eb;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --purple: #7c3aed;
+      --code-bg: #1e293b;
+      --code-text: #e2e8f0;
+      --shadow: 0 1px 2px rgba(15, 40, 60, 0.04), 0 4px 12px rgba(15, 40, 60, 0.06);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sarabun', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* ---------- Header ---------- */
+    header.page {
+      background: linear-gradient(135deg, #0f7e8a 0%, #0d6b75 50%, #0a5961 100%);
+      color: white;
+      padding: 56px 32px 48px;
+      border-radius: 0 0 24px 24px;
+      margin-bottom: 40px;
+      box-shadow: var(--shadow);
+    }
+    header.page .crumb {
+      font-size: 13px;
+      opacity: 0.75;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    header.page h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      letter-spacing: -0.01em;
+    }
+    header.page .subtitle {
+      font-size: 17px;
+      opacity: 0.9;
+      max-width: 720px;
+      margin: 0;
+    }
+    header.page .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      font-size: 12px;
+      font-weight: 500;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ---------- Section ---------- */
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    section h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0 0 6px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    section .lead {
+      color: var(--text-2);
+      margin: 0 0 22px;
+      font-size: 15px;
+    }
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ---------- Architecture diagram ---------- */
+    .arch {
+      display: grid;
+      gap: 14px;
+    }
+    .arch-layer {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface-2);
+    }
+    .arch-layer-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 10px;
+    }
+    .arch-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .arch-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+    }
+    .arch-box.client { background: #fef3c7; border-color: #fcd34d; }
+    .arch-box.handler { background: #dbeafe; border-color: #93c5fd; }
+    .arch-box.store { background: #ede9fe; border-color: #c4b5fd; }
+    .arch-box.db { background: #d1fae5; border-color: #6ee7b7; }
+
+    .arrow-down {
+      text-align: center;
+      color: var(--text-3);
+      font-size: 20px;
+      line-height: 0.5;
+    }
+
+    /* ---------- Step cards ---------- */
+    .flow-step {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 18px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .flow-step-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+    }
+    .flow-step-head .title {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text);
+    }
+    .flow-step-head .verb {
+      font-size: 12px;
+      color: var(--text-3);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .flow-step-body {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 720px) {
+      .flow-step-body { grid-template-columns: 1fr; }
+    }
+    .flow-step-body h4 {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin: 0 0 10px;
+    }
+
+    /* ---------- Code blocks ---------- */
+    pre.code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.55;
+      overflow-x: auto;
+      margin: 0;
+    }
+    pre.code .k { color: #f472b6; }   /* keyword */
+    pre.code .s { color: #86efac; }   /* string */
+    pre.code .n { color: #fde68a; }   /* number */
+    pre.code .c { color: #64748b; font-style: italic; } /* comment */
+    pre.code .m { color: #93c5fd; }   /* method */
+
+    /* ---------- Schema diagram ---------- */
+    .schema {
+      display: grid;
+      gap: 18px;
+    }
+    .table {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .table-head {
+      background: var(--primary-soft);
+      padding: 10px 14px;
+      font-weight: 600;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .table-rows { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+    .table-rows > div {
+      padding: 6px 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid var(--surface-2);
+    }
+    .table-rows > div:first-child { border-top: 0; }
+    .col-name { color: var(--text); font-weight: 500; }
+    .col-type { color: var(--text-3); }
+    .pk { color: var(--primary); font-weight: 700; }
+    .fk { color: var(--accent); }
+
+    /* ---------- API table ---------- */
+    table.api {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    table.api th, table.api td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    table.api th {
+      background: var(--surface-2);
+      font-weight: 600;
+      color: var(--text-2);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    table.api code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      background: var(--surface-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .method {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+    .method.GET    { background: #dbeafe; color: #1d4ed8; }
+    .method.POST   { background: #d1fae5; color: #047857; }
+    .method.PATCH  { background: #fef3c7; color: #b45309; }
+    .method.DELETE { background: #fee2e2; color: #b91c1c; }
+
+    /* ---------- Highlights ---------- */
+    .highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .highlight {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+    .highlight .icon {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+    .highlight .h-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    .highlight .h-body {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+
+    /* ---------- Footer ---------- */
+    footer.page {
+      text-align: center;
+      color: var(--text-3);
+      font-size: 13px;
+      padding: 20px 0 0;
+    }
+
+    /* ---------- Status pills (legend) ---------- */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .legend .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<header class="page">
+  <div class="container" style="padding-bottom: 0; padding-top: 0;">
+    <div class="crumb">Hospital Carepath · Backend Flow</div>
+    <h1>Flow: สร้างผู้ป่วย → เลือก Care Pathway → ติดตามขั้นตอน</h1>
+    <p class="subtitle">
+      เอกสารอธิบายการทำงานของระบบ Hospital Carepath API ตั้งแต่ลงทะเบียนผู้ป่วย
+      จนถึงการติดตามสถานะแต่ละขั้นตอนของ Care Pathway ผ่าน HTTP API
+    </p>
+    <div class="badges">
+      <span class="badge">🟢 Go + GORM</span>
+      <span class="badge">🐘 PostgreSQL</span>
+      <span class="badge">🌐 RESTful HTTP</span>
+      <span class="badge">📦 JSON</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ============== SECTION 1: ARCHITECTURE ============== -->
+  <section>
+    <h2><span class="step-num">🏛️</span>ภาพรวมสถาปัตยกรรม</h2>
+    <p class="lead">ระบบแบ่งเป็น 4 ชั้น — Client → HTTP Handler → Store (GORM) → Database</p>
+
+    <div class="arch">
+      <div class="arch-layer">
+        <div class="arch-layer-label">Client Layer</div>
+        <div class="arch-row">
+          <div class="arch-box client">Frontend / curl / Postman</div>
+        </div>
+      </div>
+      <div class="arrow-down">▼</div>
+      <div class="arch-layer">
+        <div class="arch-layer-label">HTTP Layer (Handlers)</div>
+        <div class="arch-row">
+          <div class="arch-box handler">patient.Handler</div>
+          <div class="arch-box handler">pathway.Handler</div>
+          <div class="arch-box handler">visit.Handler</div>
+        </div>
+      </div>
+      <div class="arrow-down">▼</div>
+      <div class="arch-layer">
+        <div class="arch-layer-label">Store Layer (GORM)</div>
+        <div class="arch-row">
+          <div class="arch-box store">patient.Store</div>
+          <div class="arch-box store">pathway.Store</div>
+          <div class="arch-box store">visit.Store</div>
+        </div>
+      </div>
+      <div class="arrow-down">▼</div>
+      <div class="arch-layer">
+        <div class="arch-layer-label">Database Layer</div>
+        <div class="arch-row">
+          <div class="arch-box db">patients</div>
+          <div class="arch-box db">pathway_templates</div>
+          <div class="arch-box db">visits</div>
+          <div class="arch-box db">visit_steps</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SECTION 2: FLOW ============== -->
+  <section>
+    <h2><span class="step-num">🩺</span>Flow ทีละขั้นตอน</h2>
+    <p class="lead">4 ขั้นตอนหลักในการนำผู้ป่วยเข้าสู่ Care Pathway</p>
+
+    <!-- Step 1 -->
+    <div class="flow-step">
+      <div class="flow-step-head">
+        <span class="step-num">1</span>
+        <div>
+          <div class="title">ลงทะเบียนผู้ป่วยใหม่</div>
+          <div class="verb">POST /patients</div>
+        </div>
+      </div>
+      <div class="flow-step-body">
+        <div>
+          <h4>Request</h4>
+<pre class="code"><span class="m">POST</span> /patients
+<span class="k">Content-Type</span>: application/json
+
+{
+  <span class="s">"name"</span>:    <span class="s">"สมชาย ทดสอบ"</span>,
+  <span class="s">"gender"</span>:  <span class="s">"M"</span>,
+  <span class="s">"age"</span>:     <span class="n">45</span>,
+  <span class="s">"phone"</span>:   <span class="s">"081-111-2222"</span>,
+  <span class="s">"symptom"</span>: <span class="s">"ปวดหัว มีไข้"</span>
+}</pre>
+        </div>
+        <div>
+          <h4>สิ่งที่ระบบทำ</h4>
+<pre class="code"><span class="c">// ใน patient.Handler.create</span>
+1. validate name (ต้องไม่ว่าง)
+2. <span class="m">gen code</span> = MAX(code) + 1
+   → <span class="s">"P0002"</span>
+3. <span class="m">INSERT</span> patients
+   status=<span class="s">'admitted'</span>
+   pathway_template_id=<span class="k">NULL</span>
+   special_conditions=<span class="s">'[]'</span></pre>
+          <h4 style="margin-top: 12px;">Response (201)</h4>
+<pre class="code">{
+  <span class="s">"id"</span>: <span class="s">"P0002"</span>,
+  <span class="s">"name"</span>: <span class="s">"สมชาย ทดสอบ"</span>,
+  <span class="s">"status"</span>: <span class="s">"admitted"</span>,
+  <span class="s">"special_conditions"</span>: []
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="flow-step">
+      <div class="flow-step-head">
+        <span class="step-num">2</span>
+        <div>
+          <div class="title">เลือก Care Pathway Template</div>
+          <div class="verb">PATCH /patients/{id}/pathway</div>
+        </div>
+      </div>
+      <div class="flow-step-body">
+        <div>
+          <h4>Request</h4>
+<pre class="code"><span class="m">PATCH</span> /patients/P0002/pathway
+<span class="k">Content-Type</span>: application/json
+
+{
+  <span class="s">"template_code"</span>: <span class="s">"diabetic_followup"</span>,
+  <span class="s">"special_conditions"</span>: [
+    <span class="s">"fast_required"</span>,
+    <span class="s">"wheelchair"</span>
+  ]
+}</pre>
+        </div>
+        <div>
+          <h4>สิ่งที่ระบบทำ</h4>
+<pre class="code"><span class="c">// ใน patient.Handler.assignPathway</span>
+1. pathwayStore.<span class="m">GetByCode</span>(<span class="s">"diabetic_followup"</span>)
+   → template_id = <span class="n">1</span>
+2. <span class="m">UPDATE</span> patients
+     SET pathway_template_id=<span class="n">1</span>,
+         special_conditions=<span class="s">'[...]'</span>
+
+<span class="c">// trigger auto-create Visit+Steps</span>
+3. visitStore.<span class="m">CreateFromPathway</span>(<span class="s">"P0002"</span>, <span class="n">1</span>)
+   a) ดึง stages: <span class="s">["registered",
+      "vitals_check","waiting",
+      "in_consultation","lab",
+      "treating","discharged"]</span>
+   b) <span class="m">INSERT</span> visits (status=<span class="s">'active'</span>)
+   c) <span class="m">INSERT</span> visit_steps × <span class="n">7</span>
+      (status=<span class="s">'pending'</span>)</pre>
+          <h4 style="margin-top: 12px;">Response (200)</h4>
+<pre class="code">{
+  <span class="s">"id"</span>: <span class="s">"P0002"</span>,
+  <span class="s">"template_code"</span>: <span class="s">"diabetic_followup"</span>,
+  <span class="s">"special_conditions"</span>: [<span class="s">"fast_required"</span>,<span class="s">"wheelchair"</span>],
+  <span class="s">"visit_id"</span>: <span class="n">7</span>,
+  <span class="s">"steps_created"</span>: <span class="n">7</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="flow-step">
+      <div class="flow-step-head">
+        <span class="step-num">3</span>
+        <div>
+          <div class="title">ดู Pathway ปัจจุบันของผู้ป่วย</div>
+          <div class="verb">GET /patients/{id}/pathway</div>
+        </div>
+      </div>
+      <div class="flow-step-body">
+        <div>
+          <h4>Request</h4>
+<pre class="code"><span class="m">GET</span> /patients/P0002/pathway</pre>
+          <h4 style="margin-top: 10px;">ใช้ทำอะไร</h4>
+          <p style="font-size: 14px; color: var(--text-2); margin: 0;">
+            Frontend ใช้แสดง template + special conditions ของผู้ป่วย
+            พร้อม stages ทั้งหมดเพื่อให้ผู้ใช้เห็นภาพรวม
+          </p>
+        </div>
+        <div>
+          <h4>Response (200)</h4>
+<pre class="code">{
+  <span class="s">"patient_id"</span>: <span class="s">"P0002"</span>,
+  <span class="s">"patient_name"</span>: <span class="s">"สมชาย ทดสอบ"</span>,
+  <span class="s">"pathway_template"</span>: {
+    <span class="s">"code"</span>: <span class="s">"diabetic_followup"</span>,
+    <span class="s">"name"</span>: <span class="s">"ผู้ป่วยเบาหวานรายเก่า"</span>,
+    <span class="s">"stages"</span>: [
+      <span class="s">"registered"</span>, <span class="s">"vitals_check"</span>,
+      <span class="s">"waiting"</span>,     <span class="s">"in_consultation"</span>,
+      <span class="s">"lab"</span>,         <span class="s">"treating"</span>,
+      <span class="s">"discharged"</span>
+    ]
+  },
+  <span class="s">"special_conditions"</span>: [
+    <span class="s">"fast_required"</span>, <span class="s">"wheelchair"</span>
+  ]
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="flow-step">
+      <div class="flow-step-head">
+        <span class="step-num">4</span>
+        <div>
+          <div class="title">ติดตามสถานะแต่ละขั้นตอน</div>
+          <div class="verb">PATCH /visits/{id}/steps/{stepOrder}</div>
+        </div>
+      </div>
+      <div class="flow-step-body">
+        <div>
+          <h4>Request — เริ่มขั้นตอน</h4>
+<pre class="code"><span class="m">PATCH</span> /visits/7/steps/1
+{
+  <span class="s">"status"</span>: <span class="s">"in_progress"</span>,
+  <span class="s">"performed_by"</span>: <span class="s">"พยาบาลแนน"</span>,
+  <span class="s">"notes"</span>: <span class="s">"ลงทะเบียนเรียบร้อย"</span>
+}</pre>
+          <h4 style="margin-top: 10px;">Request — จบขั้นตอน</h4>
+<pre class="code"><span class="m">PATCH</span> /visits/7/steps/1
+{
+  <span class="s">"status"</span>: <span class="s">"completed"</span>
+}</pre>
+          <h4 style="margin-top: 12px;">Lifecycle</h4>
+          <p style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-2); margin: 0;">
+            <span style="color: var(--warning);">pending</span>
+            → <span style="color: var(--accent);">in_progress</span>
+            → <span style="color: var(--success);">completed</span>
+            <span style="color: var(--text-3);"> | skipped</span>
+          </p>
+        </div>
+        <div>
+          <h4>สิ่งที่ระบบทำ</h4>
+<pre class="code"><span class="c">// ใน visit.Store.UpdateStepStatus</span>
+1. validate status (enum)
+2. <span class="m">UPDATE</span> visit_steps
+     SET status=<span class="s">'in_progress'</span>,
+         started_at=<span class="m">NOW()</span>   <span class="c">// auto</span>
+3. เมื่อ status=<span class="s">'completed'</span>:
+     SET completed_at=<span class="m">NOW()</span> <span class="c">// auto</span>
+4. UPDATE performed_by, notes (optional)</pre>
+          <h4 style="margin-top: 12px;">Response (200)</h4>
+<pre class="code">{
+  <span class="s">"id"</span>: <span class="n">38</span>,
+  <span class="s">"visit_id"</span>: <span class="n">7</span>,
+  <span class="s">"step_order"</span>: <span class="n">1</span>,
+  <span class="s">"stage"</span>: <span class="s">"registered"</span>,
+  <span class="s">"status"</span>: <span class="s">"completed"</span>,
+  <span class="s">"started_at"</span>:   <span class="s">"2026-09-19T13:57:01Z"</span>,
+  <span class="s">"completed_at"</span>: <span class="s">"2026-09-19T13:57:02Z"</span>,
+  <span class="s">"performed_by"</span>: <span class="s">"พยาบาลแนน"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SECTION 3: SCHEMA ============== -->
+  <section>
+    <h2><span class="step-num">🗄️</span>โครงสร้างฐานข้อมูล</h2>
+    <p class="lead">4 ตารางหลัก — สัมพันธ์กันด้วย application-level foreign key (ไม่มี FK constraint ที่ DB)</p>
+
+    <div class="schema">
+      <div class="table">
+        <div class="table-head">pathway_templates <span style="color: var(--text-3); font-weight: 400; font-size: 12px;">— แม่แบบ (ไม่เปลี่ยน)</span></div>
+        <div class="table-rows">
+          <div><span class="col-name pk">id</span><span class="col-type">uint, PK</span></div>
+          <div><span class="col-name">code</span><span class="col-type">varchar, unique</span></div>
+          <div><span class="col-name">name</span><span class="col-type">varchar</span></div>
+          <div><span class="col-name">description</span><span class="col-type">text</span></div>
+          <div><span class="col-name">stages</span><span class="col-type">jsonb []string</span></div>
+        </div>
+      </div>
+
+      <div class="table">
+        <div class="table-head">patients</div>
+        <div class="table-rows">
+          <div><span class="col-name pk">code</span><span class="col-type">varchar, PK (P0001, P0002, …)</span></div>
+          <div><span class="col-name">name</span><span class="col-type">varchar</span></div>
+          <div><span class="col-name">status</span><span class="col-type">varchar (admitted/treating/discharged)</span></div>
+          <div><span class="col-name fk">pathway_template_id</span><span class="col-type">uint, FK → pathway_templates.id</span></div>
+          <div><span class="col-name">special_conditions</span><span class="col-type">jsonb []string</span></div>
+        </div>
+      </div>
+
+      <div class="table">
+        <div class="table-head">visits</div>
+        <div class="table-rows">
+          <div><span class="col-name pk">id</span><span class="col-type">uint, PK</span></div>
+          <div><span class="col-name fk">patient_code</span><span class="col-type">varchar, FK → patients.code</span></div>
+          <div><span class="col-name fk">pathway_template_id</span><span class="col-type">uint, FK</span></div>
+          <div><span class="col-name">status</span><span class="col-type">varchar (active/completed/cancelled)</span></div>
+          <div><span class="col-name">started_at</span><span class="col-type">timestamp</span></div>
+          <div><span class="col-name">completed_at</span><span class="col-type">timestamp, nullable</span></div>
+        </div>
+      </div>
+
+      <div class="table">
+        <div class="table-head">visit_steps</div>
+        <div class="table-rows">
+          <div><span class="col-name pk">id</span><span class="col-type">uint, PK</span></div>
+          <div><span class="col-name fk">visit_id</span><span class="col-type">uint, FK → visits.id</span></div>
+          <div><span class="col-name">step_order</span><span class="col-type">int, unique (visit_id, step_order)</span></div>
+          <div><span class="col-name">stage</span><span class="col-type">varchar</span></div>
+          <div><span class="col-name">status</span><span class="col-type">varchar (pending/in_progress/completed/skipped)</span></div>
+          <div><span class="col-name">performed_by</span><span class="col-type">varchar, nullable</span></div>
+          <div><span class="col-name">notes</span><span class="col-type">text, nullable</span></div>
+          <div><span class="col-name">started_at</span><span class="col-type">timestamp, nullable</span></div>
+          <div><span class="col-name">completed_at</span><span class="col-type">timestamp, nullable</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend" style="margin-top: 18px;">
+      <span class="pill"><span class="dot" style="background: var(--primary);"></span> Primary Key</span>
+      <span class="pill"><span class="dot" style="background: var(--accent);"></span> Foreign Key (app-level)</span>
+    </div>
+  </section>
+
+  <!-- ============== SECTION 4: API TABLE ============== -->
+  <section>
+    <h2><span class="step-num">🔌</span>API Endpoints</h2>
+    <p class="lead">RESTful HTTP — JSON request/response</p>
+
+    <table class="api">
+      <thead>
+        <tr><th>Method</th><th>Path</th><th>คำอธิบาย</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="method GET">GET</span></td><td><code>/</code></td><td>หน้าแรก + รายการ endpoint</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td><code>/health</code></td><td>ตรวจสถานะ service</td></tr>
+        <tr><td><span class="method POST">POST</span></td><td><code>/patients</code></td><td>ลงทะเบียนผู้ป่วยใหม่</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td><code>/patients</code></td><td>ดูรายการผู้ป่วยทั้งหมด</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td><code>/patients/{id}</code></td><td>ดูข้อมูลผู้ป่วยตาม code</td></tr>
+        <tr><td><span class="method PATCH">PATCH</span></td><td><code>/patients/{id}/status</code></td><td>อัปเดตสถานะผู้ป่วย</td></tr>
+        <tr><td><span class="method PATCH">PATCH</span></td><td><code>/patients/{id}/pathway</code></td><td><strong>เลือก Care Pathway Template (auto-create Visit+Steps)</strong></td></tr>
+        <tr><td><span class="method GET">GET</span></td><td><code>/patients/{id}/pathway</code></td><td>ดู pathway ปัจจุบัน</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td><code>/pathway-templates</code></td><td>รายการ template ทั้งหมด</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td><code>/pathway-templates/{code}</code></td><td>ดู template ตาม code</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td><code>/visits</code></td><td>รายการ Visit ทั้งหมด</td></tr>
+        <tr><td><span class="method GET">GET</span></td><td><code>/visits/{id}</code></td><td>ดู Visit + steps</td></tr>
+        <tr><td><span class="method PATCH">PATCH</span></td><td><code>/visits/{id}/steps/{stepOrder}</code></td><td>อัปเดตสถานะ VisitStep</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============== SECTION 5: HIGHLIGHTS ============== -->
+  <section>
+    <h2><span class="step-num">⭐</span>จุดเด่นของการออกแบบ</h2>
+    <p class="lead">ทำไม flow นี้ถึง scale ได้และดูแลง่าย</p>
+
+    <div class="highlights">
+      <div class="highlight">
+        <div class="icon">⚡</div>
+        <div class="h-title">Auto-create Visit+Steps</div>
+        <div class="h-body">แค่เลือก template ระบบสร้าง Visit และ steps ครบใน transaction เดียว — ลด human error</div>
+      </div>
+      <div class="highlight">
+        <div class="icon">🧩</div>
+        <div class="h-title">Stages เป็น JSONB</div>
+        <div class="h-body">ปรับจำนวน/ลำดับขั้นตอนได้ต่อ template โดยไม่ต้อง alter table</div>
+      </div>
+      <div class="highlight">
+        <div class="icon">🏷️</div>
+        <div class="h-title">Special Conditions</div>
+        <div class="h-body">เก็บ flag เฉพาะผู้ป่วย (งดน้ำงดอาหาร, ใช้รถเข็น) เพื่อปรับ flow UI</div>
+      </div>
+      <div class="highlight">
+        <div class="icon">🔢</div>
+        <div class="h-title">stepOrder = 1, 2, 3…</div>
+        <div class="h-body">URL ใช้ stepOrder แทน internal id — อ่านง่าย, debug ง่าย</div>
+      </div>
+      <div class="highlight">
+        <div class="icon">🔒</div>
+        <div class="h-title">Unique (visit_id, step_order)</div>
+        <div class="h-body">ป้องกันการสร้างขั้นตอนซ้ำซ้อนใน Visit เดียวกัน</div>
+      </div>
+      <div class="highlight">
+        <div class="icon">♻️</div>
+        <div class="h-title">Idempotent Seed</div>
+        <div class="h-body">pathway.Seed() รันซ้ำได้ — ไม่ duplicate template ตอน restart</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page">
+    Hospital Carepath · เอกสารอธิบาย Flow · สร้างเมื่อ 2026-09-19
+  </footer>
+</main>
+
+</body>
+</html>

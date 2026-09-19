@@ -109,3 +109,22 @@ func (s *Store) UpdateStatus(code, status string) (*model.Patient, error) {
 	}
 	return s.Get(code)
 }
+
+// AssignPathway กำหนด Care Pathway Template และ special conditions ให้ผู้ป่วย
+// templateID อาจเป็น nil ถ้าต้องการเคลียร์ค่า
+// conditionsJSON คือ JSON string เช่น `["wheelchair","fast_required"]`
+func (s *Store) AssignPathway(code string, templateID *uint, conditionsJSON string) (*model.Patient, error) {
+	res := s.db.Model(&model.Patient{}).
+		Where("code = ?", code).
+		Updates(map[string]any{
+			"pathway_template_id": templateID,
+			"special_conditions":  conditionsJSON,
+		})
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	if res.RowsAffected == 0 {
+		return nil, ErrNotFound
+	}
+	return s.Get(code)
+}

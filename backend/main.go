@@ -11,7 +11,9 @@ import (
 
 	"github.com/suttipong/hospital-carepath/config"
 	"github.com/suttipong/hospital-carepath/internal/model"
+	"github.com/suttipong/hospital-carepath/internal/pathway"
 	"github.com/suttipong/hospital-carepath/internal/patient"
+	"github.com/suttipong/hospital-carepath/internal/visit"
 )
 
 // appConfig โหลดค่าจาก environment variable (รองรับ .env แบบง่าย)
@@ -94,16 +96,24 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
-		"service":  "hospital-carepath",
-		"message":  "ยินดีต้อนรับสู่ Hospital Carepath API",
-		"version":  "0.1.0",
+		"service": "hospital-carepath",
+		"message": "ยินดีต้อนรับสู่ Hospital Carepath API",
+		"version": "0.1.0",
 		"endpoints": []string{
 			"GET    /",
 			"GET    /health",
-			"POST   /patients              - ลงทะเบียนผู้ป่วยเข้ารับบริการ",
-			"GET    /patients              - ดูรายการผู้ป่วยทั้งหมด",
-			"GET    /patients/{id}         - ดูข้อมูลผู้ป่วยตาม ID",
-			"PATCH  /patients/{id}/status  - อัปเดตสถานะ (admitted/treating/discharged)",
+			"POST   /patients                      - ลงทะเบียนผู้ป่วยเข้ารับบริการ",
+			"GET    /patients                      - ดูรายการผู้ป่วยทั้งหมด",
+			"GET    /patients/{id}                 - ดูข้อมูลผู้ป่วยตาม ID",
+			"PATCH  /patients/{id}/status          - อัปเดตสถานะ (admitted/treating/discharged)",
+			"PATCH  /patients/{id}/pathway         - กำหนด Care Pathway Template + special conditions (auto-create Visit+Steps)",
+			"GET    /patients/{id}/pathway         - ดู pathway ปัจจุบันของผู้ป่วย",
+			"GET    /patients/{code}/visits        - ดู Visit ทั้งหมดของผู้ป่วย",
+			"GET    /pathway-templates             - รายการแม่แบบ Care Pathway ทั้งหมด",
+			"GET    /pathway-templates/{code}      - ดูแม่แบบตาม code",
+			"GET    /visits                        - รายการ Visit ทั้งหมด",
+			"GET    /visits/{id}                   - ดู Visit + steps ตาม id",
+			"PATCH  /visits/{id}/steps/{stepOrder} - อัปเดตสถานะ VisitStep (stepOrder=1,2,3,...)",
 		},
 	})
 }
@@ -120,7 +130,12 @@ func main() {
 	config.ConnectDB()
 
 	// สร้าง/อัปเดตตารางจาก model
-	if err := config.DB.AutoMigrate(&model.Patient{}); err != nil {
+	if err := config.DB.AutoMigrate(
+		&model.Patient{},
+		&model.PathwayTemplate{},
+		&model.Visit{},
+		&model.VisitStep{},
+	); err != nil {
 		log.Fatalf("db migrate error: %v", err)
 	}
 
@@ -130,7 +145,21 @@ func main() {
 
 	// ลงทะเบียน patient routes (ใช้ GORM ต่อ DB จริง)
 	patientStore := patient.NewStore(config.DB)
-	patientHandler := patient.NewHandler(patientStore)
+
+	// Pathway templates
+	pathwayStore := pathway.NewStore(config.DB)
+	if err := pathway.Seed(pathwayStore); err != nil {
+		log.Fatalf("pathway seed error: %v", err)
+	}
+	pathwayHandler := pathway.NewHandler(pathwayStore)
+	pathwayHandler.Register(mux)
+
+	// Visits (auto-create + tracking steps)
+	visitStore := visit.NewStore(config.DB)
+	visitHandler := visit.NewHandler(visitStore)
+	visitHandler.Register(mux)
+
+	patientHandler := patient.NewHandler(patientStore, pathwayStore, visitStore, config.DB)
 	patientHandler.Register(mux)
 
 	addr := fmt.Sprintf(":%s", cfg.port)
