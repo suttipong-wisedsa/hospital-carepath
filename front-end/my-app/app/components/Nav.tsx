@@ -10,14 +10,23 @@ interface NavLink {
   icon: string;
 }
 
-/** แถบเมนูด้านบน — ปรากฏทุกหน้า ช่วยให้นำทางง่ายขึ้น */
+/** แถบเมนูด้านบน — ปรากฏทุกหน้า ช่วยให้นำทางง่ายขึ้น
+ *  ยกเว้นหน้า /patient-view/* (หน้าสำหรับผู้ป่วยดูเอง) จะไม่แสดง —
+ *  เพื่อป้องกันไม่ให้ผู้ป่วยเข้าถึงเมนูที่นำไปยังหน้าแก้ไขข้อมูลได้
+ */
 export function Nav() {
   const pathname = usePathname();
+
+  // ซ่อน Nav ในหน้า patient-view (ทั้ง entry และ [code])
+  if (pathname?.startsWith("/patient-view")) {
+    return null;
+  }
 
   const links: NavLink[] = [
     { href: "/", label: "หน้าแรก", icon: "🏠" },
     { href: "/queue", label: "คิว", icon: "📋" },
     { href: "/patient", label: "ผู้ป่วย", icon: "👥" },
+    { href: "/patient-view", label: "ผู้ป่วยดูเอง", icon: "🧑‍⚕️" },
     { href: "/patients/new", label: "ลงทะเบียน", icon: "➕" },
   ];
 

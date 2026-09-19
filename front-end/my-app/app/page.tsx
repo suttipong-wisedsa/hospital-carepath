@@ -140,6 +140,32 @@ export default function Home() {
         />
       </section>
 
+      {/* ─── patient self-service banner ───────────── */}
+      <section className="mt-12">
+        <Link
+          href="/patient-view"
+          className="group flex items-center gap-4 rounded-2xl border-2 border-dashed border-teal-300 bg-linear-to-r from-teal-50/50 via-emerald-50/50 to-cyan-50/50 p-5 transition hover:border-teal-400 hover:from-teal-50 hover:via-emerald-50 hover:to-cyan-50 hover:shadow-md dark:border-teal-700 dark:from-teal-950/30 dark:via-emerald-950/20 dark:to-cyan-950/30 dark:hover:border-teal-600"
+        >
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-500 text-2xl text-white shadow-md shadow-teal-500/30">
+            🧑‍⚕️
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-base font-black text-teal-950 dark:text-teal-100">
+              หน้าสำหรับผู้ป่วย
+              <span className="ml-2 inline-flex items-center rounded-full bg-teal-500 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
+                Kiosk
+              </span>
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-teal-800 dark:text-teal-300">
+              ผู้ป่วยสามารถดูสถานะคิวและลำดับขั้นตอนของตัวเองได้ — กรอกรหัส P0001 เพื่อทดลอง
+            </p>
+          </div>
+          <span className="text-2xl text-teal-500 transition group-hover:translate-x-1 dark:text-teal-400">
+            →
+          </span>
+        </Link>
+      </section>
+
       {/* ─── footer ──────────────────────────────────── */}
       <footer className="mt-16 text-center">
         <p className="text-xs font-medium text-zinc-500 dark:text-zinc-500">
