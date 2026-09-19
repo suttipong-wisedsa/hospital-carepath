@@ -16,6 +16,7 @@ export function Nav() {
 
   const links: NavLink[] = [
     { href: "/", label: "หน้าแรก", icon: "🏠" },
+    { href: "/queue", label: "คิว", icon: "📋" },
     { href: "/patient", label: "ผู้ป่วย", icon: "👥" },
     { href: "/patients/new", label: "ลงทะเบียน", icon: "➕" },
   ];

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/suttipong/hospital-carepath/internal/model"
 	"github.com/suttipong/hospital-carepath/internal/pathway"
@@ -203,7 +204,30 @@ func (h *Handler) assignPathway(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// getPathway ดู pathway ปัจจุบันของผู้ป่วย
+// pathwayStepView มุมมองย่อยของ step (ใช้ใน response)
+type pathwayStepView struct {
+	StepOrder   int        `json:"step_order"`
+	Stage       string     `json:"stage"`
+	Status      string     `json:"status"`
+	StartedAt   *time.Time `json:"started_at,omitempty"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	PerformedBy *string    `json:"performed_by,omitempty"`
+	Notes       *string    `json:"notes,omitempty"`
+}
+
+// pathwayVisitView มุมมอง visit + steps สำหรับ patient pathway
+type pathwayVisitView struct {
+	ID             uint               `json:"id"`
+	Status         string             `json:"status"`
+	StartedAt      time.Time          `json:"started_at"`
+	CompletedAt    *time.Time         `json:"completed_at,omitempty"`
+	TotalSteps     int                `json:"total_steps"`
+	CompletedSteps int                `json:"completed_steps"`
+	CurrentStep    *pathwayStepView   `json:"current_step,omitempty"`
+	Steps          []pathwayStepView  `json:"steps"`
+}
+
+// getPathway ดู pathway ปัจจุบันของผู้ป่วย พร้อมตำแหน่งปัจจุบันใน visit
 func (h *Handler) getPathway(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	p, err := h.store.Get(id)
@@ -234,11 +258,94 @@ func (h *Handler) getPathway(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// หา active visit ล่าสุดของผู้ป่วย (ถ้ามี)
+	var visitView *pathwayVisitView
+	var activeVisit model.Visit
+	if err := h.db.Where("patient_code = ? AND status = ?", p.Code, "active").
+		Order("id desc").First(&activeVisit).Error; err == nil {
+		// โหลด steps ของ visit
+		var steps []model.VisitStep
+		if err := h.db.Where("visit_id = ?", activeVisit.ID).
+			Order("step_order").Find(&steps).Error; err == nil {
+			stepsView := make([]pathwayStepView, 0, len(steps))
+			completed := 0
+			var current *pathwayStepView
+			for _, s := range steps {
+				sv := pathwayStepView{
+					StepOrder:   s.StepOrder,
+					Stage:       s.Stage,
+					Status:      s.Status,
+					StartedAt:   s.StartedAt,
+					CompletedAt: s.CompletedAt,
+					PerformedBy: s.PerformedBy,
+					Notes:       s.Notes,
+				}
+				stepsView = append(stepsView, sv)
+				if s.Status == "completed" {
+					completed++
+				}
+				if current == nil && (s.Status == "in_progress" || s.Status == "pending") {
+					c := sv
+					current = &c
+				}
+			}
+			visitView = &pathwayVisitView{
+				ID:             activeVisit.ID,
+				Status:         activeVisit.Status,
+				StartedAt:      activeVisit.StartedAt,
+				CompletedAt:    activeVisit.CompletedAt,
+				TotalSteps:     len(steps),
+				CompletedSteps: completed,
+				CurrentStep:    current,
+				Steps:          stepsView,
+			}
+		}
+	}
+
+	// ถ้าไม่มี active visit ลองหา visit ล่าสุด (completed/cancelled) — เพื่อแสดงประวัติ
+	if visitView == nil {
+		var lastVisit model.Visit
+		if err := h.db.Where("patient_code = ?", p.Code).
+			Order("id desc").First(&lastVisit).Error; err == nil {
+			var steps []model.VisitStep
+			if err := h.db.Where("visit_id = ?", lastVisit.ID).
+				Order("step_order").Find(&steps).Error; err == nil {
+				stepsView := make([]pathwayStepView, 0, len(steps))
+				completed := 0
+				for _, s := range steps {
+					sv := pathwayStepView{
+						StepOrder:   s.StepOrder,
+						Stage:       s.Stage,
+						Status:      s.Status,
+						StartedAt:   s.StartedAt,
+						CompletedAt: s.CompletedAt,
+						PerformedBy: s.PerformedBy,
+						Notes:       s.Notes,
+					}
+					stepsView = append(stepsView, sv)
+					if s.Status == "completed" {
+						completed++
+					}
+				}
+				visitView = &pathwayVisitView{
+					ID:             lastVisit.ID,
+					Status:         lastVisit.Status,
+					StartedAt:      lastVisit.StartedAt,
+					CompletedAt:    lastVisit.CompletedAt,
+					TotalSteps:     len(steps),
+					CompletedSteps: completed,
+					Steps:          stepsView,
+				}
+			}
+		}
+	}
+
 	writeJSON(w, http.StatusOK, map[string]any{
 		"patient_id":         p.Code,
 		"patient_name":       p.Name,
 		"pathway_template":   template,
 		"special_conditions": conditions,
+		"visit":              visitView, // มี active visit หรือ visit ล่าสุด
 	})
 }
 

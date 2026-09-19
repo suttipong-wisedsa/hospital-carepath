@@ -13,6 +13,7 @@ import (
 	"github.com/suttipong/hospital-carepath/internal/model"
 	"github.com/suttipong/hospital-carepath/internal/pathway"
 	"github.com/suttipong/hospital-carepath/internal/patient"
+	"github.com/suttipong/hospital-carepath/internal/queue"
 	"github.com/suttipong/hospital-carepath/internal/visit"
 )
 
@@ -114,6 +115,13 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 			"GET    /visits                        - รายการ Visit ทั้งหมด",
 			"GET    /visits/{id}                   - ดู Visit + steps ตาม id",
 			"PATCH  /visits/{id}/steps/{stepOrder} - อัปเดตสถานะ VisitStep (stepOrder=1,2,3,...)",
+			"GET    /queue                         - ดูคิวปัจจุบัน (ทุก visit ที่ active)",
+			"GET    /queue/{visitId}               - ดู queue entry ตาม visit id",
+			"POST   /queue/{visitId}/call          - เรียกคิว (first pending step → in_progress)",
+			"POST   /queue/{visitId}/steps/{stepOrder}/complete - บันทึกตรวจเสร็จ (auto-advance)",
+			"POST   /queue/{visitId}/steps/{stepOrder}/skip     - ข้ามขั้นตอน",
+			"POST   /queue/{visitId}/complete     - ปิด visit (mark all remaining = completed)",
+			"POST   /queue/{visitId}/cancel       - ยกเลิก visit (mark all remaining = skipped)",
 		},
 	})
 }
@@ -158,6 +166,11 @@ func main() {
 	visitStore := visit.NewStore(config.DB)
 	visitHandler := visit.NewHandler(visitStore)
 	visitHandler.Register(mux)
+
+	// Queue (call / complete-step / skip / close visit)
+	queueStore := queue.NewStore(config.DB)
+	queueHandler := queue.NewHandler(queueStore)
+	queueHandler.Register(mux)
 
 	patientHandler := patient.NewHandler(patientStore, pathwayStore, visitStore, config.DB)
 	patientHandler.Register(mux)

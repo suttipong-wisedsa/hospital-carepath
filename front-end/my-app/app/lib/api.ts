@@ -141,15 +141,40 @@ export interface PathwayTemplate {
   stages: string[];
 }
 
+/** Step ภายใน pathway visit — มี status และ timestamp */
+export interface PathwayStepView {
+  step_order: number;
+  stage: string;
+  status: "pending" | "in_progress" | "completed" | "skipped";
+  started_at?: string | null;
+  completed_at?: string | null;
+  performed_by?: string | null;
+  notes?: string | null;
+}
+
+/** Visit + steps ที่ผูกกับ patient pathway */
+export interface PathwayVisitView {
+  id: number;
+  status: "active" | "completed" | "cancelled";
+  started_at: string;
+  completed_at?: string | null;
+  total_steps: number;
+  completed_steps: number;
+  current_step?: PathwayStepView;
+  steps: PathwayStepView[];
+}
+
 /** Response ของ GET /patients/{id}/pathway */
 export interface PatientPathwayResponse {
   patient_id: string;
   patient_name: string;
   pathway_template: PathwayTemplate | null;
   special_conditions: string[];
+  /** Visit ปัจจุบันของผู้ป่วย (active visit หรือล่าสุด) — มี step status เพื่อรู้ว่าอยู่จุดไหน */
+  visit?: PathwayVisitView;
 }
 
-/** เรียก GET /patients/{id}/pathway — ดู Care Pathway ปัจจุบัน */
+/** เรียก GET /patients/{id}/pathway — ดู Care Pathway ปัจจุบัน + ตำแหน่งปัจจุบัน */
 export async function getPatientPathway(
   code: string
 ): Promise<PatientPathwayResponse> {
@@ -240,4 +265,234 @@ export async function assignPatientPathway(
   }
 
   return (await res.json()) as AssignPathwayResponse;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Queue API — เรียกคิว + บันทึกตรวจเสร็จ
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Status ของ VisitStep ตามที่ backend ส่งกลับ */
+export type StepStatus = "pending" | "in_progress" | "completed" | "skipped";
+
+/** Step ของ visit (มีข้อมูลครบทุก field) */
+export interface VisitStep {
+  id: number;
+  visit_id: number;
+  step_order: number;
+  stage: string;
+  status: StepStatus;
+  started_at?: string | null;
+  completed_at?: string | null;
+  performed_by?: string | null;
+  notes?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/** มุมมองย่อยของ step ใน QueueEntry.current_step */
+export interface QueueStepView {
+  step_order: number;
+  stage: string;
+  status: StepStatus;
+  started_at?: string | null;
+  completed_at?: string | null;
+}
+
+/** Visit ในคิว — join patient + pathway + steps */
+export interface QueueEntry {
+  visit_id: number;
+  patient_code: string;
+  patient_name: string;
+  pathway_template_code?: string;
+  pathway_template_name?: string;
+  special_conditions?: string[];
+  visit_status: "active" | "completed" | "cancelled";
+  started_at: string;
+  completed_at?: string | null;
+  total_steps: number;
+  completed_steps: number;
+  current_step?: QueueStepView;
+  steps?: VisitStep[];
+}
+
+/** เรียก GET /queue — ดูคิวปัจจุบัน (เฉพาะ active) */
+export async function getQueue(): Promise<{ count: number; queue: QueueEntry[] }> {
+  const res = await fetch(`${API_BASE_URL}/queue`, {
+    method: "GET",
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const errBody = (await res.json()) as { error?: string };
+      if (errBody.error) message = errBody.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as { count: number; queue: QueueEntry[] };
+}
+
+/** เรียก GET /queue/{visitId} — ดู queue entry ตาม visit id */
+export async function getQueueEntry(visitId: number): Promise<QueueEntry> {
+  const res = await fetch(`${API_BASE_URL}/queue/${visitId}`, {
+    method: "GET",
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const errBody = (await res.json()) as { error?: string };
+      if (errBody.error) message = errBody.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as QueueEntry;
+}
+
+/** Response ของ POST /queue/{visitId}/call */
+export interface CallQueueResponse {
+  entry: QueueEntry;
+  called_step: QueueStepView;
+}
+
+/** เรียก POST /queue/{visitId}/call — เรียกคิวผู้ป่วย (first pending step → in_progress) */
+export async function callQueue(visitId: number): Promise<CallQueueResponse> {
+  const res = await fetch(`${API_BASE_URL}/queue/${visitId}/call`, {
+    method: "POST",
+    headers: { Accept: "application/json" },
+  });
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const errBody = (await res.json()) as { error?: string };
+      if (errBody.error) message = errBody.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as CallQueueResponse;
+}
+
+/** Body สำหรับ complete / skip step (optional ทั้งคู่) */
+export interface StepActionRequest {
+  performed_by?: string;
+  notes?: string;
+}
+
+/** Response ของ POST /queue/{visitId}/steps/{stepOrder}/complete */
+export interface CompleteStepResponse {
+  entry: QueueEntry;
+  completed_step: QueueStepView;
+  next_step: QueueStepView | null; // null ถ้า visit เสร็จแล้ว
+}
+
+/** เรียก POST /queue/{visitId}/steps/{stepOrder}/complete — บันทึกตรวจเสร็จ + auto-advance */
+export async function completeQueueStep(
+  visitId: number,
+  stepOrder: number,
+  body?: StepActionRequest
+): Promise<CompleteStepResponse> {
+  const res = await fetch(
+    `${API_BASE_URL}/queue/${visitId}/steps/${stepOrder}/complete`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    }
+  );
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const errBody = (await res.json()) as { error?: string };
+      if (errBody.error) message = errBody.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as CompleteStepResponse;
+}
+
+/** Response ของ POST /queue/{visitId}/steps/{stepOrder}/skip */
+export interface SkipStepResponse {
+  entry: QueueEntry;
+  skipped_step: QueueStepView;
+}
+
+/** เรียก POST /queue/{visitId}/steps/{stepOrder}/skip — ข้ามขั้นตอน */
+export async function skipQueueStep(
+  visitId: number,
+  stepOrder: number,
+  body?: StepActionRequest
+): Promise<SkipStepResponse> {
+  const res = await fetch(
+    `${API_BASE_URL}/queue/${visitId}/steps/${stepOrder}/skip`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    }
+  );
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const errBody = (await res.json()) as { error?: string };
+      if (errBody.error) message = errBody.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as SkipStepResponse;
+}
+
+/** เรียก POST /queue/{visitId}/complete — ปิด visit (mark all remaining = completed) */
+export async function completeVisit(visitId: number): Promise<QueueEntry> {
+  const res = await fetch(`${API_BASE_URL}/queue/${visitId}/complete`, {
+    method: "POST",
+    headers: { Accept: "application/json" },
+  });
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const errBody = (await res.json()) as { error?: string };
+      if (errBody.error) message = errBody.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as QueueEntry;
+}
+
+/** เรียก POST /queue/{visitId}/cancel — ยกเลิก visit */
+export async function cancelVisit(visitId: number): Promise<QueueEntry> {
+  const res = await fetch(`${API_BASE_URL}/queue/${visitId}/cancel`, {
+    method: "POST",
+    headers: { Accept: "application/json" },
+  });
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const errBody = (await res.json()) as { error?: string };
+      if (errBody.error) message = errBody.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as QueueEntry;
 }

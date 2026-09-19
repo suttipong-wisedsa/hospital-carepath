@@ -20,6 +20,10 @@ import {
   PhoneOutlined,
   CalendarOutlined,
   EnvironmentOutlined,
+  CheckCircleFilled,
+  CheckCircleOutlined,
+  PlayCircleOutlined,
+  ForwardOutlined,
 } from "@ant-design/icons";
 import {
   getPatient,
@@ -467,10 +471,12 @@ export default function PatientDetailPage() {
             </span>
             <div>
               <h2 className="text-xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50">
-                Care Pathway
+                Care Pathway · ตำแหน่งปัจจุบัน
               </h2>
               <Text className="mt-1 block text-sm! text-zinc-700! dark:text-zinc-300!">
-                ลำดับขั้นตอนการดูแลผู้ป่วยตามแม่แบบ
+                {pathway?.visit
+                  ? `Visit #${pathway.visit.id} · ${pathway.visit.completed_steps}/${pathway.visit.total_steps} ผ่านแล้ว`
+                  : "ลำดับขั้นตอนการดูแลผู้ป่วยตามแม่แบบ"}
               </Text>
             </div>
           </div>
@@ -486,12 +492,35 @@ export default function PatientDetailPage() {
         {pathway?.pathway_template ? (
           <>
             <div className="rounded-xl border border-teal-300 bg-linear-to-r from-teal-50 to-emerald-50 p-4 dark:border-teal-900 dark:from-teal-950/40 dark:to-emerald-950/40">
-              <p className="text-lg font-bold text-teal-900 dark:text-teal-100">
-                {pathway.pathway_template.name}
-              </p>
-              <p className="mt-1 font-mono text-sm font-semibold text-teal-800 dark:text-teal-300">
-                {pathway.pathway_template.code}
-              </p>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <p className="text-lg font-bold text-teal-900 dark:text-teal-100">
+                    {pathway.pathway_template.name}
+                  </p>
+                  <p className="mt-0.5 font-mono text-sm font-semibold text-teal-800 dark:text-teal-300">
+                    {pathway.pathway_template.code}
+                  </p>
+                </div>
+                {pathway.visit && (
+                  <Tag
+                    color={
+                      pathway.visit.status === "active"
+                        ? "cyan"
+                        : pathway.visit.status === "completed"
+                        ? "green"
+                        : "default"
+                    }
+                    className="m-0!"
+                    style={{ fontWeight: 700 }}
+                  >
+                    {pathway.visit.status === "active"
+                      ? "🔵 กำลังดำเนินการ"
+                      : pathway.visit.status === "completed"
+                      ? "✅ เสร็จสมบูรณ์"
+                      : "⛔ ยกเลิก"}
+                  </Tag>
+                )}
+              </div>
               {pathway.pathway_template.description && (
                 <p className="mt-2 text-sm font-medium leading-relaxed text-teal-900 dark:text-teal-100">
                   {pathway.pathway_template.description}
@@ -499,37 +528,255 @@ export default function PatientDetailPage() {
               )}
             </div>
 
+            {/* ─── ตำแหน่งปัจจุบัน highlight ───────────── */}
+            {pathway.visit?.current_step && (
+              <div className="mt-4 rounded-xl border-2 border-teal-400 bg-linear-to-br from-teal-50 via-emerald-50 to-cyan-50 p-4 shadow-sm dark:border-teal-700 dark:from-teal-950/40 dark:via-emerald-950/30 dark:to-cyan-950/30">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal-500 text-2xl text-white shadow-md ring-4 ring-teal-200 dark:ring-teal-900">
+                      📍
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">
+                        ขณะนี้อยู่ที่
+                      </p>
+                      <p className="mt-1 text-xl font-black text-teal-950 dark:text-teal-50">
+                        {pathway.visit.current_step.stage}
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold text-teal-800 dark:text-teal-200">
+                        ขั้นตอนที่{" "}
+                        <span className="font-bold">
+                          {pathway.visit.current_step.step_order}
+                        </span>{" "}
+                        จาก{" "}
+                        <span className="font-bold">
+                          {pathway.visit.total_steps}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    {pathway.visit.current_step.status === "in_progress" ? (
+                      <Tag
+                        color="cyan"
+                        className="m-0! animate-pulse"
+                        style={{ fontWeight: 700 }}
+                      >
+                        ▶ กำลังตรวจ
+                      </Tag>
+                    ) : (
+                      <Tag
+                        color="gold"
+                        className="m-0!"
+                        style={{ fontWeight: 700 }}
+                      >
+                        ⏳ รอเรียก
+                      </Tag>
+                    )}
+                    {pathway.visit.current_step.started_at && (
+                      <span className="text-xs font-semibold text-teal-700 dark:text-teal-300">
+                        เริ่ม{" "}
+                        {new Date(
+                          pathway.visit.current_step.started_at
+                        ).toLocaleTimeString("th-TH", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* progress bar */}
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-teal-700 dark:text-teal-300">
+                      ความคืบหน้า
+                    </span>
+                    <span className="font-mono text-teal-900 dark:text-teal-100">
+                      {pathway.visit.completed_steps}/{pathway.visit.total_steps}{" "}
+                      ·{" "}
+                      {Math.round(
+                        (pathway.visit.completed_steps /
+                          pathway.visit.total_steps) *
+                          100
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-teal-200 dark:bg-teal-900">
+                    <div
+                      className="h-full rounded-full bg-linear-to-r from-teal-500 to-emerald-500 transition-all duration-500"
+                      style={{
+                        width: `${
+                          (pathway.visit.completed_steps /
+                            pathway.visit.total_steps) *
+                          100
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* quick action */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {pathway.visit.current_step.status === "pending" && (
+                    <Link href="/queue">
+                      <Button
+                        type="primary"
+                        style={{
+                          fontWeight: 700,
+                          background:
+                            "linear-gradient(135deg, #0d9488 0%, #047857 100%)",
+                          borderColor: "#0d9488",
+                        }}
+                      >
+                        📢 ไปเรียกคิว →
+                      </Button>
+                    </Link>
+                  )}
+                  {pathway.visit.current_step.status === "in_progress" && (
+                    <Link href="/queue">
+                      <Button
+                        type="primary"
+                        icon={<CheckCircleFilled />}
+                        style={{ fontWeight: 700 }}
+                      >
+                        ✓ ไปบันทึกตรวจเสร็จ →
+                      </Button>
+                    </Link>
+                  )}
+                  <Link href={`/patient/${patient.id}/pathway`}>
+                    <Button>ดูหน้าเลือก Pathway</Button>
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* ─── ลำดับขั้นตอนทั้งหมด ───────────────────── */}
             <div className="mt-5">
               <p className="mb-3 text-sm font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
-                ลำดับขั้นตอน ·{" "}
-                <span className="text-teal-700 dark:text-teal-400">
-                  {pathway.pathway_template.stages.length} ขั้น
-                </span>
+                ลำดับขั้นตอนทั้งหมด
               </p>
-              <Steps
-                direction="vertical"
-                size="small"
-                current={pathway.pathway_template.stages.length - 1}
-                items={pathway.pathway_template.stages.map((stage, idx) => ({
-                  title: (
-                    <span className="text-base font-bold text-zinc-950 dark:text-zinc-50">
-                      {stage}
-                    </span>
-                  ),
-                  description: (
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      ขั้นตอนที่ {idx + 1} จาก{" "}
-                      <span className="font-bold text-zinc-900 dark:text-zinc-50">
-                        {pathway.pathway_template!.stages.length}
-                      </span>
-                    </span>
-                  ),
-                  status:
-                    idx === pathway.pathway_template!.stages.length - 1
-                      ? "process"
-                      : "finish",
-                }))}
-              />
+              {pathway.visit?.steps && pathway.visit.steps.length > 0 ? (
+                <ol className="relative space-y-2.5">
+                  {pathway.visit.steps.map((step, idx) => {
+                    const isCurrent =
+                      pathway.visit!.current_step?.step_order ===
+                        step.step_order &&
+                      (step.status === "in_progress" ||
+                        step.status === "pending");
+                    return (
+                      <li
+                        key={`${step.step_order}-${step.stage}`}
+                        className="relative flex items-start gap-3"
+                      >
+                        {/* connector line */}
+                        {idx < pathway.visit!.steps.length - 1 && (
+                          <span
+                            aria-hidden
+                            className={`absolute left-3.5 top-7 h-[calc(100%-12px)] w-0.5 ${
+                              step.status === "completed"
+                                ? "bg-emerald-300 dark:bg-emerald-800"
+                                : step.status === "skipped"
+                                ? "bg-zinc-300 dark:bg-zinc-700"
+                                : "bg-zinc-200 dark:bg-zinc-800"
+                            }`}
+                          />
+                        )}
+
+                        {/* icon dot */}
+                        <span
+                          className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm ring-2 ring-white dark:ring-zinc-900 ${
+                            step.status === "completed"
+                              ? "bg-emerald-500 text-white"
+                              : step.status === "in_progress"
+                              ? "bg-teal-500 text-white"
+                              : step.status === "skipped"
+                              ? "bg-zinc-400 text-white"
+                              : "bg-white text-zinc-400 ring-zinc-300 dark:bg-zinc-800 dark:ring-zinc-700"
+                          } ${isCurrent ? "ring-teal-400 dark:ring-teal-600" : ""}`}
+                        >
+                          {step.status === "completed" ? (
+                            <CheckCircleOutlined />
+                          ) : step.status === "in_progress" ? (
+                            <PlayCircleOutlined />
+                          ) : step.status === "skipped" ? (
+                            <ForwardOutlined />
+                          ) : (
+                            <span className="text-xs font-bold">
+                              {step.step_order}
+                            </span>
+                          )}
+                        </span>
+
+                        {/* content */}
+                        <div className="min-w-0 flex-1 pt-0.5">
+                          <div className="flex flex-wrap items-baseline gap-2">
+                            <span
+                              className={`text-sm ${
+                                step.status === "pending"
+                                  ? "font-medium text-zinc-500 dark:text-zinc-400"
+                                  : "font-bold text-zinc-950 dark:text-zinc-50"
+                              }`}
+                            >
+                              {step.stage}
+                            </span>
+                            {isCurrent && step.status === "in_progress" && (
+                              <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-teal-800 dark:bg-teal-950 dark:text-teal-300">
+                                กำลังตรวจ
+                              </span>
+                            )}
+                            {isCurrent && step.status === "pending" && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                                รอเรียก
+                              </span>
+                            )}
+                          </div>
+                          {step.completed_at && (
+                            <p className="mt-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                              ✓ ผ่านเมื่อ{" "}
+                              {new Date(step.completed_at).toLocaleTimeString(
+                                "th-TH",
+                                { hour: "2-digit", minute: "2-digit" }
+                              )}
+                            </p>
+                          )}
+                          {step.notes && (
+                            <p className="mt-1 rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                              💬 {step.notes}
+                            </p>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              ) : (
+                // fallback ถ้ายังไม่มี visit — ใช้ stages จาก template
+                <Steps
+                  direction="vertical"
+                  size="small"
+                  items={pathway.pathway_template.stages.map(
+                    (stage, idx) => ({
+                      title: (
+                        <span className="text-base font-bold text-zinc-950 dark:text-zinc-50">
+                          {stage}
+                        </span>
+                      ),
+                      description: (
+                        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                          ขั้นตอนที่ {idx + 1} จาก{" "}
+                          <span className="font-bold text-zinc-900 dark:text-zinc-50">
+                            {pathway.pathway_template!.stages.length}
+                          </span>
+                        </span>
+                      ),
+                      status: "wait",
+                    })
+                  )}
+                />
+              )}
             </div>
           </>
         ) : (
