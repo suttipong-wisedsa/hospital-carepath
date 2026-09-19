@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -13,6 +13,8 @@ import {
   App,
   Card,
   Typography,
+  Modal,
+  Input,
 } from "antd";
 import {
   ArrowLeftOutlined,
@@ -24,7 +26,13 @@ import {
   CheckCircleOutlined,
   PlayCircleOutlined,
   ForwardOutlined,
+  QrcodeOutlined,
+  CopyOutlined,
+  DownloadOutlined,
+  PrinterOutlined,
+  LinkOutlined,
 } from "@ant-design/icons";
+import QRCode from "react-qr-code";
 import {
   getPatient,
   updatePatientStatus,
@@ -120,6 +128,8 @@ export default function PatientDetailPage() {
   const [pathway, setPathway] = useState<PatientPathwayResponse | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
+  const qrWrapperRef = useRef<HTMLDivElement | null>(null);
 
   async function load() {
     if (!id) return;
@@ -296,7 +306,7 @@ export default function PatientDetailPage() {
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-1.5">
+            <div className="flex flex-col items-end gap-2">
               <Tag
                 color={statusCfg.tagColor}
                 className="text-sm! px-3! py-1! m-0!"
@@ -315,6 +325,23 @@ export default function PatientDetailPage() {
                   อัปเดตล่าสุด {formatDateTime(patient.updated_at)}
                 </Text>
               )}
+
+              {/* ─── ปุ่ม QR Code ─────────────────────────── */}
+              <Button
+                type="primary"
+                size="large"
+                icon={<QrcodeOutlined />}
+                onClick={() => setQrOpen(true)}
+                style={{
+                  marginTop: 4,
+                  fontWeight: 700,
+                  background: "linear-gradient(135deg, #0d9488 0%, #047857 100%)",
+                  borderColor: "#0d9488",
+                  boxShadow: "0 6px 18px rgba(13, 148, 136, 0.35)",
+                }}
+              >
+                📱 QR Code สำหรับผู้ป่วย
+              </Button>
             </div>
           </div>
         </div>
@@ -802,8 +829,317 @@ export default function PatientDetailPage() {
       <Text className="mx-auto mt-8 block text-center text-sm! font-semibold! text-zinc-600!">
         ข้อมูลจาก GET /patients/{patient.id}
       </Text>
+
+      {/* ─── QR Code Modal ──────────────────────────── */}
+      <PatientQRModal
+        open={qrOpen}
+        onClose={() => setQrOpen(false)}
+        patientCode={patient.id}
+        patientName={patient.name}
+        qrRef={qrWrapperRef}
+      />
     </main>
   );
+}
+
+// ─── Patient QR Modal ─────────────────────────────────────────────────────────
+
+function PatientQRModal({
+  open,
+  onClose,
+  patientCode,
+  patientName,
+  qrRef,
+}: {
+  open: boolean;
+  onClose: () => void;
+  patientCode: string;
+  patientName: string;
+  qrRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const { message } = App.useApp();
+
+  // ค่า base URL:
+  // 1) env var NEXT_PUBLIC_PATIENT_VIEW_BASE (เช่น "https://carepath.hospital.com")
+  //    → ใช้ค่านี้เสมอ เพื่อให้ QR ชี้ไป URL ที่มือถือเข้าถึงได้
+  // 2) fallback → window.location.origin (localhost / IP ของเครื่อง dev)
+  const envBase =
+    process.env.NEXT_PUBLIC_PATIENT_VIEW_BASE?.replace(/\/+$/, "") ?? "";
+
+  const defaultUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/patient-view/${patientCode}`
+      : `${envBase}/patient-view/${patientCode}`;
+
+  const [url, setUrl] = useState(defaultUrl);
+  const [showGuide, setShowGuide] = useState(false);
+
+  // reset URL เมื่อ modal เปิดใหม่ / เปลี่ยน patient
+  useEffect(() => {
+    if (open) {
+      setUrl(
+        envBase
+          ? `${envBase}/patient-view/${patientCode}`
+          : defaultUrl
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, patientCode]);
+
+  async function copyUrl() {
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      message.success("คัดลอก URL แล้ว");
+    } catch {
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        message.success("คัดลอก URL แล้ว");
+      } catch {
+        message.error("คัดลอกไม่สำเร็จ");
+      } finally {
+        document.body.removeChild(ta);
+      }
+    }
+  }
+
+  function downloadQr() {
+    const svg = qrRef.current?.querySelector("svg");
+    if (!svg) {
+      message.error("ไม่พบ QR code");
+      return;
+    }
+    // แปลง SVG → PNG ด้วย canvas
+    const xml = new XMLSerializer().serializeToString(svg);
+    const svg64 = btoa(unescape(encodeURIComponent(xml)));
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const size = 800;
+      canvas.width = size;
+      canvas.height = size + 120;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        message.error("สร้างภาพไม่สำเร็จ");
+        return;
+      }
+      // พื้นหลังขาว
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // วาด QR
+      ctx.drawImage(img, 40, 40, size - 80, size - 80);
+      // ข้อความใต้ QR
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 28px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(patientName, size / 2, size + 20);
+      ctx.fillStyle = "#0d9488";
+      ctx.font = "bold 22px monospace";
+      ctx.fillText(patientCode, size / 2, size + 60);
+      ctx.fillStyle = "#64748b";
+      ctx.font = "16px sans-serif";
+      ctx.fillText("Hospital Carepath · หน้าสำหรับผู้ป่วย", size / 2, size + 95);
+
+      const link = document.createElement("a");
+      link.download = `qr-patient-${patientCode}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      message.success("ดาวน์โหลด QR แล้ว");
+    };
+    img.onerror = () => message.error("สร้างภาพไม่สำเร็จ");
+    img.src = `data:image/svg+xml;base64,${svg64}`;
+  }
+
+  function printQr() {
+    const printWin = window.open("", "_blank", "width=600,height=800");
+    if (!printWin) {
+      message.error("เปิดหน้าต่าง print ไม่สำเร็จ");
+      return;
+    }
+    const svg = qrRef.current?.querySelector("svg")?.outerHTML ?? "";
+    printWin.document.write(`
+      <!doctype html>
+      <html><head><title>QR ${patientCode}</title>
+      <style>
+        body { font-family: system-ui, sans-serif; text-align: center; padding: 32px; }
+        .name { font-size: 22px; font-weight: 800; color: #0f172a; margin-top: 16px; }
+        .code { font-family: monospace; font-size: 20px; font-weight: 700; color: #0d9488; margin-top: 4px; }
+        .hint { font-size: 13px; color: #64748b; margin-top: 20px; }
+        .qr { width: 360px; height: 360px; margin: 0 auto; }
+        .qr svg { width: 100%; height: 100%; }
+        @media print {
+          body { padding: 16px; }
+        }
+      </style></head>
+      <body>
+        <div class="qr">${svg}</div>
+        <div class="name">${escapeHtml(patientName)}</div>
+        <div class="code">${escapeHtml(patientCode)}</div>
+        <div class="hint">สแกน QR เพื่อดูสถานะคิวและลำดับขั้นตอน</div>
+        <div class="hint">${escapeHtml(url)}</div>
+        <script>setTimeout(() => window.print(), 250);</script>
+      </body></html>
+    `);
+    printWin.document.close();
+  }
+
+  return (
+    <Modal
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      width={420}
+      centered
+      title={
+        <div className="flex items-center gap-2 py-1">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-100 text-lg dark:bg-teal-950">
+            📱
+          </span>
+          <div>
+            <p className="text-base font-black text-zinc-950 dark:text-zinc-50">
+              QR Code สำหรับผู้ป่วย
+            </p>
+            <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+              สแกนเพื่อเปิดหน้าดูสถานะคิว
+            </p>
+          </div>
+        </div>
+      }
+    >
+      {/* QR card */}
+      <div
+        ref={qrRef}
+        className="rounded-2xl border-2 border-teal-300 bg-white p-5 dark:border-teal-700"
+      >
+        <div className="flex justify-center bg-white p-3">
+          {url && (
+            <QRCode
+              value={url}
+              size={220}
+              level="H"
+              fgColor="#0f172a"
+              bgColor="#ffffff"
+            />
+          )}
+        </div>
+        <div className="mt-3 text-center">
+          <p className="text-lg font-black text-zinc-950">
+            {patientName}
+          </p>
+          <p className="mt-0.5 font-mono text-sm font-bold text-teal-700 dark:text-teal-400">
+            {patientCode}
+          </p>
+        </div>
+      </div>
+
+      {/* URL — editable เพื่อให้แทนที่ด้วย LAN IP / tunnel / production URL */}
+      <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="mb-1.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <LinkOutlined className="text-teal-600" />
+            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+              URL · แก้ไขได้ (สำหรับสแกนจากมือถือ)
+            </p>
+          </div>
+          {!envBase && (
+            <button
+              type="button"
+              onClick={() => setShowGuide((s) => !s)}
+              className="text-[10px] font-bold text-teal-700 underline-offset-2 hover:underline dark:text-teal-400"
+            >
+              {showGuide ? "ซ่อนวิธีใช้" : "สแกนจากมือถือไม่ได้?"}
+            </button>
+          )}
+        </div>
+        <Input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://your-domain/patient-view/P0001"
+          addonBefore={
+            <span className="text-xs font-bold text-teal-700">URL</span>
+          }
+        />
+
+        {/* คำแนะนำเมื่อกด "สแกนจากมือถือไม่ได้?" */}
+        {showGuide && (
+          <div className="mt-3 rounded-lg border border-teal-200 bg-teal-50 p-3 text-xs font-medium text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100">
+            <p className="font-extrabold">
+              📱 ต้องเปลี่ยน URL ให้มือถือเข้าถึงได้
+            </p>
+            <p className="mt-1.5 leading-relaxed">
+              QR ตอนนี้ encode <code>localhost</code> ซึ่งมือถือเปิดไม่ได้
+              เลือกวิธีใดวิธีหนึ่ง:
+            </p>
+            <ol className="mt-2 list-decimal space-y-1.5 pl-5">
+              <li>
+                <span className="font-bold">ตั้ง env (แนะนำ):</span>{" "}
+                สร้างไฟล์ <code>.env.local</code> แล้วใส่
+                <pre className="mt-1 overflow-x-auto rounded bg-white px-2 py-1 font-mono text-[11px] text-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
+{/* {`NEXT_PUBLIC_PATIENT_VIEW_BASE=https://your-tunnel.ngrok.io`} */}
+                </pre>
+              </li>
+              <li>
+                <span className="font-bold">วาง URL ตรงนี้:</span>{" "}
+                ถ้าใช้ ngrok / Cloudflare Tunnel ให้เอา public URL มาวางในช่องด้านบน
+              </li>
+              <li>
+                <span className="font-bold">ทดสอบใน LAN:</span> รัน{" "}
+                <code>pnpm dev --hostname 0.0.0.0</code> แล้ววาง{" "}
+                <code>http://IP-เครื่อง:3000</code> ในช่องด้านบน
+              </li>
+            </ol>
+          </div>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        <Button
+          block
+          icon={<CopyOutlined />}
+          onClick={copyUrl}
+          disabled={!url}
+        >
+          คัดลอก
+        </Button>
+        <Button
+          block
+          icon={<DownloadOutlined />}
+          onClick={downloadQr}
+        >
+          ดาวน์โหลด
+        </Button>
+        <Button
+          block
+          icon={<PrinterOutlined />}
+          onClick={printQr}
+        >
+          พิมพ์
+        </Button>
+      </div>
+
+      {/* Hint */}
+      <p className="mt-4 text-center text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+        🛡️ หน้านี้สำหรับผู้ป่วยดูข้อมูลเท่านั้น · ไม่สามารถแก้ไขใดๆ ได้
+      </p>
+    </Modal>
+  );
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // ─── Info row helper ──────────────────────────────────────────────────────────
