@@ -41,7 +41,7 @@ import {
   type PatientPathwayResponse,
 } from "../../lib/api";
 
-type LoadState = "loading" | "success" | "error";
+type LoadState ="loading" |"success" |"error";
 
 const { Text } = Typography;
 
@@ -50,36 +50,28 @@ const { Text } = Typography;
 const STATUS_CONFIG = {
   admitted: {
     label: "ลงทะเบียนแล้ว",
-    color: "#0369a1",
-    bg: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
-    tagColor: "blue",
+    color:"#0369a1",
+    bg:"linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+    tagColor:"blue",
     icon: "📝",
   },
   treating: {
     label: "กำลังรักษา",
-    color: "#b45309",
-    bg: "linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)",
-    tagColor: "gold",
+    color:"#b45309",
+    bg:"linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)",
+    tagColor:"gold",
     icon: "💊",
   },
   discharged: {
     label: "กลับบ้านแล้ว",
-    color: "#15803d",
-    bg: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
-    tagColor: "green",
+    color:"#15803d",
+    bg:"linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
+    tagColor:"green",
     icon: "✅",
   },
 } as const;
 
-const AVATAR_PALETTES = [
-  "linear-gradient(135deg, #f43f5e 0%, #be123c 100%)",
-  "linear-gradient(135deg, #f97316 0%, #c2410c 100%)",
-  "linear-gradient(135deg, #10b981 0%, #047857 100%)",
-  "linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)",
-  "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
-  "linear-gradient(135deg, #d946ef 0%, #a21caf 100%)",
-  "linear-gradient(135deg, #84cc16 0%, #4d7c0f 100%)",
-  "linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)",
+const AVATAR_PALETTES = ["linear-gradient(135deg, #f43f5e 0%, #be123c 100%)","linear-gradient(135deg, #f97316 0%, #c2410c 100%)","linear-gradient(135deg, #10b981 0%, #047857 100%)","linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)","linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)","linear-gradient(135deg, #d946ef 0%, #a21caf 100%)","linear-gradient(135deg, #84cc16 0%, #4d7c0f 100%)","linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)",
 ];
 
 function initials(name: string): string {
@@ -93,26 +85,26 @@ function avatarBg(name: string): string {
 }
 
 function formatDateTime(iso?: string): string {
-  if (!iso) return "—";
+  if (!iso) return"—";
   return new Date(iso).toLocaleString("th-TH", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+    year:"numeric",
+    month:"short",
+    day:"numeric",
+    hour:"2-digit",
+    minute:"2-digit",
   });
 }
 
 function genderLabel(g?: string): string {
   switch (g) {
-    case "M":
-      return "ชาย";
-    case "F":
-      return "หญิง";
-    case "other":
-      return "อื่นๆ";
+    case"M":
+      return"ชาย";
+    case"F":
+      return"หญิง";
+    case"other":
+      return"อื่นๆ";
     default:
-      return g || "—";
+      return g ||"—";
   }
 }
 
@@ -121,7 +113,7 @@ function genderLabel(g?: string): string {
 export default function PatientDetailPage() {
   const { message } = App.useApp();
   const params = useParams<{ id: string }>();
-  const id = params?.id ?? "";
+  const id = params?.id ??"";
 
   const [state, setState] = useState<LoadState>("loading");
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -162,7 +154,7 @@ export default function PatientDetailPage() {
     try {
       const updated = await updatePatientStatus(patient.id, next);
       setPatient(updated);
-      message.success(`อัปเดตเป็น "${STATUS_CONFIG[next].label}" เรียบร้อย`);
+      message.success(`อัปเดตเป็น"${STATUS_CONFIG[next].label}" เรียบร้อย`);
     } catch (err) {
       message.error(
         err instanceof Error ? err.message : "อัปเดตสถานะไม่สำเร็จ"
@@ -179,27 +171,27 @@ export default function PatientDetailPage() {
         <Skeleton active paragraph={{ rows: 1 }} className="w-32!" />
         <Skeleton.Node
           active
-          style={{ width: "100%", height: 200, borderRadius: 24, marginTop: 16 }}
+          style={{ width:"100%", height: 200, borderRadius: 24, marginTop: 16 }}
         >
           <span />
         </Skeleton.Node>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <Skeleton.Node
             active
-            style={{ width: "100%", height: 160, borderRadius: 16 }}
+            style={{ width:"100%", height: 160, borderRadius: 16 }}
           >
             <span />
           </Skeleton.Node>
           <Skeleton.Node
             active
-            style={{ width: "100%", height: 160, borderRadius: 16 }}
+            style={{ width:"100%", height: 160, borderRadius: 16 }}
           >
             <span />
           </Skeleton.Node>
         </div>
         <Skeleton.Node
           active
-          style={{ width: "100%", height: 280, borderRadius: 16, marginTop: 16 }}
+          style={{ width:"100%", height: 280, borderRadius: 16, marginTop: 16 }}
         >
           <span />
         </Skeleton.Node>
@@ -213,7 +205,7 @@ export default function PatientDetailPage() {
       <main className="mx-auto max-w-5xl px-4 py-12">
         <Link
           href="/patient"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 transition hover:gap-2.5 hover:text-teal-900 dark:text-teal-400"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 transition hover:gap-2.5 hover:text-teal-900"
         >
           <ArrowLeftOutlined /> กลับไปรายการผู้ป่วย
         </Link>
@@ -242,7 +234,7 @@ export default function PatientDetailPage() {
       {/* ─── breadcrumb ─────────────────────────────────── */}
       <Link
         href="/patient"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 transition hover:gap-2.5 hover:text-teal-900 dark:text-teal-400"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 transition hover:gap-2.5 hover:text-teal-900"
       >
         <ArrowLeftOutlined /> กลับไปรายการผู้ป่วย
       </Link>
@@ -266,10 +258,10 @@ export default function PatientDetailPage() {
                   size={112}
                   style={{
                     background: avatarBg(patient.name),
-                    color: "#fff",
+                    color:"#fff",
                     fontWeight: 700,
                     fontSize: 32,
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+                    boxShadow:"0 10px 30px rgba(0,0,0,0.12)",
                   }}
                 >
                   {initials(patient.name)}
@@ -335,9 +327,9 @@ export default function PatientDetailPage() {
                 style={{
                   marginTop: 4,
                   fontWeight: 700,
-                  background: "linear-gradient(135deg, #0d9488 0%, #047857 100%)",
-                  borderColor: "#0d9488",
-                  boxShadow: "0 6px 18px rgba(13, 148, 136, 0.35)",
+                  background:"linear-gradient(135deg, #0d9488 0%, #047857 100%)",
+                  borderColor:"#0d9488",
+                  boxShadow:"0 6px 18px rgba(13, 148, 136, 0.35)",
                 }}
               >
                 📱 QR Code สำหรับผู้ป่วย
@@ -350,7 +342,7 @@ export default function PatientDetailPage() {
       {/* ─── STATUS UPDATE ──────────────────────────────── */}
       <Card className="mt-6!" styles={{ body: { padding: 20 } }}>
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-lg dark:bg-zinc-800">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-lg">
             🔄
           </span>
           <div className="flex-1">
@@ -358,7 +350,7 @@ export default function PatientDetailPage() {
               อัปเดตสถานะ
             </h2>
             <Text className="mt-1 block text-sm! font-medium! text-zinc-600!">
-              เปลี่ยนสถานะผู้ป่วย —{" "}
+              เปลี่ยนสถานะผู้ป่วย —{""}
               <code className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-sm font-bold text-zinc-900">
                 PATCH /patients/{patient.id}/status
               </code>
@@ -379,9 +371,9 @@ export default function PatientDetailPage() {
                         fontWeight: 600,
                         ...(active
                           ? {
-                              background: `linear-gradient(135deg, ${cfg.color} 0%, ${cfg.color}cc 100%)`,
-                              borderColor: cfg.color,
-                            }
+                            background:`linear-gradient(135deg, ${cfg.color} 0%, ${cfg.color}cc 100%)`,
+                            borderColor: cfg.color,
+                          }
                           : undefined),
                       }}
                     >
@@ -405,7 +397,7 @@ export default function PatientDetailPage() {
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <Card styles={{ body: { padding: 20 } }}>
           <div className="mb-4 flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-lg dark:bg-sky-950">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-lg">
               👤
             </span>
             <h2 className="text-xl font-extrabold tracking-tight text-zinc-950">
@@ -421,12 +413,12 @@ export default function PatientDetailPage() {
             <InfoRow
               icon="🎂"
               label="อายุ"
-              value={patient.age != null ? `${patient.age} ปี` : "—"}
+              value={patient.age != null ?`${patient.age} ปี` : "—"}
             />
             <InfoRow
               icon={<PhoneOutlined />}
               label="เบอร์โทร"
-              value={patient.phone || "—"}
+              value={patient.phone ||"—"}
               mono={!!patient.phone}
             />
             <InfoRow
@@ -439,7 +431,7 @@ export default function PatientDetailPage() {
 
         <Card styles={{ body: { padding: 20 } }}>
           <div className="mb-4 flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-lg dark:bg-amber-950">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-lg">
               💬
             </span>
             <h2 className="text-xl font-extrabold tracking-tight text-zinc-950">
@@ -459,7 +451,7 @@ export default function PatientDetailPage() {
 
         <Card styles={{ body: { padding: 20 } }}>
           <div className="mb-4 flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-lg dark:bg-rose-950">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-lg">
               ⚠️
             </span>
             <h2 className="text-xl font-extrabold tracking-tight text-zinc-950">
@@ -467,7 +459,7 @@ export default function PatientDetailPage() {
             </h2>
           </div>
           {pathway?.special_conditions &&
-          pathway.special_conditions.length > 0 ? (
+            pathway.special_conditions.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {pathway.special_conditions.map((c) => (
                 <Tag
@@ -493,7 +485,7 @@ export default function PatientDetailPage() {
       <Card className="mt-6!" styles={{ body: { padding: 20 } }}>
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 text-lg dark:bg-teal-950">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-100 text-lg">
               🛣️
             </span>
             <div>
@@ -502,7 +494,7 @@ export default function PatientDetailPage() {
               </h2>
               <Text className="mt-1 block text-sm! font-semibold! text-zinc-700!">
                 {pathway?.visit
-                  ? `Visit #${pathway.visit.id} · ${pathway.visit.completed_steps}/${pathway.visit.total_steps} ผ่านแล้ว`
+                  ?`Visit #${pathway.visit.id} · ${pathway.visit.completed_steps}/${pathway.visit.total_steps} ผ่านแล้ว`
                   : "ลำดับขั้นตอนการดูแลผู้ป่วยตามแม่แบบ"}
               </Text>
             </div>
@@ -534,8 +526,8 @@ export default function PatientDetailPage() {
                       pathway.visit.status === "active"
                         ? "cyan"
                         : pathway.visit.status === "completed"
-                        ? "green"
-                        : "default"
+                          ? "green"
+                          : "default"
                     }
                     className="m-0!"
                     style={{ fontWeight: 700 }}
@@ -543,8 +535,8 @@ export default function PatientDetailPage() {
                     {pathway.visit.status === "active"
                       ? "🔵 กำลังดำเนินการ"
                       : pathway.visit.status === "completed"
-                      ? "✅ เสร็จสมบูรณ์"
-                      : "⛔ ยกเลิก"}
+                        ? "✅ เสร็จสมบูรณ์"
+                        : "⛔ ยกเลิก"}
                   </Tag>
                 )}
               </div>
@@ -560,7 +552,7 @@ export default function PatientDetailPage() {
               <div className="mt-4 rounded-xl border-2 border-teal-500 bg-linear-to-br from-teal-50 via-emerald-50 to-cyan-50 p-4 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal-500 text-2xl text-white shadow-md ring-4 ring-teal-200 dark:ring-teal-900">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal-500 text-2xl text-white shadow-md ring-4 ring-teal-200">
                       📍
                     </span>
                     <div>
@@ -571,11 +563,11 @@ export default function PatientDetailPage() {
                         {pathway.visit.current_step.stage}
                       </p>
                       <p className="mt-0.5 text-sm font-bold text-teal-800">
-                        ขั้นตอนที่{" "}
+                        ขั้นตอนที่{""}
                         <span className="font-bold">
                           {pathway.visit.current_step.step_order}
-                        </span>{" "}
-                        จาก{" "}
+                        </span>{""}
+                        จาก{""}
                         <span className="font-bold">
                           {pathway.visit.total_steps}
                         </span>
@@ -602,12 +594,12 @@ export default function PatientDetailPage() {
                     )}
                     {pathway.visit.current_step.started_at && (
                       <span className="text-xs font-bold text-teal-700">
-                        เริ่ม{" "}
+                        เริ่ม{""}
                         {new Date(
                           pathway.visit.current_step.started_at
                         ).toLocaleTimeString("th-TH", {
-                          hour: "2-digit",
-                          minute: "2-digit",
+                          hour:"2-digit",
+                          minute:"2-digit",
                         })}
                       </span>
                     )}
@@ -621,25 +613,25 @@ export default function PatientDetailPage() {
                       ความคืบหน้า
                     </span>
                     <span className="font-mono text-teal-900">
-                      {pathway.visit.completed_steps}/{pathway.visit.total_steps}{" "}
-                      ·{" "}
+                      {pathway.visit.completed_steps}/{pathway.visit.total_steps}{""}
+                      ·{""}
                       {Math.round(
                         (pathway.visit.completed_steps /
                           pathway.visit.total_steps) *
-                          100
+                        100
                       )}
                       %
                     </span>
                   </div>
-                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-teal-200 dark:bg-teal-900">
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-teal-200">
                     <div
                       className="h-full rounded-full bg-linear-to-r from-teal-500 to-emerald-500 transition-all duration-500"
                       style={{
-                        width: `${
+                        width:`${
                           (pathway.visit.completed_steps /
                             pathway.visit.total_steps) *
                           100
-                        }%`,
+                          }%`,
                       }}
                     />
                   </div>
@@ -653,9 +645,8 @@ export default function PatientDetailPage() {
                         type="primary"
                         style={{
                           fontWeight: 700,
-                          background:
-                            "linear-gradient(135deg, #0d9488 0%, #047857 100%)",
-                          borderColor: "#0d9488",
+                          background:"linear-gradient(135deg, #0d9488 0%, #047857 100%)",
+                          borderColor:"#0d9488",
                         }}
                       >
                         📢 ไปเรียกคิว →
@@ -690,7 +681,7 @@ export default function PatientDetailPage() {
                   {pathway.visit.steps.map((step, idx) => {
                     const isCurrent =
                       pathway.visit!.current_step?.step_order ===
-                        step.step_order &&
+                      step.step_order &&
                       (step.status === "in_progress" ||
                         step.status === "pending");
                     return (
@@ -704,25 +695,25 @@ export default function PatientDetailPage() {
                             aria-hidden
                             className={`absolute left-3.5 top-7 h-[calc(100%-12px)] w-0.5 ${
                               step.status === "completed"
-                                ? "bg-emerald-300 dark:bg-emerald-800"
+                                ? "bg-emerald-300"
                                 : step.status === "skipped"
-                                ? "bg-zinc-300 dark:bg-zinc-700"
-                                : "bg-zinc-200 dark:bg-zinc-800"
-                            }`}
+                                  ? "bg-zinc-300"
+                                  : "bg-zinc-200"
+                              }`}
                           />
                         )}
 
                         {/* icon dot */}
                         <span
-                          className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm ring-2 ring-white dark:ring-zinc-900 ${
+                          className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm ring-2 ring-white ${
                             step.status === "completed"
                               ? "bg-emerald-500 text-white"
                               : step.status === "in_progress"
-                              ? "bg-teal-500 text-white"
-                              : step.status === "skipped"
-                              ? "bg-zinc-400 text-white"
-                              : "bg-white text-zinc-400 ring-zinc-300 dark:bg-zinc-800 dark:ring-zinc-700"
-                          } ${isCurrent ? "ring-teal-400 dark:ring-teal-600" : ""}`}
+                                ? "bg-teal-500 text-white"
+                                : step.status === "skipped"
+                                  ? "bg-zinc-400 text-white"
+                                  : "bg-white text-zinc-400 ring-zinc-300"
+                            } ${isCurrent ? "ring-teal-400" : ""}`}
                         >
                           {step.status === "completed" ? (
                             <CheckCircleOutlined />
@@ -745,7 +736,7 @@ export default function PatientDetailPage() {
                                 step.status === "pending"
                                   ? "font-semibold text-zinc-700"
                                   : "font-bold text-zinc-950"
-                              }`}
+                                }`}
                             >
                               {step.stage}
                             </span>
@@ -762,10 +753,9 @@ export default function PatientDetailPage() {
                           </div>
                           {step.completed_at && (
                             <p className="mt-0.5 text-xs font-bold text-emerald-700">
-                              ✓ ผ่านเมื่อ{" "}
-                              {new Date(step.completed_at).toLocaleTimeString(
-                                "th-TH",
-                                { hour: "2-digit", minute: "2-digit" }
+                              ✓ ผ่านเมื่อ{""}
+                              {new Date(step.completed_at).toLocaleTimeString("th-TH",
+                                { hour:"2-digit", minute:"2-digit" }
                               )}
                             </p>
                           )}
@@ -793,13 +783,13 @@ export default function PatientDetailPage() {
                       ),
                       description: (
                         <span className="text-sm font-semibold text-zinc-700">
-                          ขั้นตอนที่ {idx + 1} จาก{" "}
+                          ขั้นตอนที่ {idx + 1} จาก{""}
                           <span className="font-bold text-zinc-900">
                             {pathway.pathway_template!.stages.length}
                           </span>
                         </span>
                       ),
-                      status: "wait",
+                      status:"wait",
                     })
                   )}
                 />
@@ -807,8 +797,8 @@ export default function PatientDetailPage() {
             </div>
           </>
         ) : (
-          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-10 text-center dark:border-zinc-700 dark:bg-zinc-800/40">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-teal-100 text-3xl dark:bg-teal-950">
+          <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-10 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-teal-100 text-3xl">
               🛣️
             </div>
             <p className="mt-3 text-lg font-bold text-zinc-800">
@@ -860,16 +850,16 @@ function PatientQRModal({
   const { message } = App.useApp();
 
   // ค่า base URL:
-  // 1) env var NEXT_PUBLIC_PATIENT_VIEW_BASE (เช่น "https://carepath.hospital.com")
-  //    → ใช้ค่านี้เสมอ เพื่อให้ QR ชี้ไป URL ที่มือถือเข้าถึงได้
+  // 1) env var NEXT_PUBLIC_PATIENT_VIEW_BASE (เช่น"https://carepath.hospital.com")
+  // → ใช้ค่านี้เสมอ เพื่อให้ QR ชี้ไป URL ที่มือถือเข้าถึงได้
   // 2) fallback → window.location.origin (localhost / IP ของเครื่อง dev)
   const envBase =
-    process.env.NEXT_PUBLIC_PATIENT_VIEW_BASE?.replace(/\/+$/, "") ?? "";
+    process.env.NEXT_PUBLIC_PATIENT_VIEW_BASE?.replace(/\/+$/,"") ??"";
 
   const defaultUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/patient-view/${patientCode}`
-      : `${envBase}/patient-view/${patientCode}`;
+      ?`${window.location.origin}/patient-view/${patientCode}`
+      :`${envBase}/patient-view/${patientCode}`;
 
   const [url, setUrl] = useState(defaultUrl);
   const [showGuide, setShowGuide] = useState(false);
@@ -879,7 +869,7 @@ function PatientQRModal({
     if (open) {
       setUrl(
         envBase
-          ? `${envBase}/patient-view/${patientCode}`
+          ?`${envBase}/patient-view/${patientCode}`
           : defaultUrl
       );
     }
@@ -929,62 +919,61 @@ function PatientQRModal({
         return;
       }
       // พื้นหลังขาว
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle ="#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       // วาด QR
       ctx.drawImage(img, 40, 40, size - 80, size - 80);
       // ข้อความใต้ QR
-      ctx.fillStyle = "#0f172a";
-      ctx.font = "bold 28px sans-serif";
-      ctx.textAlign = "center";
+      ctx.fillStyle ="#0f172a";
+      ctx.font ="bold 28px sans-serif";
+      ctx.textAlign ="center";
       ctx.fillText(patientName, size / 2, size + 20);
-      ctx.fillStyle = "#0d9488";
-      ctx.font = "bold 22px monospace";
+      ctx.fillStyle ="#0d9488";
+      ctx.font ="bold 22px monospace";
       ctx.fillText(patientCode, size / 2, size + 60);
-      ctx.fillStyle = "#64748b";
-      ctx.font = "16px sans-serif";
+      ctx.fillStyle ="#64748b";
+      ctx.font ="16px sans-serif";
       ctx.fillText("Hospital Carepath · หน้าสำหรับผู้ป่วย", size / 2, size + 95);
 
       const link = document.createElement("a");
-      link.download = `qr-patient-${patientCode}.png`;
+      link.download =`qr-patient-${patientCode}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
       message.success("ดาวน์โหลด QR แล้ว");
     };
     img.onerror = () => message.error("สร้างภาพไม่สำเร็จ");
-    img.src = `data:image/svg+xml;base64,${svg64}`;
+    img.src =`data:image/svg+xml;base64,${svg64}`;
   }
 
   function printQr() {
-    const printWin = window.open("", "_blank", "width=600,height=800");
+    const printWin = window.open("","_blank","width=600,height=800");
     if (!printWin) {
       message.error("เปิดหน้าต่าง print ไม่สำเร็จ");
       return;
     }
-    const svg = qrRef.current?.querySelector("svg")?.outerHTML ?? "";
+    const svg = qrRef.current?.querySelector("svg")?.outerHTML ??"";
     printWin.document.write(`
-      <!doctype html>
-      <html><head><title>QR ${patientCode}</title>
-      <style>
-        body { font-family: system-ui, sans-serif; text-align: center; padding: 32px; }
-        .name { font-size: 22px; font-weight: 800; color: #0f172a; margin-top: 16px; }
-        .code { font-family: monospace; font-size: 20px; font-weight: 700; color: #0d9488; margin-top: 4px; }
-        .hint { font-size: 13px; color: #64748b; margin-top: 20px; }
-        .qr { width: 360px; height: 360px; margin: 0 auto; }
-        .qr svg { width: 100%; height: 100%; }
-        @media print {
-          body { padding: 16px; }
-        }
-      </style></head>
-      <body>
-        <div class="qr">${svg}</div>
-        <div class="name">${escapeHtml(patientName)}</div>
-        <div class="code">${escapeHtml(patientCode)}</div>
-        <div class="hint">สแกน QR เพื่อดูสถานะคิวและลำดับขั้นตอน</div>
-        <div class="hint">${escapeHtml(url)}</div>
-        <script>setTimeout(() => window.print(), 250);</script>
-      </body></html>
-    `);
+ <!doctype html>
+ <html><head><title>QR ${patientCode}</title>
+ <style>
+ body { font-family: system-ui, sans-serif; text-align: center; padding: 32px; }
+ .name { font-size: 22px; font-weight: 800; color: #0f172a; margin-top: 16px; }
+ .code { font-family: monospace; font-size: 20px; font-weight: 700; color: #0d9488; margin-top: 4px; }
+ .hint { font-size: 13px; color: #64748b; margin-top: 20px; }
+ .qr { width: 360px; height: 360px; margin: 0 auto; }
+ .qr svg { width: 100%; height: 100%; }
+ @media print {
+ body { padding: 16px; }
+ }
+ </style></head>
+ <body>
+ <div class="qr">${svg}</div>
+ <div class="name">${escapeHtml(patientName)}</div>
+ <div class="code">${escapeHtml(patientCode)}</div>
+ <div class="hint">สแกน QR เพื่อดูสถานะคิวและลำดับขั้นตอน</div>
+ <div class="hint">${escapeHtml(url)}</div>
+ <script>setTimeout(() => window.print(), 250);</script>
+ </body></html>`);
     printWin.document.close();
   }
 
@@ -997,14 +986,14 @@ function PatientQRModal({
       centered
       title={
         <div className="flex items-center gap-2 py-1">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-100 text-lg dark:bg-teal-950">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-100 text-lg">
             📱
           </span>
           <div>
-            <p className="text-base font-black text-zinc-950 dark:text-zinc-50">
+            <p className="text-base font-black text-zinc-950">
               QR Code สำหรับผู้ป่วย
             </p>
-            <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+            <p className="text-xs font-semibold text-zinc-600">
               สแกนเพื่อเปิดหน้าดูสถานะคิว
             </p>
           </div>
@@ -1014,7 +1003,7 @@ function PatientQRModal({
       {/* QR card */}
       <div
         ref={qrRef}
-        className="rounded-2xl border-2 border-teal-300 bg-white p-5 dark:border-teal-700"
+        className="rounded-2xl border-2 border-teal-300 bg-white p-5"
       >
         <div className="flex justify-center bg-white p-3">
           {url && (
@@ -1031,18 +1020,18 @@ function PatientQRModal({
           <p className="text-lg font-black text-zinc-950">
             {patientName}
           </p>
-          <p className="mt-0.5 font-mono text-sm font-bold text-teal-700 dark:text-teal-400">
+          <p className="mt-0.5 font-mono text-sm font-bold text-teal-700">
             {patientCode}
           </p>
         </div>
       </div>
 
       {/* URL — editable เพื่อให้แทนที่ด้วย LAN IP / tunnel / production URL */}
-      <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
         <div className="mb-1.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LinkOutlined className="text-teal-600" />
-            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
               URL · แก้ไขได้ (สำหรับสแกนจากมือถือ)
             </p>
           </div>
@@ -1050,7 +1039,7 @@ function PatientQRModal({
             <button
               type="button"
               onClick={() => setShowGuide((s) => !s)}
-              className="text-[10px] font-bold text-teal-700 underline-offset-2 hover:underline dark:text-teal-400"
+              className="text-[10px] font-bold text-teal-700 underline-offset-2 hover:underline"
             >
               {showGuide ? "ซ่อนวิธีใช้" : "สแกนจากมือถือไม่ได้?"}
             </button>
@@ -1065,9 +1054,9 @@ function PatientQRModal({
           }
         />
 
-        {/* คำแนะนำเมื่อกด "สแกนจากมือถือไม่ได้?" */}
+        {/* คำแนะนำเมื่อกด"สแกนจากมือถือไม่ได้?" */}
         {showGuide && (
-          <div className="mt-3 rounded-lg border border-teal-200 bg-teal-50 p-3 text-xs font-medium text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100">
+          <div className="mt-3 rounded-lg border border-teal-200 bg-teal-50 p-3 text-xs font-medium text-teal-900">
             <p className="font-extrabold">
               📱 ต้องเปลี่ยน URL ให้มือถือเข้าถึงได้
             </p>
@@ -1077,19 +1066,19 @@ function PatientQRModal({
             </p>
             <ol className="mt-2 list-decimal space-y-1.5 pl-5">
               <li>
-                <span className="font-bold">ตั้ง env (แนะนำ):</span>{" "}
+                <span className="font-bold">ตั้ง env (แนะนำ):</span>{""}
                 สร้างไฟล์ <code>.env.local</code> แล้วใส่
-                <pre className="mt-1 overflow-x-auto rounded bg-white px-2 py-1 font-mono text-[11px] text-zinc-800 dark:bg-zinc-900 dark:text-zinc-100">
-{/* {`NEXT_PUBLIC_PATIENT_VIEW_BASE=https://your-tunnel.ngrok.io`} */}
+                <pre className="mt-1 overflow-x-auto rounded bg-white px-2 py-1 font-mono text-[11px] text-zinc-800">
+                  {/* {`NEXT_PUBLIC_PATIENT_VIEW_BASE=https://your-tunnel.ngrok.io`} */}
                 </pre>
               </li>
               <li>
-                <span className="font-bold">วาง URL ตรงนี้:</span>{" "}
+                <span className="font-bold">วาง URL ตรงนี้:</span>{""}
                 ถ้าใช้ ngrok / Cloudflare Tunnel ให้เอา public URL มาวางในช่องด้านบน
               </li>
               <li>
-                <span className="font-bold">ทดสอบใน LAN:</span> รัน{" "}
-                <code>pnpm dev --hostname 0.0.0.0</code> แล้ววาง{" "}
+                <span className="font-bold">ทดสอบใน LAN:</span> รัน{""}
+                <code>pnpm dev --hostname 0.0.0.0</code> แล้ววาง{""}
                 <code>http://IP-เครื่อง:3000</code> ในช่องด้านบน
               </li>
             </ol>
@@ -1124,7 +1113,7 @@ function PatientQRModal({
       </div>
 
       {/* Hint */}
-      <p className="mt-4 text-center text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+      <p className="mt-4 text-center text-xs font-semibold text-zinc-500">
         🛡️ หน้านี้สำหรับผู้ป่วยดูข้อมูลเท่านั้น · ไม่สามารถแก้ไขใดๆ ได้
       </p>
     </Modal>
@@ -1135,11 +1124,11 @@ function PatientQRModal({
 
 function escapeHtml(s: string): string {
   return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
 }
 
 // ─── Info row helper ──────────────────────────────────────────────────────────

@@ -24,29 +24,28 @@ export const metadata: Metadata = {
 // ─── Theme tokens ──────────────────────────────────────────────────────────────
 // ปรับให้:
 // - colorText* มี contrast สูงขึ้น (เข้มขึ้น 1-2 steps)
-// - colorPrimary teal-700 (เข้มขึ้นจาก 600 เพื่อ contrast ดีขึ้น)
+// - colorPrimary cyan/teal healthcare tone พร้อม contrast บนพื้นขาว
 // - line-height ของ text สูงขึ้นเล็กน้อยเพื่ออ่านง่าย
 const theme = {
   token: {
-    colorPrimary: "#0f766e", // teal-700 — 5.8:1 บน white (AA)
-    colorInfo: "#0369a1", // sky-700
-    colorSuccess: "#15803d", // green-700
-    colorWarning: "#b45309", // amber-700
-    colorError: "#b91c1c", // red-700 — เข้มขึ้นจาก 600
-    colorText: "#18181b", // zinc-900 — body text เข้มชัด
-    colorTextSecondary: "#3f3f46", // zinc-700 — secondary text
-    colorTextTertiary: "#52525b", // zinc-600 — labels/captions
-    colorTextDescription: "#52525b", // คำอธิบาย
-    colorTextPlaceholder: "#71717a", // zinc-500
-    colorBorder: "#e4e4e7", // zinc-200
+    colorPrimary: "#0e7490", // cyan-700 — calm healthcare blue
+    colorInfo: "#0284c7", // sky-600
+    colorSuccess: "#059669", // emerald-600
+    colorWarning: "#d97706", // amber-600
+    colorError: "#dc2626", // red-600
+    colorText: "#17313b",
+    colorTextSecondary: "#41626d",
+    colorTextTertiary: "#647b83",
+    colorTextDescription: "#647b83",
+    colorTextPlaceholder: "#8aa1a8",
+    colorBorder: "#d8eef0",
     colorBgContainer: "#ffffff",
-    colorBgLayout: "#fafafa", // zinc-50 — background หลัก
+    colorBgLayout: "#f7fbfc",
     borderRadius: 10,
     borderRadiusLG: 16,
     fontSize: 14,
     lineHeight: 1.65, // เพิ่มจาก default 1.5 ให้อ่านง่าย
-    fontFamily:
-      "var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    fontFamily: "var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   },
   components: {
     Button: {
@@ -78,7 +77,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="th"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900 leading-relaxed dark:bg-zinc-950 dark:text-zinc-50">
+      <body className="min-h-full flex flex-col bg-background text-foreground leading-relaxed">
         <AntdRegistry>
           <ConfigProvider locale={thTH} theme={theme}>
             <AntApp component={false}>

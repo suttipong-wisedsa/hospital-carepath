@@ -38,15 +38,7 @@ import {
 
 // ─── Configs ──────────────────────────────────────────────────────────────────
 
-const AVATAR_PALETTES = [
-  "linear-gradient(135deg, #f43f5e 0%, #be123c 100%)",
-  "linear-gradient(135deg, #f97316 0%, #c2410c 100%)",
-  "linear-gradient(135deg, #10b981 0%, #047857 100%)",
-  "linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)",
-  "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
-  "linear-gradient(135deg, #d946ef 0%, #a21caf 100%)",
-  "linear-gradient(135deg, #84cc16 0%, #4d7c0f 100%)",
-  "linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)",
+const AVATAR_PALETTES = ["linear-gradient(135deg, #f43f5e 0%, #be123c 100%)","linear-gradient(135deg, #f97316 0%, #c2410c 100%)","linear-gradient(135deg, #10b981 0%, #047857 100%)","linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)","linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)","linear-gradient(135deg, #d946ef 0%, #a21caf 100%)","linear-gradient(135deg, #84cc16 0%, #4d7c0f 100%)","linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)",
 ];
 
 function initials(name: string): string {
@@ -60,10 +52,10 @@ function avatarBg(name: string): string {
 }
 
 function formatTime(iso?: string | null): string {
-  if (!iso) return "";
+  if (!iso) return"";
   return new Date(iso).toLocaleTimeString("th-TH", {
-    hour: "2-digit",
-    minute: "2-digit",
+    hour:"2-digit",
+    minute:"2-digit",
   });
 }
 
@@ -74,38 +66,38 @@ const STEP_META: Record<
   pending: {
     icon: <ClockCircleOutlined />,
     label: "รอ",
-    tone: "text-amber-700",
-    dot: "bg-amber-100 ring-2 ring-amber-400",
-    text: "text-amber-800",
+    tone:"text-amber-700",
+    dot:"bg-amber-100 ring-2 ring-amber-400",
+    text:"text-amber-800",
   },
   in_progress: {
     icon: <PlayCircleOutlined />,
     label: "กำลังตรวจ",
-    tone: "text-teal-700",
-    dot: "bg-teal-500",
-    text: "text-white",
+    tone:"text-teal-700",
+    dot:"bg-teal-500",
+    text:"text-white",
   },
   completed: {
     icon: <CheckCircleOutlined />,
     label: "ผ่านแล้ว",
-    tone: "text-emerald-700",
-    dot: "bg-emerald-500",
-    text: "text-white",
+    tone:"text-emerald-700",
+    dot:"bg-emerald-500",
+    text:"text-white",
   },
   skipped: {
     icon: <ForwardOutlined />,
     label: "ข้าม",
-    tone: "text-zinc-500",
-    dot: "bg-zinc-300 ring-2 ring-zinc-400",
-    text: "text-zinc-700",
+    tone:"text-zinc-500",
+    dot:"bg-zinc-300 ring-2 ring-zinc-400",
+    text:"text-zinc-700",
   },
 };
 
 const PATHWAY_PALETTES: Array<{ bg: string; ring: string; accent: string }> = [
-  { bg: "from-teal-50 via-emerald-50 to-cyan-50", ring: "ring-teal-200", accent: "text-teal-800" },
-  { bg: "from-sky-50 via-blue-50 to-indigo-50", ring: "ring-sky-200", accent: "text-sky-800" },
-  { bg: "from-amber-50 via-orange-50 to-yellow-50", ring: "ring-amber-200", accent: "text-amber-800" },
-  { bg: "from-rose-50 via-pink-50 to-fuchsia-50", ring: "ring-rose-200", accent: "text-rose-800" },
+  { bg:"from-teal-50 via-emerald-50 to-cyan-50", ring:"ring-teal-200", accent:"text-teal-800" },
+  { bg:"from-sky-50 via-blue-50 to-indigo-50", ring:"ring-sky-200", accent:"text-sky-800" },
+  { bg:"from-amber-50 via-orange-50 to-yellow-50", ring:"ring-amber-200", accent:"text-amber-800" },
+  { bg:"from-rose-50 via-pink-50 to-fuchsia-50", ring:"ring-rose-200", accent:"text-rose-800" },
 ];
 
 function pathwayPalette(code?: string) {
@@ -119,14 +111,13 @@ function pathwayPalette(code?: string) {
 
 export default function QueuePage() {
   const { message } = App.useApp();
-  const [state, setState] = useState<"loading" | "success" | "error" | "empty">(
-    "loading"
+  const [state, setState] = useState<"loading" |"success" |"error" |"empty">("loading"
   );
   const [entries, setEntries] = useState<QueueEntry[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
   const [search, setSearch] = useState("");
-  const [pointFilter, setPointFilter] = useState<string>("all"); // "all" | stage name
-  const [pathwayFilter, setPathwayFilter] = useState<string>("all"); // "all" | template code
+  const [pointFilter, setPointFilter] = useState<string>("all"); //"all" | stage name
+  const [pathwayFilter, setPathwayFilter] = useState<string>("all"); //"all" | template code
   const [busyVisitId, setBusyVisitId] = useState<number | null>(null);
 
   async function load() {
@@ -173,8 +164,7 @@ export default function QueuePage() {
     setBusyVisitId(entry.visit_id);
     try {
       const res = await callQueue(entry.visit_id);
-      message.success(
-        `📢 เรียก ${entry.patient_name} เข้าห้อง "${res.called_step.stage}"`
+      message.success(`📢 เรียก ${entry.patient_name} เข้าห้อง"${res.called_step.stage}"`
       );
       await refreshOne(entry.visit_id);
     } catch (err) {
@@ -192,9 +182,9 @@ export default function QueuePage() {
         entry.visit_id,
         entry.current_step.step_order
       );
-      const doneMsg = `✓ ตรวจ "${res.completed_step.stage}" เสร็จแล้ว`;
+      const doneMsg =`✓ ตรวจ"${res.completed_step.stage}" เสร็จแล้ว`;
       if (res.next_step) {
-        message.success(`${doneMsg} → ถัดไป "${res.next_step.stage}"`);
+        message.success(`${doneMsg} → ถัดไป"${res.next_step.stage}"`);
       } else {
         message.success(`${doneMsg} 🎉 Visit เสร็จสมบูรณ์`);
       }
@@ -211,7 +201,7 @@ export default function QueuePage() {
     setBusyVisitId(entry.visit_id);
     try {
       await skipQueueStep(entry.visit_id, entry.current_step.step_order);
-      message.info(`ข้ามขั้นตอน "${entry.current_step.stage}" แล้ว`);
+      message.info(`ข้ามขั้นตอน"${entry.current_step.stage}" แล้ว`);
       await refreshOne(entry.visit_id);
     } catch (err) {
       message.error(err instanceof Error ? err.message : "ข้ามไม่สำเร็จ");
@@ -326,8 +316,8 @@ export default function QueuePage() {
         const hit =
           e.patient_name.toLowerCase().includes(q) ||
           e.patient_code.toLowerCase().includes(q) ||
-          (e.pathway_template_code ?? "").toLowerCase().includes(q) ||
-          (e.pathway_template_name ?? "").toLowerCase().includes(q);
+          (e.pathway_template_code ??"").toLowerCase().includes(q) ||
+          (e.pathway_template_name ??"").toLowerCase().includes(q);
         if (!hit) return false;
       }
       return true;
@@ -353,7 +343,7 @@ export default function QueuePage() {
             <Skeleton.Node
               key={i}
               active
-              style={{ width: "100%", height: 72, borderRadius: 16 }}
+              style={{ width:"100%", height: 72, borderRadius: 16 }}
             >
               <span />
             </Skeleton.Node>
@@ -364,7 +354,7 @@ export default function QueuePage() {
             <Skeleton.Node
               key={i}
               active
-              style={{ width: "100%", height: 280, borderRadius: 20 }}
+              style={{ width:"100%", height: 280, borderRadius: 20 }}
             >
               <span />
             </Skeleton.Node>
@@ -399,13 +389,13 @@ export default function QueuePage() {
       {/* ─── header ────────────────────────────────────── */}
       <section className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-bold tracking-widest uppercase text-teal-700 dark:text-teal-400">
+          <p className="text-xs font-bold tracking-widest uppercase text-teal-700">
             Queue · คิวผู้ป่วย
           </p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl dark:text-zinc-50">
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">
             คิวตรวจ
           </h1>
-          <p className="mt-2 text-base font-medium text-zinc-700 dark:text-zinc-300">
+          <p className="mt-2 text-base font-medium text-zinc-700">
             เรียกคิว บันทึกการตรวจ และติดตามสถานะผู้ป่วยแบบ real-time
           </p>
         </div>
@@ -440,7 +430,7 @@ export default function QueuePage() {
       {pathwayCounts.length > 0 && (
         <section className="mb-4">
           <div className="mb-2 flex items-center gap-2">
-            <TagOutlined className="text-sky-700 dark:text-sky-400" />
+            <TagOutlined className="text-sky-700" />
             <p className="text-xs font-bold uppercase tracking-wider text-zinc-700">
               ฟิลเตอร์ตาม Care Pathway
             </p>
@@ -470,9 +460,9 @@ export default function QueuePage() {
               count={entries.length}
               icon="📋"
               palette={{
-                bg: "from-zinc-700 to-zinc-900",
-                ring: "ring-zinc-300 dark:ring-zinc-700",
-                accent: "text-white",
+                bg:"from-zinc-700 to-zinc-900",
+                ring:"ring-zinc-300",
+                accent:"text-white",
               }}
             />
             {pathwayCounts.map((p) => {
@@ -503,7 +493,7 @@ export default function QueuePage() {
       {pointCounts.length > 0 && (
         <section className="mb-6">
           <div className="mb-2 flex items-center gap-2">
-            <EnvironmentOutlined className="text-teal-700 dark:text-teal-400" />
+            <EnvironmentOutlined className="text-teal-700" />
             <p className="text-xs font-bold uppercase tracking-wider text-zinc-700">
               ฟิลเตอร์ตามจุดรักษา
             </p>
@@ -542,7 +532,7 @@ export default function QueuePage() {
 
       {/* ─── queue list ─────────────────────────────────── */}
       {state === "empty" ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-12 dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-12">
           <Empty
             image={<div className="text-6xl">📭</div>}
             styles={{ image: { height: 96 } }}
@@ -564,35 +554,31 @@ export default function QueuePage() {
           </Empty>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-center dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-center">
           <p className="text-sm font-semibold text-zinc-700">
             ไม่พบคิวที่ตรงกับ
             {pathwayFilter !== "all" && (
               <>
-                {" "}
-                pathway{" "}
-                <span className="font-black text-sky-700 dark:text-sky-400">
-                  "
+                {""}
+                pathway{""}
+                <span className="font-black text-sky-700">"
                   {pathwayCounts.find((p) => p.code === pathwayFilter)?.name ??
-                    pathwayFilter}
-                  "
+                    pathwayFilter}"
                 </span>
               </>
             )}
             {pointFilter !== "all" && (
               <>
-                {" "}
-                จุด{" "}
-                <span className="font-black text-teal-700 dark:text-teal-400">
-                  "{pointFilter}"
+                {""}
+                จุด{""}
+                <span className="font-black text-teal-700">"{pointFilter}"
                 </span>
               </>
             )}
             {search && (
               <>
-                {" "}และคำค้น{" "}
-                <span className="font-black text-teal-700 dark:text-teal-400">
-                  "{search}"
+                {""}และคำค้น{""}
+                <span className="font-black text-teal-700">"{search}"
                 </span>
               </>
             )}
@@ -651,15 +637,15 @@ function QueueCard({
 
   return (
     <li
-      className={`overflow-hidden rounded-3xl border bg-white shadow-sm ring-1 transition hover:shadow-md dark:bg-zinc-900 ${
+      className={`overflow-hidden rounded-3xl border bg-white shadow-sm ring-1 transition hover:shadow-md ${
         currentStep?.status === "in_progress"
-          ? "border-teal-400 ring-2 ring-teal-300 dark:border-teal-700 dark:ring-teal-900"
-          : "border-zinc-300 ring-1 ring-zinc-200 dark:border-zinc-700 dark:ring-zinc-800"
-      }`}
+          ? "border-teal-400 ring-2 ring-teal-300"
+          : "border-zinc-300 ring-1 ring-zinc-200"
+        }`}
     >
       {/* ─── gradient header ──────────────────────── */}
       <div
-        className={`bg-linear-to-br ${palette.bg} px-5 py-4 ring-1 ring-inset ${palette.ring} dark:ring-zinc-800`}
+        className={`bg-linear-to-br ${palette.bg} px-5 py-4 ring-1 ring-inset ${palette.ring}`}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -667,7 +653,7 @@ function QueueCard({
               size={52}
               style={{
                 background: avatarBg(entry.patient_name),
-                color: "#fff",
+                color:"#fff",
                 fontWeight: 700,
                 fontSize: 18,
                 flexShrink: 0,
@@ -696,8 +682,8 @@ function QueueCard({
                 currentStep.status === "in_progress"
                   ? "cyan"
                   : currentStep.status === "completed"
-                  ? "green"
-                  : "gold"
+                    ? "green"
+                    : "gold"
               }
               className="m-0! px-2.5! py-1! text-sm!"
               style={{ fontWeight: 700 }}
@@ -718,7 +704,7 @@ function QueueCard({
             <span
               className={`font-bold tracking-wide ${palette.accent}`}
             >
-              {entry.pathway_template_name ?? "ไม่มี pathway"}
+              {entry.pathway_template_name ??"ไม่มี pathway"}
             </span>
             <span className="font-mono font-extrabold text-zinc-900">
               {entry.completed_steps}/{entry.total_steps}
@@ -734,8 +720,8 @@ function QueueCard({
               percent >= 100
                 ? "#10b981"
                 : currentStep?.status === "in_progress"
-                ? "#0d9488"
-                : "#71717a"
+                  ? "#0d9488"
+                  : "#71717a"
             }
             trailColor="rgba(0,0,0,0.06)"
             size="small"
@@ -780,17 +766,17 @@ function QueueCard({
                     aria-hidden
                     className={`absolute left-3.5 top-7 h-[calc(100%-12px)] w-0.5 ${
                       step.status === "completed"
-                        ? "bg-emerald-400 dark:bg-emerald-700"
+                        ? "bg-emerald-400"
                         : step.status === "skipped"
-                        ? "bg-zinc-300 dark:bg-zinc-700"
-                        : "bg-zinc-300 dark:bg-zinc-700"
-                    }`}
+                          ? "bg-zinc-300"
+                          : "bg-zinc-300"
+                      }`}
                   />
                 )}
 
                 {/* icon dot */}
                 <span
-                  className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm ring-2 ring-white dark:ring-zinc-900 ${meta.dot} ${meta.text}`}
+                  className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm ring-2 ring-white ${meta.dot} ${meta.text}`}
                 >
                   {step.status === "completed" ? (
                     <CheckCircleOutlined />
@@ -813,11 +799,11 @@ function QueueCard({
                         step.status === "pending"
                           ? "font-semibold text-zinc-700"
                           : step.status === "skipped"
-                          ? "font-bold text-zinc-500 line-through decoration-zinc-400"
-                          : step.status === "in_progress"
-                          ? "font-extrabold text-teal-900"
-                          : "font-extrabold text-zinc-950"
-                      }`}
+                            ? "font-bold text-zinc-500 line-through decoration-zinc-400"
+                            : step.status === "in_progress"
+                              ? "font-extrabold text-teal-900"
+                              : "font-extrabold text-zinc-950"
+                        }`}
                     >
                       {step.stage}
                     </span>
@@ -834,7 +820,7 @@ function QueueCard({
                     )}
                   </div>
                   {step.completed_at && (
-                    <p className="mt-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                    <p className="mt-0.5 text-xs font-bold text-emerald-700">
                       ✓ {formatTime(step.completed_at)}
                     </p>
                   )}
@@ -855,7 +841,7 @@ function QueueCard({
         </ol>
 
         {/* ─── actions ─────────────────────────────── */}
-        <div className="mt-4 flex flex-wrap gap-2 border-t-2 border-zinc-200 pt-4 dark:border-zinc-800">
+        <div className="mt-4 flex flex-wrap gap-2 border-t-2 border-zinc-200 pt-4">
           {noMoreSteps ? (
             <Tag color="green" className="m-0!" style={{ fontWeight: 700 }}>
               ✓ ผ่านทุกขั้นตอนแล้ว
@@ -890,8 +876,8 @@ function QueueCard({
               size="middle"
               style={{
                 fontWeight: 700,
-                background: "linear-gradient(135deg, #0d9488 0%, #047857 100%)",
-                borderColor: "#0d9488",
+                background:"linear-gradient(135deg, #0d9488 0%, #047857 100%)",
+                borderColor:"#0d9488",
               }}
             >
               📢 เรียกคิว
@@ -955,9 +941,9 @@ function PathwayFilterPill({
       onClick={onClick}
       className={`group inline-flex shrink-0 items-center gap-2 rounded-full border-2 px-3.5 py-1.5 text-sm font-bold transition-all duration-150 ${
         active
-          ? `border-transparent bg-linear-to-r ${palette.bg} ${palette.accent} shadow-md ring-2 ${palette.ring}`
-          : `border-zinc-200 bg-white text-zinc-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-sky-700 dark:hover:bg-sky-950/40 dark:hover:text-sky-200`
-      }`}
+          ?`border-transparent bg-linear-to-r ${palette.bg} ${palette.accent} shadow-md ring-2 ${palette.ring}`
+          :`border-zinc-200 bg-white text-zinc-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800`
+        }`}
     >
       <span className="text-base leading-none">{icon}</span>
       <span className="whitespace-nowrap">{label}</span>
@@ -965,8 +951,8 @@ function PathwayFilterPill({
         className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-black tabular-nums leading-none ${
           active
             ? "bg-white/75 text-zinc-900"
-            : "bg-zinc-100 text-zinc-700 group-hover:bg-sky-100 group-hover:text-sky-800 dark:bg-zinc-800 dark:text-zinc-200 dark:group-hover:bg-sky-900 dark:group-hover:text-sky-100"
-        }`}
+            : "bg-zinc-100 text-zinc-700 group-hover:bg-sky-100 group-hover:text-sky-800"
+          }`}
       >
         {count}
       </span>
@@ -997,9 +983,9 @@ function PointFilterPill({
       onClick={onClick}
       className={`group inline-flex shrink-0 items-center gap-2 rounded-full border-2 px-3.5 py-1.5 text-sm font-bold transition-all duration-150 ${
         active
-          ? "border-teal-500 bg-linear-to-r from-teal-500 to-emerald-500 text-white shadow-md shadow-teal-500/30 ring-2 ring-teal-200 dark:ring-teal-900"
-          : "border-zinc-200 bg-white text-zinc-700 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-teal-700 dark:hover:bg-teal-950/40 dark:hover:text-teal-200"
-      }`}
+          ? "border-teal-500 bg-linear-to-r from-teal-500 to-emerald-500 text-white shadow-md shadow-teal-500/30 ring-2 ring-teal-200"
+          : "border-zinc-200 bg-white text-zinc-700 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800"
+        }`}
     >
       <span className="text-base leading-none">{icon}</span>
       <span className="whitespace-nowrap">{label}</span>
@@ -1007,8 +993,8 @@ function PointFilterPill({
         className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-black tabular-nums leading-none ${
           active
             ? "bg-white/25 text-white"
-            : "bg-zinc-100 text-zinc-700 group-hover:bg-teal-100 group-hover:text-teal-800 dark:bg-zinc-800 dark:text-zinc-200 dark:group-hover:bg-teal-900 dark:group-hover:text-teal-100"
-        }`}
+            : "bg-zinc-100 text-zinc-700 group-hover:bg-teal-100 group-hover:text-teal-800"
+          }`}
       >
         {count}
       </span>
@@ -1026,20 +1012,18 @@ function KpiCard({
 }: {
   label: string;
   value: number;
-  tone: "default" | "teal" | "amber";
+  tone:"default" |"teal" |"amber";
   icon: string;
 }) {
   const toneStyles = {
-    default:
-      "from-zinc-100 to-zinc-50 text-zinc-900 dark:from-zinc-800 dark:to-zinc-900 dark:text-zinc-50",
-    teal: "from-teal-100 to-teal-50 text-teal-900 dark:from-teal-950 dark:to-teal-900/30 dark:text-teal-200",
-    amber:
-      "from-amber-100 to-amber-50 text-amber-900 dark:from-amber-950 dark:to-amber-900/30 dark:text-amber-200",
+    default:"from-zinc-100 to-zinc-50 text-zinc-900",
+    teal:"from-teal-100 to-teal-50 text-teal-900",
+    amber:"from-amber-100 to-amber-50 text-amber-900",
   }[tone];
 
   return (
     <div
-      className={`rounded-2xl border border-zinc-200 bg-linear-to-br p-4 shadow-sm dark:border-zinc-800 ${toneStyles}`}
+      className={`rounded-2xl border border-zinc-200 bg-linear-to-br p-4 shadow-sm ${toneStyles}`}
     >
       <div className="flex items-center justify-between text-xs font-bold opacity-80">
         <span>{label}</span>

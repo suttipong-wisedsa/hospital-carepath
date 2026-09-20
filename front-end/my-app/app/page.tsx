@@ -9,16 +9,16 @@ export default function Home() {
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-teal-500 to-emerald-600 text-3xl shadow-lg shadow-teal-500/20">
           🏥
         </div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-teal-700 dark:text-teal-400">
+        <p className="text-xs font-semibold tracking-widest uppercase text-teal-700">
           Hospital Carepath
         </p>
-        <h1 className="mt-3 text-4xl font-black tracking-tight text-zinc-950 sm:text-5xl dark:text-zinc-50">
-          ระบบติดตาม{" "}
-          <span className="text-teal-700 dark:text-teal-400">Care Pathway</span>
+        <h1 className="mt-3 text-4xl font-black tracking-tight text-zinc-950 sm:text-5xl">
+          ระบบติดตาม{""}
+          <span className="text-teal-700">Care Pathway</span>
           <br />
           สำหรับผู้ป่วย
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-base text-zinc-700 dark:text-zinc-300">
+        <p className="mx-auto mt-4 max-w-xl text-base text-zinc-700">
           ลงทะเบียน ติดตามสถานะ เรียกคิว และกำหนดลำดับขั้นตอนการดูแลผู้ป่วย
           ตั้งแต่ลงทะเบียนจนกลับบ้าน ในที่เดียว
         </p>
@@ -29,13 +29,13 @@ export default function Home() {
         {/* card 1: ผู้ป่วยทั้งหมด */}
         <Link
           href="/patient"
-          className="group rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-sky-700"
+          className="group rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-md"
         >
           <div className="flex items-start justify-between">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-100 text-2xl dark:bg-sky-950">
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-100 text-2xl">
               📋
             </span>
-            <span className="text-2xl text-zinc-300 transition group-hover:translate-x-0.5 group-hover:text-sky-600 dark:group-hover:text-sky-400">
+            <span className="text-2xl text-zinc-300 transition group-hover:translate-x-0.5 group-hover:text-sky-600">
               →
             </span>
           </div>
@@ -61,7 +61,7 @@ export default function Home() {
         {/* card 2: คิวตรวจ (highlighted — primary) */}
         <Link
           href="/queue"
-          className="group relative overflow-hidden rounded-2xl border-2 border-teal-300 bg-linear-to-br from-teal-50 via-emerald-50 to-cyan-50 p-6 shadow-md transition hover:-translate-y-0.5 hover:border-teal-400 hover:shadow-lg dark:border-teal-800 dark:from-teal-950/50 dark:via-emerald-950/40 dark:to-cyan-950/40 dark:hover:border-teal-700"
+          className="group relative overflow-hidden rounded-2xl border-2 border-teal-300 bg-linear-to-br from-teal-50 via-emerald-50 to-cyan-50 p-6 shadow-md transition hover:-translate-y-0.5 hover:border-teal-400 hover:shadow-lg"
         >
           <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-teal-500 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-sm">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
@@ -71,7 +71,7 @@ export default function Home() {
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-500 text-2xl text-white shadow-md">
               📊
             </span>
-            <span className="text-2xl text-teal-400 transition group-hover:translate-x-0.5 group-hover:text-teal-700 dark:group-hover:text-teal-300">
+            <span className="text-2xl text-teal-400 transition group-hover:translate-x-0.5 group-hover:text-teal-700">
               →
             </span>
           </div>
@@ -89,13 +89,13 @@ export default function Home() {
         {/* card 3: ลงทะเบียนผู้ป่วยใหม่ */}
         <Link
           href="/patients/new"
-          className="group rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-700"
+          className="group rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
         >
           <div className="flex items-start justify-between">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-2xl dark:bg-emerald-950">
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-2xl">
               ✚
             </span>
-            <span className="text-2xl text-zinc-300 transition group-hover:translate-x-0.5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+            <span className="text-2xl text-zinc-300 transition group-hover:translate-x-0.5 group-hover:text-emerald-600">
               →
             </span>
           </div>
@@ -144,7 +144,7 @@ export default function Home() {
           href="/patient-view"
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex items-center gap-4 rounded-2xl border-2 border-dashed border-teal-300 bg-linear-to-r from-teal-50/50 via-emerald-50/50 to-cyan-50/50 p-5 transition hover:border-teal-400 hover:from-teal-50 hover:via-emerald-50 hover:to-cyan-50 hover:shadow-md dark:border-teal-700 dark:from-teal-950/30 dark:via-emerald-950/20 dark:to-cyan-950/30 dark:hover:border-teal-600"
+          className="group flex items-center gap-4 rounded-2xl border-2 border-dashed border-teal-300 bg-linear-to-r from-teal-50/50 via-emerald-50/50 to-cyan-50/50 p-5 transition hover:border-teal-400 hover:from-teal-50 hover:via-emerald-50 hover:to-cyan-50 hover:shadow-md"
         >
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-500 text-2xl text-white shadow-md shadow-teal-500/30">
             🧑‍⚕️
@@ -161,7 +161,7 @@ export default function Home() {
               P0001 เพื่อทดลอง
             </p>
           </div>
-          <span className="text-2xl text-teal-500 transition group-hover:translate-x-1 dark:text-teal-400">
+          <span className="text-2xl text-teal-500 transition group-hover:translate-x-1">
             →
           </span>
         </Link>
@@ -169,7 +169,7 @@ export default function Home() {
 
       {/* ─── footer ──────────────────────────────────── */}
       <footer className="mt-16 text-center">
-        <p className="text-xs font-medium text-zinc-500 dark:text-zinc-500">
+        <p className="text-xs font-medium text-zinc-500">
           Hospital Carepath · ติดตามดูแลผู้ป่วยอย่างต่อเนื่อง
           ตั้งแต่ลงทะเบียนจนกลับบ้าน
         </p>
@@ -190,8 +190,8 @@ function FeatureChip({
   sub: string;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-white/60 px-4 py-3 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-lg dark:bg-teal-950">
+    <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-white/60 px-4 py-3 backdrop-blur-sm">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-lg">
         {icon}
       </span>
       <div className="min-w-0">

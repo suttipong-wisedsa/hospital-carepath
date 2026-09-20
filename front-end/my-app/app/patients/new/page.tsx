@@ -20,7 +20,7 @@ import {
 } from "@ant-design/icons";
 import { createPatient, type Patient } from "../../lib/api";
 
-type Gender = "M" | "F" | "other" | "";
+type Gender ="M" |"F" |"other" |"";
 
 interface FormValues {
   name: string;
@@ -62,14 +62,14 @@ export default function NewPatientPage() {
   return (
     <main className="mx-auto max-w-xl px-4 py-8 sm:py-12">
       <header className="mb-8">
-        <p className="text-xs font-semibold tracking-widest uppercase text-teal-700 dark:text-teal-400">
+        <p className="text-xs font-semibold tracking-widest uppercase text-teal-700">
           Hospital Carepath · Frontend
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-900">
           ลงทะเบียนผู้ป่วยใหม่
         </h1>
         <p className="mt-3 text-base font-medium text-zinc-700">
-          กรอกข้อมูลด้านล่างแล้วกดบันทึก — ระบบจะ POST ไปยัง{" "}
+          กรอกข้อมูลด้านล่างแล้วกดบันทึก — ระบบจะ POST ไปยัง{""}
           <code className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-sm font-bold text-zinc-900">
             POST /patients
           </code>
@@ -87,7 +87,7 @@ export default function NewPatientPage() {
           <Form.Item
             label="ชื่อ-นามสกุล"
             name="name"
-            rules={[{ required: true, message: "กรุณากรอกชื่อ" }]}
+            rules={[{ required: true, message:"กรุณากรอกชื่อ" }]}
           >
             <Input
               size="large"
@@ -103,9 +103,9 @@ export default function NewPatientPage() {
                 placeholder="— ไม่ระบุ —"
                 allowClear
                 options={[
-                  { value: "M", label: "ชาย" },
-                  { value: "F", label: "หญิง" },
-                  { value: "other", label: "อื่นๆ" },
+                  { value:"M", label: "ชาย" },
+                  { value:"F", label: "หญิง" },
+                  { value:"other", label: "อื่นๆ" },
                 ]}
               />
             </Form.Item>
@@ -194,13 +194,13 @@ export default function NewPatientPage() {
       <div className="mt-6 flex flex-wrap justify-between gap-2 text-sm font-medium">
         <Link
           href="/patient"
-          className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 dark:text-teal-400"
+          className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900"
         >
           <ArrowLeftOutlined /> ดูรายการผู้ป่วยทั้งหมด
         </Link>
         <Link
           href="/"
-          className="inline-flex items-center gap-1 text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+          className="inline-flex items-center gap-1 text-zinc-700 hover:text-zinc-900"
         >
           <HomeOutlined /> หน้าแรก
         </Link>

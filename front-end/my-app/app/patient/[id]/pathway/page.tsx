@@ -30,15 +30,15 @@ import {
   type PatientPathwayResponse,
 } from "../../../lib/api";
 
-type LoadState = "loading" | "ready" | "error";
+type LoadState ="loading" |"ready" |"error";
 
 const TEMPLATE_PALETTES = [
-  { bg: "from-teal-50 to-emerald-50", ring: "ring-teal-300", accent: "text-teal-700", dot: "bg-teal-500" },
-  { bg: "from-sky-50 to-blue-50", ring: "ring-sky-300", accent: "text-sky-700", dot: "bg-sky-500" },
-  { bg: "from-amber-50 to-orange-50", ring: "ring-amber-300", accent: "text-amber-700", dot: "bg-amber-500" },
-  { bg: "from-rose-50 to-pink-50", ring: "ring-rose-300", accent: "text-rose-700", dot: "bg-rose-500" },
-  { bg: "from-violet-50 to-purple-50", ring: "ring-violet-300", accent: "text-violet-700", dot: "bg-violet-500" },
-  { bg: "from-lime-50 to-green-50", ring: "ring-lime-300", accent: "text-lime-700", dot: "bg-lime-500" },
+  { bg:"from-teal-50 to-emerald-50", ring:"ring-teal-300", accent:"text-teal-700", dot:"bg-teal-500" },
+  { bg:"from-sky-50 to-blue-50", ring:"ring-sky-300", accent:"text-sky-700", dot:"bg-sky-500" },
+  { bg:"from-amber-50 to-orange-50", ring:"ring-amber-300", accent:"text-amber-700", dot:"bg-amber-500" },
+  { bg:"from-rose-50 to-pink-50", ring:"ring-rose-300", accent:"text-rose-700", dot:"bg-rose-500" },
+  { bg:"from-violet-50 to-purple-50", ring:"ring-violet-300", accent:"text-violet-700", dot:"bg-violet-500" },
+  { bg:"from-lime-50 to-green-50", ring:"ring-lime-300", accent:"text-lime-700", dot:"bg-lime-500" },
 ];
 
 function paletteFor(code: string) {
@@ -46,20 +46,14 @@ function paletteFor(code: string) {
   return TEMPLATE_PALETTES[c % TEMPLATE_PALETTES.length];
 }
 
-const QUICK_CONDITIONS = [
-  "wheelchair",
-  "fast_required",
-  "pregnancy",
-  "elderly",
-  "diabetic",
-  "allergy_penicillin",
+const QUICK_CONDITIONS = ["wheelchair","fast_required","pregnancy","elderly","diabetic","allergy_penicillin",
 ];
 
 export default function AssignPathwayPage() {
   const router = useRouter();
   const { message } = App.useApp();
   const params = useParams<{ id: string }>();
-  const patientId = params?.id ?? "";
+  const patientId = params?.id ??"";
 
   const [state, setState] = useState<LoadState>("loading");
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -106,18 +100,18 @@ export default function AssignPathwayPage() {
   );
 
   const isDirty = useMemo(() => {
-    const currentCode = currentPathway?.pathway_template?.code ?? "";
+    const currentCode = currentPathway?.pathway_template?.code ??"";
     const currentConds = currentPathway?.special_conditions ?? [];
     const sameCode = selectedCode === currentCode;
     const sameConds =
       conditions.length === currentConds.length &&
       [...conditions].sort().join("|") ===
-        [...currentConds].sort().join("|");
+      [...currentConds].sort().join("|");
     return !(sameCode && sameConds);
   }, [selectedCode, conditions, currentPathway]);
 
   function addCondition(raw: string) {
-    const c = raw.trim().toLowerCase().replace(/\s+/g, "_");
+    const c = raw.trim().toLowerCase().replace(/\s+/g,"_");
     if (!c) return;
     if (conditions.includes(c)) return;
     setConditions([...conditions, c]);
@@ -142,7 +136,7 @@ export default function AssignPathwayPage() {
       const steps = res.steps_created ?? 0;
       message.success(
         steps > 0
-          ? `บันทึกสำเร็จ — สร้างขั้นตอนใหม่ ${steps} ขั้น`
+          ?`บันทึกสำเร็จ — สร้างขั้นตอนใหม่ ${steps} ขั้น`
           : "บันทึกสำเร็จ"
       );
       setTimeout(() => router.push(`/patient/${patient.id}`), 1200);
@@ -162,20 +156,20 @@ export default function AssignPathwayPage() {
         <Skeleton active paragraph={{ rows: 1 }} className="w-32!" />
         <Skeleton.Node
           active
-          style={{ width: "100%", height: 160, borderRadius: 24, marginTop: 16 }}
+          style={{ width:"100%", height: 160, borderRadius: 24, marginTop: 16 }}
         >
           <span />
         </Skeleton.Node>
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <Skeleton.Node
             active
-            style={{ width: "100%", height: 256, borderRadius: 16 }}
+            style={{ width:"100%", height: 256, borderRadius: 16 }}
           >
             <span />
           </Skeleton.Node>
           <Skeleton.Node
             active
-            style={{ width: "100%", height: 256, borderRadius: 16 }}
+            style={{ width:"100%", height: 256, borderRadius: 16 }}
           >
             <span />
           </Skeleton.Node>
@@ -190,7 +184,7 @@ export default function AssignPathwayPage() {
       <main className="mx-auto max-w-5xl px-4 py-12">
         <Link
           href="/patient"
-          className="inline-flex items-center gap-1 text-xs font-medium text-teal-700 transition hover:gap-2 hover:text-teal-900 dark:text-teal-400"
+          className="inline-flex items-center gap-1 text-xs font-medium text-teal-700 transition hover:gap-2 hover:text-teal-900"
         >
           <ArrowLeftOutlined /> กลับไปรายการผู้ป่วย
         </Link>
@@ -210,7 +204,7 @@ export default function AssignPathwayPage() {
       {/* breadcrumb */}
       <Link
         href={`/patient/${patient.id}`}
-        className="inline-flex items-center gap-1 text-xs font-medium text-teal-700 transition hover:gap-2 hover:text-teal-900 dark:text-teal-400"
+        className="inline-flex items-center gap-1 text-xs font-medium text-teal-700 transition hover:gap-2 hover:text-teal-900"
       >
         <ArrowLeftOutlined /> กลับไปหน้ารายละเอียดผู้ป่วย
       </Link>
@@ -256,7 +250,7 @@ export default function AssignPathwayPage() {
       {/* ─── TEMPLATE PICKER ────────────────────────────── */}
       <Card className="mt-6!" styles={{ body: { padding: 20 } }}>
         <div className="mb-5 flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-lg dark:bg-teal-950">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-lg">
             📋
           </span>
           <div className="flex-1">
@@ -272,11 +266,11 @@ export default function AssignPathwayPage() {
         {templates.length === 0 ? (
           <Empty
             description={
-                <span className="text-zinc-600">
+              <span className="text-zinc-600">
                 ไม่มีแม่แบบในระบบ
               </span>
             }
-            className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 py-8! dark:border-zinc-700 dark:bg-zinc-800/40"
+            className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 py-8!"
           />
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">
@@ -290,9 +284,9 @@ export default function AssignPathwayPage() {
                     onClick={() => setSelectedCode(tpl.code)}
                     className={`group relative w-full overflow-hidden rounded-2xl border p-4 text-left transition ${
                       selected
-                        ? `border-transparent bg-linear-to-br ${palette.bg} ring-2 ${palette.ring} shadow-md`
-                        : "border-zinc-200 bg-white hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
-                    }`}
+                        ?`border-transparent bg-linear-to-br ${palette.bg} ring-2 ${palette.ring} shadow-md`
+                        : "border-zinc-200 bg-white hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-sm"
+                      }`}
                   >
                     {selected && (
                       <span
@@ -312,7 +306,7 @@ export default function AssignPathwayPage() {
                             selected
                               ? palette.accent
                               : "text-zinc-900"
-                          }`}
+                            }`}
                         >
                           {tpl.name}
                         </h3>
@@ -333,8 +327,8 @@ export default function AssignPathwayPage() {
                         {tpl.stages.length} ขั้นตอน
                       </Tag>
                       <span className="line-clamp-1 font-medium text-zinc-600">
-                        {tpl.stages.slice(0, 3).join(" → ")}
-                        {tpl.stages.length > 3 && " …"}
+                        {tpl.stages.slice(0, 3).join(" →")}
+                        {tpl.stages.length > 3 &&" …"}
                       </span>
                     </div>
                   </button>
@@ -349,7 +343,7 @@ export default function AssignPathwayPage() {
       <div className="mt-6 grid gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3" styles={{ body: { padding: 20 } }}>
           <div className="mb-4 flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-lg dark:bg-emerald-950">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-lg">
               👁️
             </span>
             <div>
@@ -411,7 +405,7 @@ export default function AssignPathwayPage() {
 
         <Card className="lg:col-span-2" styles={{ body: { padding: 20 } }}>
           <div className="mb-4 flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-lg dark:bg-rose-950">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-lg">
               ⚠️
             </span>
             <div>
@@ -463,7 +457,7 @@ export default function AssignPathwayPage() {
             </div>
           )}
 
-          <div className="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+          <div className="mt-4 border-t border-zinc-200 pt-4">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-700">
               ตัวเลือกด่วน
             </p>
@@ -493,13 +487,13 @@ export default function AssignPathwayPage() {
 
       {/* ─── ACTION BAR ─────────────────────────────────── */}
       <div className="sticky bottom-4 z-10 mt-8">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-lg backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-lg backdrop-blur">
           <p
             className={`text-sm font-semibold ${
               isDirty
-                ? "text-amber-700 dark:text-amber-400"
-                : "text-emerald-700 dark:text-emerald-400"
-            }`}
+                ? "text-amber-700"
+                : "text-emerald-700"
+              }`}
           >
             {isDirty
               ? "🟡 มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก"

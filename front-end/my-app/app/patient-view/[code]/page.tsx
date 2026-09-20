@@ -26,22 +26,22 @@ import {
   type PathwayStepView,
 } from "../../lib/api";
 
-type LoadState = "loading" | "success" | "error" | "empty";
+type LoadState ="loading" |"success" |"error" |"empty";
 
 // helper — translate stage name to friendly Thai label
 function friendlyStage(stage: string): string {
   const map: Record<string, string> = {
-    registration: "ลงทะเบียน",
-    triage: "คัดกรองอาการ",
-    vitals_check: "วัดสัญญาณชีพ",
-    waiting: "รอพบแพทย์",
-    in_consultation: "ตรวจรักษา",
-    lab: "เจาะเลือด/ตรวจแล็บ",
-    imaging: "เอกซเรย์/ตรวจภาพ",
-    pharmacy: "รับยา",
-    payment: "ชำระเงิน",
-    discharge: "กลับบ้าน",
-    follow_up: "นัดติดตามอาการ",
+    registration:"ลงทะเบียน",
+    triage:"คัดกรองอาการ",
+    vitals_check:"วัดสัญญาณชีพ",
+    waiting:"รอพบแพทย์",
+    in_consultation:"ตรวจรักษา",
+    lab:"เจาะเลือด/ตรวจแล็บ",
+    imaging:"เอกซเรย์/ตรวจภาพ",
+    pharmacy:"รับยา",
+    payment:"ชำระเงิน",
+    discharge:"กลับบ้าน",
+    follow_up:"นัดติดตามอาการ",
   };
   return map[stage] ?? stage;
 }
@@ -49,25 +49,25 @@ function friendlyStage(stage: string): string {
 // helper — friendly Thai for status
 function statusThai(status?: string): { label: string; emoji: string } {
   switch (status) {
-    case "in_progress":
-      return { label: "กำลังตรวจ", emoji: "🔵" };
-    case "completed":
-      return { label: "เสร็จแล้ว", emoji: "✅" };
-    case "pending":
-      return { label: "รอคิว", emoji: "⏳" };
-    case "skipped":
-      return { label: "ข้าม", emoji: "⏭️" };
+    case"in_progress":
+      return { label: "กำลังตรวจ", emoji:"🔵" };
+    case"completed":
+      return { label: "เสร็จแล้ว", emoji:"✅" };
+    case"pending":
+      return { label: "รอคิว", emoji:"⏳" };
+    case"skipped":
+      return { label: "ข้าม", emoji:"⏭️" };
     default:
-      return { label: "—", emoji: "·" };
+      return { label: "—", emoji:"·" };
   }
 }
 
 // helper — time format
 function hhmm(iso?: string | null): string {
-  if (!iso) return "";
+  if (!iso) return"";
   return new Date(iso).toLocaleTimeString("th-TH", {
-    hour: "2-digit",
-    minute: "2-digit",
+    hour:"2-digit",
+    minute:"2-digit",
   });
 }
 
@@ -75,7 +75,7 @@ function hhmm(iso?: string | null): string {
 
 export default function PatientViewPage() {
   const params = useParams<{ code: string }>();
-  const code = params?.code ?? "";
+  const code = params?.code ??"";
   const { message } = AntApp.useApp();
 
   const [state, setState] = useState<LoadState>("loading");
@@ -113,11 +113,11 @@ export default function PatientViewPage() {
     // กันไม่ให้ผู้ป่วยกด back ไปยังหน้า staff (/queue, /patient/*, /patients/new)
     // โดย push history state เพิ่ม 1 ชั้น แล้วดัก popstate → redirect ไป /patient-view
     if (typeof window !== "undefined") {
-      window.history.pushState({ patientView: true }, "");
+      window.history.pushState({ patientView: true },"");
 
       function onPopState() {
         // ถ้าผู้ใช้กด back → ดีดไปหน้า entry เสมอ (ไม่ทิ้งให้หลุดไปหน้า staff)
-        window.history.pushState({ patientView: true }, "");
+        window.history.pushState({ patientView: true },"");
         window.location.replace("/patient-view");
       }
 
@@ -160,8 +160,7 @@ export default function PatientViewPage() {
           status="error"
           title="ไม่พบข้อมูลผู้ป่วย"
           subTitle={
-            errorMsg ||
-            "กรุณาตรวจสอบรหัสผู้ป่วย เช่น P0001 แล้วลองอีกครั้ง"
+            errorMsg ||"กรุณาตรวจสอบรหัสผู้ป่วย เช่น P0001 แล้วลองอีกครั้ง"
           }
           extra={
             <Link href="/patient-view">
@@ -203,7 +202,7 @@ export default function PatientViewPage() {
       <header className="mb-5 flex items-center justify-between gap-3">
         <Link
           href="/patient-view"
-          className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+          className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-zinc-700 shadow-sm transition hover:bg-zinc-50"
           title="ดูรหัสผู้ป่วยอื่น"
         >
           <ArrowLeftOutlined />
@@ -213,7 +212,7 @@ export default function PatientViewPage() {
           type="button"
           onClick={manualRefresh}
           disabled={refreshing}
-          className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-teal-700 shadow-sm transition hover:bg-teal-50 disabled:opacity-50 dark:bg-zinc-800 dark:text-teal-300 dark:hover:bg-teal-950"
+          className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-teal-700 shadow-sm transition hover:bg-teal-50 disabled:opacity-50"
         >
           <ReloadOutlined spin={refreshing} />
           รีเฟรช
@@ -231,7 +230,7 @@ export default function PatientViewPage() {
               ยินดีต้อนรับ
             </p>
             <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-              {patient?.name ?? "ผู้ป่วย"}
+              {patient?.name ??"ผู้ป่วย"}
             </h1>
           </div>
         </div>
@@ -247,9 +246,9 @@ export default function PatientViewPage() {
               {patient.gender === "M"
                 ? "ชาย"
                 : patient.gender === "F"
-                ? "หญิง"
-                : patient.gender}
-              {patient.age ? ` · ${patient.age} ปี` : ""}
+                  ? "หญิง"
+                  : patient.gender}
+              {patient.age ?` · ${patient.age} ปี` : ""}
             </span>
           )}
           {pathway?.pathway_template && (
@@ -262,8 +261,8 @@ export default function PatientViewPage() {
 
       {/* ─── main status card ─────────────────────── */}
       {state === "empty" || !visit ? (
-        <section className="mt-5 rounded-3xl border border-dashed border-zinc-300 bg-white p-8 text-center dark:border-zinc-700 dark:bg-zinc-900">
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-4xl dark:bg-amber-950">
+        <section className="mt-5 rounded-3xl border border-dashed border-zinc-300 bg-white p-8 text-center">
+          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-4xl">
             🛣️
           </div>
           <p className="text-xl font-black text-zinc-900">
@@ -274,7 +273,7 @@ export default function PatientViewPage() {
           </p>
         </section>
       ) : visit.status === "completed" ? (
-        <section className="mt-5 rounded-3xl border-2 border-emerald-300 bg-linear-to-br from-emerald-50 to-teal-50 p-8 text-center shadow-md dark:border-emerald-800 dark:from-emerald-950/40 dark:to-teal-950/30">
+        <section className="mt-5 rounded-3xl border-2 border-emerald-300 bg-linear-to-br from-emerald-50 to-teal-50 p-8 text-center shadow-md">
           <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 text-5xl text-white shadow-lg shadow-emerald-500/40">
             ✅
           </div>
@@ -291,7 +290,7 @@ export default function PatientViewPage() {
           )}
         </section>
       ) : visit.status === "cancelled" ? (
-        <section className="mt-5 rounded-3xl border-2 border-zinc-300 bg-zinc-50 p-8 text-center dark:border-zinc-700 dark:bg-zinc-800">
+        <section className="mt-5 rounded-3xl border-2 border-zinc-300 bg-zinc-50 p-8 text-center">
           <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-zinc-400 text-5xl text-white">
             ⛔
           </div>
@@ -306,15 +305,15 @@ export default function PatientViewPage() {
             className={`mt-5 rounded-3xl p-7 shadow-lg ring-1 sm:p-8 ${
               current.status === "in_progress"
                 ? "bg-linear-to-br from-teal-500 to-emerald-600 text-white shadow-teal-500/40 ring-teal-300"
-                : "bg-white text-zinc-900 ring-zinc-200 dark:bg-zinc-900 dark:text-zinc-50 dark:ring-zinc-700"
-            }`}
+                : "bg-white text-zinc-900 ring-zinc-200"
+              }`}
           >
             <p
               className={`text-xs font-black uppercase tracking-[0.15em] ${
                 current.status === "in_progress"
                   ? "text-white/80"
                   : "text-teal-700"
-              }`}
+                }`}
             >
               📍 ตำแหน่งปัจจุบัน
             </p>
@@ -329,9 +328,9 @@ export default function PatientViewPage() {
                   current.status === "in_progress"
                     ? "bg-white/25 text-white"
                     : currentStepInfo.emoji === "⏳"
-                    ? "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200"
-                    : "bg-teal-100 text-teal-900 dark:bg-teal-950 dark:text-teal-200"
-                }`}
+                      ? "bg-amber-100 text-amber-900"
+                      : "bg-teal-100 text-teal-900"
+                  }`}
               >
                 <span className="text-base">{currentStepInfo.emoji}</span>
                 {currentStepInfo.label}
@@ -341,7 +340,7 @@ export default function PatientViewPage() {
                   current.status === "in_progress"
                     ? "text-white/80"
                     : "text-zinc-600"
-                }`}
+                  }`}
               >
                 ขั้นตอนที่ {current.step_order} จาก {totalSteps}
               </span>
@@ -353,7 +352,7 @@ export default function PatientViewPage() {
                   current.status === "in_progress"
                     ? "text-white/90"
                     : "text-teal-700"
-                }`}
+                  }`}
               >
                 ▶ เริ่มเมื่อ {hhmm(current.started_at)}
               </p>
@@ -361,7 +360,7 @@ export default function PatientViewPage() {
           </section>
 
           {/* progress bar */}
-          <section className="mt-4 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+          <section className="mt-4 rounded-2xl border border-zinc-200 bg-white p-5">
             <div className="flex items-center justify-between">
               <p className="text-sm font-black uppercase tracking-wider text-zinc-700">
                 ความคืบหน้า
@@ -370,10 +369,10 @@ export default function PatientViewPage() {
                 {percent}%
               </p>
             </div>
-            <div className="mt-3 h-3 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+            <div className="mt-3 h-3 overflow-hidden rounded-full bg-zinc-200">
               <div
                 className="h-full rounded-full bg-linear-to-r from-teal-500 to-emerald-500 transition-all duration-700"
-                style={{ width: `${percent}%` }}
+                style={{ width:`${percent}%` }}
               />
             </div>
             <p className="mt-2 text-xs font-bold text-zinc-600">
@@ -383,7 +382,7 @@ export default function PatientViewPage() {
 
           {/* ขั้นต่อไป — guidance */}
           {nextStep && current.status === "pending" && (
-            <section className="mt-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5 dark:border-amber-700 dark:bg-amber-950/40">
+            <section className="mt-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
               <div className="flex items-center gap-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500 text-2xl text-white shadow-md">
                   ⏳
@@ -404,7 +403,7 @@ export default function PatientViewPage() {
           )}
 
           {nextStep && current.status === "in_progress" && (
-            <section className="mt-4 rounded-2xl border-2 border-teal-300 bg-teal-50 p-5 dark:border-teal-700 dark:bg-teal-950/40">
+            <section className="mt-4 rounded-2xl border-2 border-teal-300 bg-teal-50 p-5">
               <div className="flex items-center gap-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-500 text-2xl text-white shadow-md">
                   <RightOutlined />
@@ -425,7 +424,7 @@ export default function PatientViewPage() {
           )}
 
           {/* ลำดับขั้นตอนทั้งหมด — read-only timeline */}
-          <section className="mt-5 rounded-3xl border border-zinc-200 bg-white p-5 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <section className="mt-5 rounded-3xl border border-zinc-200 bg-white p-5 sm:p-6">
             <p className="mb-4 text-sm font-black uppercase tracking-wider text-zinc-700">
               🛣️ ลำดับขั้นตอนทั้งหมด
             </p>
@@ -443,7 +442,7 @@ export default function PatientViewPage() {
 
           {/* ข้อมูลเพิ่มเติม */}
           {patient?.symptom && (
-            <section className="mt-4 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <section className="mt-4 rounded-2xl border border-zinc-200 bg-white p-5">
               <p className="text-xs font-black uppercase tracking-wider text-zinc-600">
                 อาการที่ลงทะเบียน
               </p>
@@ -457,10 +456,10 @@ export default function PatientViewPage() {
 
       {/* ─── footer ─────────────────────────────────── */}
       <footer className="mt-10 text-center">
-        <p className="text-xs font-bold text-zinc-500 dark:text-zinc-500">
+        <p className="text-xs font-bold text-zinc-500">
           หน้านี้สำหรับผู้ป่วยดูเท่านั้น · อัปเดตอัตโนมัติทุก 30 วินาที
         </p>
-        <p className="mt-1 text-[10px] font-medium text-zinc-400 dark:text-zinc-600">
+        <p className="mt-1 text-[10px] font-medium text-zinc-400">
           หากมีข้อสงสัย กรุณาสอบถามเจ้าหน้าที่
         </p>
       </footer>
@@ -492,34 +491,32 @@ function PatientStepRow({
           aria-hidden
           className={`absolute left-5 top-11 h-[calc(100%-22px)] w-1 rounded ${
             isDone
-              ? "bg-emerald-300 dark:bg-emerald-700"
-              : "bg-zinc-200 dark:bg-zinc-700"
-          }`}
+              ? "bg-emerald-300"
+              : "bg-zinc-200"
+            }`}
         />
       )}
 
       {/* dot */}
       <span
-        className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl shadow-md ring-4 ring-white dark:ring-zinc-900 ${
+        className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl shadow-md ring-4 ring-white ${
           isDone
             ? "bg-emerald-500 text-white"
             : isSkipped
-            ? "bg-zinc-300 text-zinc-600"
-            : isActive
-            ? "bg-teal-500 text-white ring-teal-200"
-            : isCurrent && isPending
-            ? "bg-amber-400 text-white ring-amber-200"
-            : "bg-white text-zinc-500 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
-        }`}
+              ? "bg-zinc-300 text-zinc-600"
+              : isActive
+                ? "bg-teal-500 text-white ring-teal-200"
+                : isCurrent && isPending
+                  ? "bg-amber-400 text-white ring-amber-200"
+                  : "bg-white text-zinc-500 ring-zinc-200"
+          }`}
       >
         {isDone ? (
           <CheckCircleFilled />
-        ) : isSkipped ? (
-          "⏭"
+        ) : isSkipped ? ("⏭"
         ) : isActive ? (
           <PlayCircleFilled />
-        ) : isCurrent && isPending ? (
-          "⏳"
+        ) : isCurrent && isPending ? ("⏳"
         ) : (
           <span className="text-base font-black">{step.step_order}</span>
         )}
@@ -532,13 +529,13 @@ function PatientStepRow({
             isSkipped
               ? "font-medium text-zinc-500 line-through decoration-zinc-400"
               : isPending && !isCurrent
-              ? "font-bold text-zinc-700"
-              : isActive || (isCurrent && isPending)
-              ? "font-black text-zinc-950"
-              : isDone
-              ? "font-extrabold text-emerald-900"
-              : "font-extrabold text-zinc-950"
-          }`}
+                ? "font-bold text-zinc-700"
+                : isActive || (isCurrent && isPending)
+                  ? "font-black text-zinc-950"
+                  : isDone
+                    ? "font-extrabold text-emerald-900"
+                    : "font-extrabold text-zinc-950"
+            }`}
         >
           {friendlyStage(step.stage)}
         </p>

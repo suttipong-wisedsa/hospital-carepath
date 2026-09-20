@@ -21,15 +21,15 @@ export default function PatientViewEntryPage() {
       message.warning("กรุณากรอกรหัสผู้ป่วย");
       return;
     }
-    window.location.href = `/patient-view/${trimmed}`;
+    window.location.href =`/patient-view/${trimmed}`;
   }
 
   // ดัก back button — ถ้ากดย้อนกลับจาก entry นี้ ให้อยู่ที่ entry เดิม (ไม่ทะลุไปหน้า staff)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    window.history.pushState({ patientViewEntry: true }, "");
+    window.history.pushState({ patientViewEntry: true },"");
     function onPopState() {
-      window.history.pushState({ patientViewEntry: true }, "");
+      window.history.pushState({ patientViewEntry: true },"");
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -51,7 +51,7 @@ export default function PatientViewEntryPage() {
       </section>
 
       {/* ─── form ──────────────────────────────── */}
-      <section className="mt-6 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="mt-6 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
         <label className="block">
           <span className="text-sm font-black text-zinc-900">
             รหัสผู้ป่วย
@@ -96,7 +96,7 @@ export default function PatientViewEntryPage() {
         />
       </section>
 
-      <p className="mt-8 text-center text-xs font-semibold text-zinc-500 dark:text-zinc-500">
+      <p className="mt-8 text-center text-xs font-semibold text-zinc-500">
         หน้านี้สำหรับผู้ป่วยดูข้อมูลเท่านั้น · ไม่สามารถแก้ไขข้อมูลใดๆ ได้
       </p>
     </main>
@@ -113,8 +113,8 @@ function InfoChip({
   desc: string;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-white p-3.5 dark:border-zinc-800 dark:bg-zinc-900">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-base text-teal-700 dark:bg-teal-950 dark:text-teal-300">
+    <div className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-white p-3.5">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-base text-teal-700">
         {icon}
       </span>
       <div className="min-w-0">

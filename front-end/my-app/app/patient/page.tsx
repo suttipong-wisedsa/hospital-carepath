@@ -21,25 +21,25 @@ import {
 } from "@ant-design/icons";
 import { getPatients, type Patient } from "../lib/api";
 
-type LoadState = "loading" | "success" | "error" | "empty";
-type StatusFilter = "all" | Patient["status"];
+type LoadState ="loading" |"success" |"error" |"empty";
+type StatusFilter ="all" | Patient["status"];
 
 const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "ทั้งหมด" },
-  { value: "admitted", label: "ลงทะเบียน" },
-  { value: "treating", label: "กำลังรักษา" },
-  { value: "discharged", label: "กลับบ้าน" },
+  { value:"all", label: "ทั้งหมด" },
+  { value:"admitted", label: "ลงทะเบียน" },
+  { value:"treating", label: "กำลังรักษา" },
+  { value:"discharged", label: "กลับบ้าน" },
 ];
 
 // สี Tag ตามสถานะ
 function statusTag(status: Patient["status"]) {
   switch (status) {
-    case "admitted":
-      return { color: "blue", label: "ลงทะเบียนแล้ว", icon: "📝" };
-    case "treating":
-      return { color: "gold", label: "กำลังรักษา", icon: "💊" };
-    case "discharged":
-      return { color: "green", label: "กลับบ้านแล้ว", icon: "✅" };
+    case"admitted":
+      return { color:"blue", label: "ลงทะเบียนแล้ว", icon: "📝" };
+    case"treating":
+      return { color:"gold", label: "กำลังรักษา", icon: "💊" };
+    case"discharged":
+      return { color:"green", label: "กลับบ้านแล้ว", icon: "✅" };
   }
 }
 
@@ -50,15 +50,7 @@ function initials(name: string): string {
 }
 
 function avatarGradient(name: string): string {
-  const palettes = [
-    "linear-gradient(135deg, #fb7185 0%, #be123c 100%)",
-    "linear-gradient(135deg, #fb923c 0%, #c2410c 100%)",
-    "linear-gradient(135deg, #34d399 0%, #047857 100%)",
-    "linear-gradient(135deg, #38bdf8 0%, #0369a1 100%)",
-    "linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%)",
-    "linear-gradient(135deg, #e879f9 0%, #a21caf 100%)",
-    "linear-gradient(135deg, #a3e635 0%, #4d7c0f 100%)",
-    "linear-gradient(135deg, #22d3ee 0%, #0e7490 100%)",
+  const palettes = ["linear-gradient(135deg, #fb7185 0%, #be123c 100%)","linear-gradient(135deg, #fb923c 0%, #c2410c 100%)","linear-gradient(135deg, #34d399 0%, #047857 100%)","linear-gradient(135deg, #38bdf8 0%, #0369a1 100%)","linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%)","linear-gradient(135deg, #e879f9 0%, #a21caf 100%)","linear-gradient(135deg, #a3e635 0%, #4d7c0f 100%)","linear-gradient(135deg, #22d3ee 0%, #0e7490 100%)",
   ];
   const code = name.charCodeAt(0) || 0;
   return palettes[code % palettes.length];
@@ -98,8 +90,7 @@ export default function PatientListPage() {
         acc[p.status] = (acc[p.status] ?? 0) + 1;
         return acc;
       },
-      { all: 0, admitted: 0, treating: 0, discharged: 0 } as Record<
-        "all" | Patient["status"],
+      { all: 0, admitted: 0, treating: 0, discharged: 0 } as Record<"all" | Patient["status"],
         number
       >
     );
@@ -114,8 +105,8 @@ export default function PatientListPage() {
       return (
         p.name.toLowerCase().includes(q) ||
         p.id.toLowerCase().includes(q) ||
-        (p.symptom ?? "").toLowerCase().includes(q) ||
-        (p.phone ?? "").toLowerCase().includes(q)
+        (p.symptom ??"").toLowerCase().includes(q) ||
+        (p.phone ??"").toLowerCase().includes(q)
       );
     });
   }, [patients, filter, search]);
@@ -126,13 +117,13 @@ export default function PatientListPage() {
       <section className="mb-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-teal-700 dark:text-teal-400">
+            <p className="text-xs font-semibold tracking-widest uppercase text-teal-700">
               Dashboard · ผู้ป่วย
             </p>
-            <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl dark:text-zinc-50">
+            <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">
               ภาพรวมผู้ป่วย
             </h1>
-            <p className="mt-2 text-base text-zinc-700 dark:text-zinc-300">
+            <p className="mt-2 text-base text-zinc-700">
               ติดตามสถานะและ Care Pathway ของผู้ป่วยทั้งหมดในระบบ
             </p>
           </div>
@@ -171,7 +162,7 @@ export default function PatientListPage() {
             <Skeleton.Node
               key={i}
               active
-              style={{ width: "100%", height: 176, borderRadius: 16 }}
+              style={{ width:"100%", height: 176, borderRadius: 16 }}
             >
               <span />
             </Skeleton.Node>
@@ -193,7 +184,7 @@ export default function PatientListPage() {
       )}
 
       {state === "empty" && (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-6">
           <Empty
             image={<div className="text-5xl">🏥</div>}
             styles={{ image: { height: 80 } }}
@@ -242,8 +233,8 @@ export default function PatientListPage() {
                       className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums ${
                         filter === o.value
                           ? "bg-white/25"
-                          : "bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200"
-                      }`}
+                          : "bg-zinc-200 text-zinc-700"
+                        }`}
                     >
                       {counts[o.value]}
                     </span>
@@ -257,11 +248,11 @@ export default function PatientListPage() {
           {visible.length === 0 ? (
             <Empty
               description={
-                  <span className="text-zinc-600">
+                <span className="text-zinc-600">
                   ไม่พบผู้ป่วยที่ตรงกับเงื่อนไข
                 </span>
               }
-              className="py-12! rounded-2xl border border-dashed border-zinc-300 bg-white dark:border-zinc-700 dark:bg-zinc-900"
+              className="py-12! rounded-2xl border border-dashed border-zinc-300 bg-white"
             />
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -270,7 +261,7 @@ export default function PatientListPage() {
                 return (
                   <li
                     key={p.id}
-                    className="group flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                    className="group flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md"
                   >
                     {/* header */}
                     <div className="flex items-start justify-between gap-3">
@@ -279,7 +270,7 @@ export default function PatientListPage() {
                           size={44}
                           style={{
                             background: avatarGradient(p.name),
-                            color: "#fff",
+                            color:"#fff",
                             fontWeight: 600,
                             flexShrink: 0,
                           }}
@@ -305,11 +296,11 @@ export default function PatientListPage() {
                     <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
                       <dt className="font-medium text-zinc-600">เพศ</dt>
                       <dd className="font-semibold text-zinc-900">
-                        {p.gender || "—"}
+                        {p.gender ||"—"}
                       </dd>
                       <dt className="font-medium text-zinc-600">อายุ</dt>
                       <dd className="font-semibold text-zinc-900">
-                        {p.age != null ? `${p.age} ปี` : "—"}
+                        {p.age != null ?`${p.age} ปี` : "—"}
                       </dd>
                       {p.phone && (
                         <>
@@ -369,22 +360,19 @@ function KpiCard({
 }: {
   label: string;
   value: number;
-  tone: "default" | "sky" | "amber" | "emerald";
+  tone:"default" |"sky" |"amber" |"emerald";
   icon: string;
 }) {
   const toneStyles = {
-    default:
-      "from-zinc-100 to-zinc-50 text-zinc-900 dark:from-zinc-800 dark:to-zinc-900 dark:text-zinc-50",
-    sky: "from-sky-100 to-sky-50 text-sky-900 dark:from-sky-950 dark:to-sky-900/30 dark:text-sky-200",
-    amber:
-      "from-amber-100 to-amber-50 text-amber-900 dark:from-amber-950 dark:to-amber-900/30 dark:text-amber-200",
-    emerald:
-      "from-emerald-100 to-emerald-50 text-emerald-900 dark:from-emerald-950 dark:to-emerald-900/30 dark:text-emerald-200",
+    default:"from-zinc-100 to-zinc-50 text-zinc-900",
+    sky:"from-sky-100 to-sky-50 text-sky-900",
+    amber:"from-amber-100 to-amber-50 text-amber-900",
+    emerald:"from-emerald-100 to-emerald-50 text-emerald-900",
   }[tone];
 
   return (
     <div
-      className={`rounded-2xl border border-zinc-200 bg-linear-to-br p-4 shadow-sm dark:border-zinc-800 ${toneStyles}`}
+      className={`rounded-2xl border border-zinc-200 bg-linear-to-br p-4 shadow-sm ${toneStyles}`}
     >
       <div className="flex items-center justify-between text-xs font-medium opacity-70">
         <span>{label}</span>
