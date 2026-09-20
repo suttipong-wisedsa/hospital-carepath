@@ -103,7 +103,9 @@ export default function PatientViewPage() {
   }
 
   useEffect(() => {
-    load();
+    const loadTimer = setTimeout(() => {
+      load();
+    }, 0);
     // auto-refresh ทุก 30 วินาที เพื่อให้คิวอัปเดตเอง
     const t = setInterval(() => {
       load(true);
@@ -124,12 +126,16 @@ export default function PatientViewPage() {
       window.addEventListener("popstate", onPopState);
       // cleanup
       return () => {
+        clearTimeout(loadTimer);
         clearInterval(t);
         window.removeEventListener("popstate", onPopState);
       };
     }
 
-    return () => clearInterval(t);
+    return () => {
+      clearTimeout(loadTimer);
+      clearInterval(t);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 

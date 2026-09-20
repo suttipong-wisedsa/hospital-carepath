@@ -57,11 +57,14 @@ export function Nav() {
               link.href === "/"
                 ? pathname === "/"
                 : pathname.startsWith(link.href);
+            const openInNewTab = link.href === "/patient-view";
 
             return (
               <Link
                 key={link.href}
                 href={link.href}
+                target={openInNewTab ? "_blank" : undefined}
+                rel={openInNewTab ? "noopener noreferrer" : undefined}
                 aria-current={active ? "page" : undefined}
                 className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
                   active
