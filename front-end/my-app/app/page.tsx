@@ -13,10 +13,9 @@ export default function Home() {
           Hospital Carepath
         </p>
         <h1 className="mt-3 text-4xl font-black tracking-tight text-zinc-950 sm:text-5xl">
-          ระบบติดตาม{""}
+          ระบบติดตาม&nbsp;
           <span className="text-teal-700">Care Pathway</span>
           <br />
-          สำหรับผู้ป่วย
         </h1>
       </section>
 
