@@ -395,15 +395,11 @@ export default function QueuePage() {
           <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">
             คิวตรวจ
           </h1>
-          <p className="mt-2 text-base font-medium text-zinc-700">
-            เรียกคิว บันทึกการตรวจ และติดตามสถานะผู้ป่วยแบบ real-time
-          </p>
         </div>
         <div className="flex items-center gap-3">
           <Input
             allowClear
             prefix={<SearchOutlined className="text-zinc-400" />}
-            placeholder="ค้นหาชื่อ / รหัส / pathway"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-xs!"
@@ -432,11 +428,8 @@ export default function QueuePage() {
           <div className="mb-2 flex items-center gap-2">
             <TagOutlined className="text-sky-700" />
             <p className="text-xs font-bold uppercase tracking-wider text-zinc-700">
-              ฟิลเตอร์ตาม Care Pathway
+              ค้นหาตาม Care Pathway
             </p>
-            <span className="text-xs font-semibold text-zinc-600">
-              · ดูเฉพาะคิวของแม่แบบที่สนใจ
-            </span>
             {hasActiveFilter && (
               <Button
                 type="link"
@@ -495,11 +488,8 @@ export default function QueuePage() {
           <div className="mb-2 flex items-center gap-2">
             <EnvironmentOutlined className="text-teal-700" />
             <p className="text-xs font-bold uppercase tracking-wider text-zinc-700">
-              ฟิลเตอร์ตามจุดรักษา
+              ค้นหาตาม จุดรักษา
             </p>
-            <span className="text-xs font-semibold text-zinc-600">
-              · เลือกดูเฉพาะคิวของจุดที่รับผิดชอบ
-            </span>
           </div>
           <div
             role="tablist"
@@ -539,7 +529,7 @@ export default function QueuePage() {
             description={
               <div>
                 <p className="text-lg font-bold text-zinc-900">
-                  คิวว่างเปล่า
+                  ไม่พบข้อมูลคิว
                 </p>
                 <p className="mt-1 text-sm font-semibold text-zinc-600">
                   ยังไม่มี visit ที่ active — ลงทะเบียนผู้ป่วยและกำหนด pathway

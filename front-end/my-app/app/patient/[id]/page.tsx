@@ -815,11 +815,6 @@ export default function PatientDetailPage() {
           </div>
         )}
       </Card>
-
-      <Text className="mx-auto mt-8 block text-center text-sm! font-semibold! text-zinc-600!">
-        ข้อมูลจาก GET /patients/{patient.id}
-      </Text>
-
       {/* ─── QR Code Modal ──────────────────────────── */}
       <PatientQRModal
         open={qrOpen}
@@ -1048,7 +1043,6 @@ function PatientQRModal({
         <Input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://your-domain/patient-view/P0001"
           addonBefore={
             <span className="text-xs font-bold text-teal-700">URL</span>
           }
@@ -1113,9 +1107,6 @@ function PatientQRModal({
       </div>
 
       {/* Hint */}
-      <p className="mt-4 text-center text-xs font-semibold text-zinc-500">
-        🛡️ หน้านี้สำหรับผู้ป่วยดูข้อมูลเท่านั้น · ไม่สามารถแก้ไขใดๆ ได้
-      </p>
     </Modal>
   );
 }

@@ -59,7 +59,6 @@ export default function PatientViewEntryPage() {
           <div className="mt-2">
             <Search
               size="large"
-              placeholder="เช่น P0001"
               enterButton={
                 <span className="inline-flex items-center gap-1.5 px-2 font-bold">
                   <RightOutlined /> เปิดดู
@@ -95,10 +94,6 @@ export default function PatientViewEntryPage() {
           desc="รหัสอยู่บนเอกสารลงทะเบียน เช่น P0001, P0002"
         />
       </section>
-
-      <p className="mt-8 text-center text-xs font-semibold text-zinc-500">
-        หน้านี้สำหรับผู้ป่วยดูข้อมูลเท่านั้น · ไม่สามารถแก้ไขข้อมูลใดๆ ได้
-      </p>
     </main>
   );
 }

@@ -68,12 +68,6 @@ export default function NewPatientPage() {
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-900">
           ลงทะเบียนผู้ป่วยใหม่
         </h1>
-        <p className="mt-3 text-base font-medium text-zinc-700">
-          กรอกข้อมูลด้านล่างแล้วกดบันทึก — ระบบจะ POST ไปยัง{""}
-          <code className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-sm font-bold text-zinc-900">
-            POST /patients
-          </code>
-        </p>
       </header>
 
       <Card styles={{ body: { padding: 24 } }}>
@@ -91,7 +85,6 @@ export default function NewPatientPage() {
           >
             <Input
               size="large"
-              placeholder="เช่น สมชาย ใจดี"
               autoFocus
             />
           </Form.Item>
@@ -100,7 +93,6 @@ export default function NewPatientPage() {
             <Form.Item label="เพศ" name="gender">
               <Select
                 size="large"
-                placeholder="— ไม่ระบุ —"
                 allowClear
                 options={[
                   { value:"M", label: "ชาย" },
@@ -115,7 +107,6 @@ export default function NewPatientPage() {
                 size="large"
                 min={0}
                 max={150}
-                placeholder="35"
                 className="w-full!"
               />
             </Form.Item>
@@ -125,14 +116,12 @@ export default function NewPatientPage() {
             <Input
               size="large"
               type="tel"
-              placeholder="เช่น 081-234-5678"
             />
           </Form.Item>
 
           <Form.Item label="อาการเบื้องต้น" name="symptom">
             <Input.TextArea
               rows={3}
-              placeholder="เช่น ปวดหัว มีไข้ 2 วัน"
             />
           </Form.Item>
 
@@ -205,11 +194,6 @@ export default function NewPatientPage() {
           <HomeOutlined /> หน้าแรก
         </Link>
       </div>
-
-      <p className="mt-6 text-center text-sm font-semibold text-zinc-600">
-        หากเจอ CORS error ตอนรัน ให้เปิด CORS middleware ที่ backend หรือใช้
-        Next.js proxy
-      </p>
     </main>
   );
 }

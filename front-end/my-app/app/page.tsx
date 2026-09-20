@@ -18,10 +18,6 @@ export default function Home() {
           <br />
           สำหรับผู้ป่วย
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-base text-zinc-700">
-          ลงทะเบียน ติดตามสถานะ เรียกคิว และกำหนดลำดับขั้นตอนการดูแลผู้ป่วย
-          ตั้งแต่ลงทะเบียนจนกลับบ้าน ในที่เดียว
-        </p>
       </section>
 
       {/* ─── quick actions (3 cards) ───────────────────── */}
@@ -166,14 +162,6 @@ export default function Home() {
           </span>
         </Link>
       </section>
-
-      {/* ─── footer ──────────────────────────────────── */}
-      <footer className="mt-16 text-center">
-        <p className="text-xs font-medium text-zinc-500">
-          Hospital Carepath · ติดตามดูแลผู้ป่วยอย่างต่อเนื่อง
-          ตั้งแต่ลงทะเบียนจนกลับบ้าน
-        </p>
-      </footer>
     </main>
   );
 }

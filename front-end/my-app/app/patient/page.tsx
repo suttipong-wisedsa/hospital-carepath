@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -21,25 +22,25 @@ import {
 } from "@ant-design/icons";
 import { getPatients, type Patient } from "../lib/api";
 
-type LoadState ="loading" |"success" |"error" |"empty";
-type StatusFilter ="all" | Patient["status"];
+type LoadState = "loading" | "success" | "error" | "empty";
+type StatusFilter = "all" | Patient["status"];
 
 const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value:"all", label: "ทั้งหมด" },
-  { value:"admitted", label: "ลงทะเบียน" },
-  { value:"treating", label: "กำลังรักษา" },
-  { value:"discharged", label: "กลับบ้าน" },
+  { value: "all", label: "ทั้งหมด" },
+  { value: "admitted", label: "ลงทะเบียน" },
+  { value: "treating", label: "กำลังรักษา" },
+  { value: "discharged", label: "กลับบ้าน" },
 ];
 
 // สี Tag ตามสถานะ
 function statusTag(status: Patient["status"]) {
   switch (status) {
-    case"admitted":
-      return { color:"blue", label: "ลงทะเบียนแล้ว", icon: "📝" };
-    case"treating":
-      return { color:"gold", label: "กำลังรักษา", icon: "💊" };
-    case"discharged":
-      return { color:"green", label: "กลับบ้านแล้ว", icon: "✅" };
+    case "admitted":
+      return { color: "blue", label: "ลงทะเบียนแล้ว", icon: "📝" };
+    case "treating":
+      return { color: "gold", label: "กำลังรักษา", icon: "💊" };
+    case "discharged":
+      return { color: "green", label: "กลับบ้านแล้ว", icon: "✅" };
   }
 }
 
@@ -50,7 +51,15 @@ function initials(name: string): string {
 }
 
 function avatarGradient(name: string): string {
-  const palettes = ["linear-gradient(135deg, #fb7185 0%, #be123c 100%)","linear-gradient(135deg, #fb923c 0%, #c2410c 100%)","linear-gradient(135deg, #34d399 0%, #047857 100%)","linear-gradient(135deg, #38bdf8 0%, #0369a1 100%)","linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%)","linear-gradient(135deg, #e879f9 0%, #a21caf 100%)","linear-gradient(135deg, #a3e635 0%, #4d7c0f 100%)","linear-gradient(135deg, #22d3ee 0%, #0e7490 100%)",
+  const palettes = [
+    "linear-gradient(135deg, #fb7185 0%, #be123c 100%)",
+    "linear-gradient(135deg, #fb923c 0%, #c2410c 100%)",
+    "linear-gradient(135deg, #34d399 0%, #047857 100%)",
+    "linear-gradient(135deg, #38bdf8 0%, #0369a1 100%)",
+    "linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%)",
+    "linear-gradient(135deg, #e879f9 0%, #a21caf 100%)",
+    "linear-gradient(135deg, #a3e635 0%, #4d7c0f 100%)",
+    "linear-gradient(135deg, #22d3ee 0%, #0e7490 100%)",
   ];
   const code = name.charCodeAt(0) || 0;
   return palettes[code % palettes.length];
@@ -79,8 +88,8 @@ export default function PatientListPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const counts = useMemo(() => {
@@ -90,9 +99,10 @@ export default function PatientListPage() {
         acc[p.status] = (acc[p.status] ?? 0) + 1;
         return acc;
       },
-      { all: 0, admitted: 0, treating: 0, discharged: 0 } as Record<"all" | Patient["status"],
+      { all: 0, admitted: 0, treating: 0, discharged: 0 } as Record<
+        "all" | Patient["status"],
         number
-      >
+      >,
     );
   }, [patients]);
 
@@ -105,8 +115,8 @@ export default function PatientListPage() {
       return (
         p.name.toLowerCase().includes(q) ||
         p.id.toLowerCase().includes(q) ||
-        (p.symptom ??"").toLowerCase().includes(q) ||
-        (p.phone ??"").toLowerCase().includes(q)
+        (p.symptom ?? "").toLowerCase().includes(q) ||
+        (p.phone ?? "").toLowerCase().includes(q)
       );
     });
   }, [patients, filter, search]);
@@ -123,9 +133,6 @@ export default function PatientListPage() {
             <h1 className="mt-2 text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl">
               ภาพรวมผู้ป่วย
             </h1>
-            <p className="mt-2 text-base text-zinc-700">
-              ติดตามสถานะและ Care Pathway ของผู้ป่วยทั้งหมดในระบบ
-            </p>
           </div>
           <div className="flex gap-2">
             <Button
@@ -147,10 +154,30 @@ export default function PatientListPage() {
       {/* ─── KPI Cards ───────────────────────────────────────── */}
       {state === "success" && (
         <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          <KpiCard label="ผู้ป่วยทั้งหมด" value={counts.all} tone="default" icon="👥" />
-          <KpiCard label="ลงทะเบียน" value={counts.admitted} tone="sky" icon="📝" />
-          <KpiCard label="กำลังรักษา" value={counts.treating} tone="amber" icon="💊" />
-          <KpiCard label="กลับบ้านแล้ว" value={counts.discharged} tone="emerald" icon="✅" />
+          <KpiCard
+            label="ผู้ป่วยทั้งหมด"
+            value={counts.all}
+            tone="default"
+            icon="👥"
+          />
+          <KpiCard
+            label="ลงทะเบียน"
+            value={counts.admitted}
+            tone="sky"
+            icon="📝"
+          />
+          <KpiCard
+            label="กำลังรักษา"
+            value={counts.treating}
+            tone="amber"
+            icon="💊"
+          />
+          <KpiCard
+            label="กลับบ้านแล้ว"
+            value={counts.discharged}
+            tone="emerald"
+            icon="✅"
+          />
         </section>
       )}
 
@@ -162,7 +189,7 @@ export default function PatientListPage() {
             <Skeleton.Node
               key={i}
               active
-              style={{ width:"100%", height: 176, borderRadius: 16 }}
+              style={{ width: "100%", height: 176, borderRadius: 16 }}
             >
               <span />
             </Skeleton.Node>
@@ -215,7 +242,6 @@ export default function PatientListPage() {
             <Input
               allowClear
               prefix={<SearchOutlined className="text-zinc-400" />}
-              placeholder="ค้นหาชื่อ / รหัส / อาการ / เบอร์โทร"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-sm!"
@@ -234,7 +260,7 @@ export default function PatientListPage() {
                         filter === o.value
                           ? "bg-white/25"
                           : "bg-zinc-200 text-zinc-700"
-                        }`}
+                      }`}
                     >
                       {counts[o.value]}
                     </span>
@@ -270,7 +296,7 @@ export default function PatientListPage() {
                           size={44}
                           style={{
                             background: avatarGradient(p.name),
-                            color:"#fff",
+                            color: "#fff",
                             fontWeight: 600,
                             flexShrink: 0,
                           }}
@@ -296,11 +322,11 @@ export default function PatientListPage() {
                     <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
                       <dt className="font-medium text-zinc-600">เพศ</dt>
                       <dd className="font-semibold text-zinc-900">
-                        {p.gender ||"—"}
+                        {p.gender || "—"}
                       </dd>
                       <dt className="font-medium text-zinc-600">อายุ</dt>
                       <dd className="font-semibold text-zinc-900">
-                        {p.age != null ?`${p.age} ปี` : "—"}
+                        {p.age != null ? `${p.age} ปี` : "—"}
                       </dd>
                       {p.phone && (
                         <>
@@ -327,7 +353,10 @@ export default function PatientListPage() {
                           ดูรายละเอียด
                         </Button>
                       </Link>
-                      <Link href={`/patient/${p.id}/pathway`} className="flex-1">
+                      <Link
+                        href={`/patient/${p.id}/pathway`}
+                        className="flex-1"
+                      >
                         <Button block type="primary" size="middle">
                           เลือก Pathway
                           <ArrowRightOutlined />
@@ -341,7 +370,15 @@ export default function PatientListPage() {
           )}
 
           <p className="mt-6 text-center text-sm font-medium text-zinc-600">
-            แสดง <span className="font-semibold text-zinc-900">{visible.length}</span> จาก <span className="font-semibold text-zinc-900">{patients.length}</span> คน
+            แสดง{" "}
+            <span className="font-semibold text-zinc-900">
+              {visible.length}
+            </span>{" "}
+            จาก{" "}
+            <span className="font-semibold text-zinc-900">
+              {patients.length}
+            </span>{" "}
+            คน
           </p>
         </>
       )}
@@ -360,14 +397,14 @@ function KpiCard({
 }: {
   label: string;
   value: number;
-  tone:"default" |"sky" |"amber" |"emerald";
+  tone: "default" | "sky" | "amber" | "emerald";
   icon: string;
 }) {
   const toneStyles = {
-    default:"from-zinc-100 to-zinc-50 text-zinc-900",
-    sky:"from-sky-100 to-sky-50 text-sky-900",
-    amber:"from-amber-100 to-amber-50 text-amber-900",
-    emerald:"from-emerald-100 to-emerald-50 text-emerald-900",
+    default: "from-zinc-100 to-zinc-50 text-zinc-900",
+    sky: "from-sky-100 to-sky-50 text-sky-900",
+    amber: "from-amber-100 to-amber-50 text-amber-900",
+    emerald: "from-emerald-100 to-emerald-50 text-emerald-900",
   }[tone];
 
   return (

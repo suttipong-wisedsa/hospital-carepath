@@ -426,7 +426,6 @@ export default function AssignPathwayPage() {
               addCondition(newCondition);
               setNewCondition("");
             }}
-            placeholder="พิมพ์แล้วกด Enter"
             suffix={
               <Button
                 type="text"
@@ -497,7 +496,7 @@ export default function AssignPathwayPage() {
           >
             {isDirty
               ? "🟡 มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก"
-              : "✓ ยังไม่มีการเปลี่ยนแปลง"}
+              : ""}
           </p>
 
           <div className="flex gap-2">

@@ -10,24 +10,18 @@ interface NavLink {
   icon: string;
 }
 
-/** แถบเมนูด้านบน — ปรากฏทุกหน้า ช่วยให้นำทางง่ายขึ้น
- * ยกเว้นหน้า /patient-view/* (หน้าสำหรับผู้ป่วยดูเอง) จะไม่แสดง —
- * เพื่อป้องกันไม่ให้ผู้ป่วยเข้าถึงเมนูที่นำไปยังหน้าแก้ไขข้อมูลได้
- */
 export function Nav() {
   const pathname = usePathname();
 
-  // ซ่อน Nav ในหน้า patient-view (ทั้ง entry และ [code])
   if (pathname?.startsWith("/patient-view")) {
     return null;
   }
 
   const links: NavLink[] = [
-    { href: "/", label: "หน้าแรก", icon: "🏠" },
-    { href: "/queue", label: "คิว", icon: "📋" },
-    { href: "/patient", label: "ผู้ป่วย", icon: "👥" },
-    { href: "/patient-view", label: "ผู้ป่วยดูเอง", icon: "🧑‍⚕️" },
-    { href: "/patients/new", label: "ลงทะเบียน", icon: "➕" },
+    { href: "/queue", label: "Queue", icon: "📋" },
+    { href: "/patient", label: "Patients", icon: "👥" },
+    { href: "/patient-view", label: "Care Pathway", icon: "🧑‍⚕️" },
+    { href: "/patients/new", label: "Register Patient", icon: "➕" },
   ];
 
   return (
@@ -41,9 +35,8 @@ export function Nav() {
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-teal-500 to-emerald-600 text-lg shadow-md ring-1 ring-teal-700/10">
             🏥
           </span>
-          <span className="text-base font-bold tracking-tight text-zinc-900">
-            Hospital{" "}
-            <span className="text-teal-700">Carepath</span>
+          <span className="text-2xl font-bold tracking-tight text-zinc-900">
+            Hospital <span className="text-teal-700">Carepath</span>
           </span>
         </Link>
 
@@ -70,7 +63,7 @@ export function Nav() {
                   active
                     ? "bg-white text-teal-700 shadow-sm ring-1 ring-zinc-200"
                     : "text-zinc-700 hover:bg-white hover:text-zinc-900 hover:shadow-sm"
-                  }`}
+                }`}
               >
                 <span aria-hidden className="text-base leading-none">
                   {link.icon}
