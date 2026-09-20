@@ -30,15 +30,45 @@ import {
   type PatientPathwayResponse,
 } from "../../../lib/api";
 
-type LoadState ="loading" |"ready" |"error";
+type LoadState = "loading" | "ready" | "error";
 
 const TEMPLATE_PALETTES = [
-  { bg:"from-teal-50 to-emerald-50", ring:"ring-teal-300", accent:"text-teal-700", dot:"bg-teal-500" },
-  { bg:"from-sky-50 to-blue-50", ring:"ring-sky-300", accent:"text-sky-700", dot:"bg-sky-500" },
-  { bg:"from-amber-50 to-orange-50", ring:"ring-amber-300", accent:"text-amber-700", dot:"bg-amber-500" },
-  { bg:"from-rose-50 to-pink-50", ring:"ring-rose-300", accent:"text-rose-700", dot:"bg-rose-500" },
-  { bg:"from-violet-50 to-purple-50", ring:"ring-violet-300", accent:"text-violet-700", dot:"bg-violet-500" },
-  { bg:"from-lime-50 to-green-50", ring:"ring-lime-300", accent:"text-lime-700", dot:"bg-lime-500" },
+  {
+    bg: "from-teal-50 to-emerald-50",
+    ring: "ring-teal-300",
+    accent: "text-teal-700",
+    dot: "bg-teal-500",
+  },
+  {
+    bg: "from-sky-50 to-blue-50",
+    ring: "ring-sky-300",
+    accent: "text-sky-700",
+    dot: "bg-sky-500",
+  },
+  {
+    bg: "from-amber-50 to-orange-50",
+    ring: "ring-amber-300",
+    accent: "text-amber-700",
+    dot: "bg-amber-500",
+  },
+  {
+    bg: "from-rose-50 to-pink-50",
+    ring: "ring-rose-300",
+    accent: "text-rose-700",
+    dot: "bg-rose-500",
+  },
+  {
+    bg: "from-violet-50 to-purple-50",
+    ring: "ring-violet-300",
+    accent: "text-violet-700",
+    dot: "bg-violet-500",
+  },
+  {
+    bg: "from-lime-50 to-green-50",
+    ring: "ring-lime-300",
+    accent: "text-lime-700",
+    dot: "bg-lime-500",
+  },
 ];
 
 function paletteFor(code: string) {
@@ -46,14 +76,20 @@ function paletteFor(code: string) {
   return TEMPLATE_PALETTES[c % TEMPLATE_PALETTES.length];
 }
 
-const QUICK_CONDITIONS = ["wheelchair","fast_required","pregnancy","elderly","diabetic","allergy_penicillin",
+const QUICK_CONDITIONS = [
+  "wheelchair",
+  "fast_required",
+  "pregnancy",
+  "elderly",
+  "diabetic",
+  "allergy_penicillin",
 ];
 
 export default function AssignPathwayPage() {
   const router = useRouter();
   const { message } = App.useApp();
   const params = useParams<{ id: string }>();
-  const patientId = params?.id ??"";
+  const patientId = params?.id ?? "";
 
   const [state, setState] = useState<LoadState>("loading");
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -96,22 +132,21 @@ export default function AssignPathwayPage() {
 
   const selectedTemplate = useMemo(
     () => templates.find((t) => t.code === selectedCode) ?? null,
-    [templates, selectedCode]
+    [templates, selectedCode],
   );
 
   const isDirty = useMemo(() => {
-    const currentCode = currentPathway?.pathway_template?.code ??"";
+    const currentCode = currentPathway?.pathway_template?.code ?? "";
     const currentConds = currentPathway?.special_conditions ?? [];
     const sameCode = selectedCode === currentCode;
     const sameConds =
       conditions.length === currentConds.length &&
-      [...conditions].sort().join("|") ===
-      [...currentConds].sort().join("|");
+      [...conditions].sort().join("|") === [...currentConds].sort().join("|");
     return !(sameCode && sameConds);
   }, [selectedCode, conditions, currentPathway]);
 
   function addCondition(raw: string) {
-    const c = raw.trim().toLowerCase().replace(/\s+/g,"_");
+    const c = raw.trim().toLowerCase().replace(/\s+/g, "_");
     if (!c) return;
     if (conditions.includes(c)) return;
     setConditions([...conditions, c]);
@@ -136,14 +171,12 @@ export default function AssignPathwayPage() {
       const steps = res.steps_created ?? 0;
       message.success(
         steps > 0
-          ?`บันทึกสำเร็จ — สร้างขั้นตอนใหม่ ${steps} ขั้น`
-          : "บันทึกสำเร็จ"
+          ? `บันทึกสำเร็จ — สร้างขั้นตอนใหม่ ${steps} ขั้น`
+          : "บันทึกสำเร็จ",
       );
       setTimeout(() => router.push(`/patient/${patient.id}`), 1200);
     } catch (err) {
-      message.error(
-        err instanceof Error ? err.message : "บันทึกไม่สำเร็จ"
-      );
+      message.error(err instanceof Error ? err.message : "บันทึกไม่สำเร็จ");
     } finally {
       setSaving(false);
     }
@@ -156,20 +189,25 @@ export default function AssignPathwayPage() {
         <Skeleton active paragraph={{ rows: 1 }} className="w-32!" />
         <Skeleton.Node
           active
-          style={{ width:"100%", height: 160, borderRadius: 24, marginTop: 16 }}
+          style={{
+            width: "100%",
+            height: 160,
+            borderRadius: 24,
+            marginTop: 16,
+          }}
         >
           <span />
         </Skeleton.Node>
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <Skeleton.Node
             active
-            style={{ width:"100%", height: 256, borderRadius: 16 }}
+            style={{ width: "100%", height: 256, borderRadius: 16 }}
           >
             <span />
           </Skeleton.Node>
           <Skeleton.Node
             active
-            style={{ width:"100%", height: 256, borderRadius: 16 }}
+            style={{ width: "100%", height: 256, borderRadius: 16 }}
           >
             <span />
           </Skeleton.Node>
@@ -257,18 +295,13 @@ export default function AssignPathwayPage() {
             <h2 className="text-lg font-semibold text-zinc-900">
               เลือกแม่แบบ Care Pathway
             </h2>
-            <p className="mt-1 text-sm text-zinc-600">
-              เลือก 1 แม่แบบ — ระบบจะสร้าง visit และขั้นตอนให้อัตโนมัติ
-            </p>
           </div>
         </div>
 
         {templates.length === 0 ? (
           <Empty
             description={
-              <span className="text-zinc-600">
-                ไม่มีแม่แบบในระบบ
-              </span>
+              <span className="text-zinc-600">ไม่มีแม่แบบในระบบ</span>
             }
             className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 py-8!"
           />
@@ -284,9 +317,9 @@ export default function AssignPathwayPage() {
                     onClick={() => setSelectedCode(tpl.code)}
                     className={`group relative w-full overflow-hidden rounded-2xl border p-4 text-left transition ${
                       selected
-                        ?`border-transparent bg-linear-to-br ${palette.bg} ring-2 ${palette.ring} shadow-md`
+                        ? `border-transparent bg-linear-to-br ${palette.bg} ring-2 ${palette.ring} shadow-md`
                         : "border-zinc-200 bg-white hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-sm"
-                      }`}
+                    }`}
                   >
                     {selected && (
                       <span
@@ -297,23 +330,18 @@ export default function AssignPathwayPage() {
                     )}
 
                     <div className="flex items-start gap-2">
-                      <span
-                        className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${palette.dot}`}
-                      />
-                      <div className="min-w-0 flex-1">
+                      <span className="min-w-0 flex-1">
                         <h3
                           className={`text-base font-semibold ${
-                            selected
-                              ? palette.accent
-                              : "text-zinc-900"
-                            }`}
+                            selected ? palette.accent : "text-zinc-900"
+                          }`}
                         >
                           {tpl.name}
                         </h3>
-                        <p className="mt-0.5 font-mono text-xs font-semibold text-zinc-600">
+                        {/* <p className="mt-0.5 font-mono text-xs font-semibold text-zinc-600">
                           {tpl.code}
-                        </p>
-                      </div>
+                        </p> */}
+                      </span>
                     </div>
 
                     {tpl.description && (
@@ -323,12 +351,15 @@ export default function AssignPathwayPage() {
                     )}
 
                     <div className="mt-3 flex items-center gap-2 text-xs">
-                      <Tag className="m-0!" color={selected ? "default" : undefined}>
+                      <Tag
+                        className="m-0!"
+                        color={selected ? "default" : undefined}
+                      >
                         {tpl.stages.length} ขั้นตอน
                       </Tag>
                       <span className="line-clamp-1 font-medium text-zinc-600">
                         {tpl.stages.slice(0, 3).join(" →")}
-                        {tpl.stages.length > 3 &&" …"}
+                        {tpl.stages.length > 3 && " …"}
                       </span>
                     </div>
                   </button>
@@ -350,9 +381,6 @@ export default function AssignPathwayPage() {
               <h2 className="text-lg font-semibold text-zinc-900">
                 ตัวอย่างขั้นตอน
               </h2>
-              <p className="mt-1 text-sm text-zinc-600">
-                ระบบจะสร้าง visit และ visit_step ตามลำดับนี้
-              </p>
             </div>
           </div>
 
@@ -372,22 +400,23 @@ export default function AssignPathwayPage() {
                   direction="vertical"
                   size="small"
                   current={selectedTemplate.stages.length - 1}
-                  items={selectedTemplate.stages.map((stage: string, idx: number) => ({
-                    title: (
-                      <span className="font-bold text-zinc-950">
-                        {stage}
-                      </span>
-                    ),
-                    description: (
-                      <span className="text-xs font-semibold text-zinc-600">
-                        ขั้นตอนที่ {idx + 1} จาก {selectedTemplate.stages.length}
-                      </span>
-                    ),
-                    status:
-                      idx === selectedTemplate.stages.length - 1
-                        ? "process"
-                        : "finish",
-                  }))}
+                  items={selectedTemplate.stages.map(
+                    (stage: string, idx: number) => ({
+                      title: (
+                        <span className="font-bold text-zinc-950">{stage}</span>
+                      ),
+                      description: (
+                        <span className="text-xs font-semibold text-zinc-600">
+                          ขั้นตอนที่ {idx + 1} จาก{" "}
+                          {selectedTemplate.stages.length}
+                        </span>
+                      ),
+                      status:
+                        idx === selectedTemplate.stages.length - 1
+                          ? "process"
+                          : "finish",
+                    }),
+                  )}
                 />
               </div>
             </>
@@ -472,7 +501,7 @@ export default function AssignPathwayPage() {
                   >
                     {c}
                   </Button>
-                )
+                ),
               )}
               {conditions.length === 0 && QUICK_CONDITIONS.length > 0 && (
                 <span className="self-center text-xs font-semibold text-zinc-600">
@@ -489,14 +518,10 @@ export default function AssignPathwayPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-lg backdrop-blur">
           <p
             className={`text-sm font-semibold ${
-              isDirty
-                ? "text-amber-700"
-                : "text-emerald-700"
-              }`}
+              isDirty ? "text-amber-700" : "text-emerald-700"
+            }`}
           >
-            {isDirty
-              ? "🟡 มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก"
-              : ""}
+            {isDirty ? "🟡 มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก" : ""}
           </p>
 
           <div className="flex gap-2">

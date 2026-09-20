@@ -349,13 +349,6 @@ export default function PatientDetailPage() {
             <h2 className="text-xl font-extrabold tracking-tight text-zinc-950">
               อัปเดตสถานะ
             </h2>
-            <Text className="mt-1 block text-sm! font-medium! text-zinc-600!">
-              เปลี่ยนสถานะผู้ป่วย —{""}
-              <code className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-sm font-bold text-zinc-900">
-                PATCH /patients/{patient.id}/status
-              </code>
-            </Text>
-
             <div className="mt-4 flex flex-wrap gap-2">
               {(Object.keys(STATUS_CONFIG) as Array<Patient["status"]>).map(
                 (s) => {
