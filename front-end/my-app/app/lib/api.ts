@@ -249,6 +249,11 @@ export interface PathwayStepView {
   step_order: number;
   stage: string;
   status: "pending" | "in_progress" | "completed" | "skipped";
+  map_node_id?: string | null;
+  /** ระยะทางจาก step ก่อนหน้า หน่วย "เมตร" (คำนวณจาก hospital-map edge weights) */
+  distance_from_prev?: number | null;
+  /** JSON string ของ node IDs ที่เดินผ่าน เช่น '["n7","n4","n5"]' */
+  route_from_prev?: string | null;
   started_at?: string | null;
   completed_at?: string | null;
   performed_by?: string | null;
@@ -267,6 +272,26 @@ export interface PathwayVisitView {
   steps: PathwayStepView[];
 }
 
+/** Route summary ทั้ง visit — คำนวณจาก hospital-map ปัจจุบัน (BFS + edge weights)
+ *  มาจาก /hospital-map ตรงๆ — ถ้าแก้ผัง ตัวเลขจะอัปเดตทันที
+ */
+export interface RouteSummary {
+  /** ระยะทางรวม หน่วย "เมตร" */
+  total_distance: number;
+  /** จำนวน edges ที่เดินผ่าน */
+  hops: number;
+  /** node IDs ทั้งหมดที่เดินผ่าน (รวม waypoints + intermediate) */
+  path: string[];
+  /** node IDs ของจุดแวะ (= step.map_node_id) */
+  waypoints: string[];
+  /** เวลาที่คำนวณ */
+  computed_at: string;
+  /** updated_at ของ hospital_map ที่ใช้คำนวณ */
+  hospital_map_updated_at: string;
+  /** แหล่งที่มาของข้อมูล — ปัจจุบันเป็น "hospital_map" เสมอ */
+  source: string;
+}
+
 /** Response ของ GET /patients/{id}/pathway */
 export interface PatientPathwayResponse {
   patient_id: string;
@@ -275,6 +300,8 @@ export interface PatientPathwayResponse {
   special_conditions: string[];
   /** Visit ปัจจุบันของผู้ป่วย (active visit หรือล่าสุด) — มี step status เพื่อรู้ว่าอยู่จุดไหน */
   visit?: PathwayVisitView;
+  /** Route summary ทั้ง visit (BFS shortest path จาก hospital-map ปัจจุบัน) */
+  route_summary?: RouteSummary | null;
 }
 
 /** เรียก GET /patients/{id}/pathway — ดู Care Pathway ปัจจุบัน + ตำแหน่งปัจจุบัน */
@@ -326,6 +353,52 @@ export async function getPathwayTemplates(): Promise<PathwayTemplateListResponse
   }
 
   return (await res.json()) as PathwayTemplateListResponse;
+}
+
+/** stage เดียวจาก generator — มีทั้ง name + node_id อ้างอิงจริง */
+export interface GeneratedStage {
+  name: string;
+  node_id: string;
+}
+
+/** Response ของ POST /pathway-templates/from-map */
+export interface FromMapResponse {
+  code: string;
+  name: string;
+  stages: GeneratedStage[];
+  saved: boolean;
+  template?: PathwayTemplate;
+}
+
+/** Request body สำหรับ POST /pathway-templates/from-map */
+export interface FromMapRequest {
+  code?: string;
+  name?: string;
+  save?: boolean;
+}
+
+/** เรียก POST /pathway-templates/from-map — generate mockup stages จาก hospital-map
+ *  ถ้า save=true จะ upsert เป็น template ใหม่ใน DB
+ */
+export async function generatePathwayFromMap(
+  body: FromMapRequest = {}
+): Promise<FromMapResponse> {
+  const res = await fetch(`${API_BASE_URL}/pathway-templates/from-map`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const errBody = (await res.json()) as { error?: string };
+      if (errBody.error) message = errBody.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as FromMapResponse;
 }
 
 /** Request body สำหรับ PATCH /patients/{id}/pathway */
@@ -384,6 +457,12 @@ export interface VisitStep {
   step_order: number;
   stage: string;
   status: StepStatus;
+  /** ห้องปลายทางจาก FloorPlan (ไม่มี = stage นั้นไม่ผูกกับแผนที่) */
+  map_node_id?: string | null;
+  /** ระยะทางจาก step ก่อนหน้า (จำนวน edges ใน FloorPlan) */
+  distance_from_prev?: number | null;
+  /** เส้นทางที่เดินผ่านจาก step ก่อนหน้า (array of node ids) */
+  route_from_prev?: string[] | null;
   started_at?: string | null;
   completed_at?: string | null;
   performed_by?: string | null;
@@ -397,6 +476,9 @@ export interface QueueStepView {
   step_order: number;
   stage: string;
   status: StepStatus;
+  map_node_id?: string | null;
+  distance_from_prev?: number | null;
+  route_from_prev?: string | null;
   started_at?: string | null;
   completed_at?: string | null;
 }

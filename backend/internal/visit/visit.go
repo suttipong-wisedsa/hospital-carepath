@@ -1,22 +1,31 @@
 package visit
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/suttipong/hospital-carepath/internal/hospitalmap"
 	"github.com/suttipong/hospital-carepath/internal/model"
+	"github.com/suttipong/hospital-carepath/internal/pathway"
 	"gorm.io/gorm"
 )
 
 // Store ห่อหุ้ม GORM สำหรับตาราง visits และ visit_steps
 type Store struct {
-	db *gorm.DB
+	db        *gorm.DB
+	mapStore  *hospitalmap.Store // สำหรับคำนวณ shortest path ระหว่าง stage
 }
 
-// NewStore สร้าง store ใหม่
+// NewStore สร้าง store ใหม่ (ใช้ db อย่างเดียว — ไม่มี map)
 func NewStore(db *gorm.DB) *Store {
 	return &Store{db: db}
+}
+
+// NewStoreWithMap สร้าง store พร้อม hospital map (สำหรับคำนวณระยะทาง)
+func NewStoreWithMap(db *gorm.DB, mapStore *hospitalmap.Store) *Store {
+	return &Store{db: db, mapStore: mapStore}
 }
 
 // DB คืน *gorm.DB ดิบ (ใช้กรณีที่ handler ต้องการ query นอกเหนือจาก method ของ Store)
@@ -44,6 +53,9 @@ var validStepStatuses = map[string]struct{}{
 
 // CreateFromPathway สร้าง Visit ใหม่จาก template พร้อม VisitSteps ตามจำนวน stage
 // คืนค่า visit ที่สร้างใหม่, slice ของ steps ที่สร้างใหม่, และ error
+//
+// ถ้า store มี mapStore และ template มี node_id ใน stages:
+// จะคำนวณ shortest path (BFS) ระหว่าง stage ที่ติดกัน แล้วเก็บลง step.route_from_prev + step.distance_from_prev
 func (s *Store) CreateFromPathway(patientCode string, templateID uint) (*model.Visit, []*model.VisitStep, error) {
 	// ดึง template
 	var tmpl model.PathwayTemplate
@@ -54,15 +66,25 @@ func (s *Store) CreateFromPathway(patientCode string, templateID uint) (*model.V
 		return nil, nil, err
 	}
 
-	// แปลง stages จาก JSON
-	stages := []string{}
-	if tmpl.Stages != "" {
-		if err := decodeJSONArray(tmpl.Stages, &stages); err != nil {
-			return nil, nil, fmt.Errorf("decode stages: %w", err)
-		}
+	// แปลง stages จาก JSON (รองรับทั้ง []string เก่า และ [{name,node_id}] ใหม่)
+	stages, err := pathway.DecodeStages(tmpl.Stages)
+	if err != nil {
+		return nil, nil, fmt.Errorf("decode stages: %w", err)
 	}
 	if len(stages) == 0 {
 		return nil, nil, fmt.Errorf("template %s has no stages", tmpl.Code)
+	}
+
+	// โหลด HospitalMap + คำนวณเส้นทาง (ถ้ามี mapStore)
+	var routes []*pathway.ShortestPathResult
+	if s.mapStore != nil {
+		hospitalMap, err := s.mapStore.Get()
+		if err == nil && hospitalMap != nil {
+			nodes, _ := pathway.MapNodesFromJSON(hospitalMap.Nodes)
+			edges, _ := pathway.MapEdgesFromJSON(hospitalMap.Edges)
+			routes = pathway.PlanRoute(stages, nodes, edges)
+		}
+		// ถ้า err != nil (เช่น map ยังไม่ได้สร้าง) → routes = nil → step.route จะเป็น null (ไม่ error)
 	}
 
 	// สร้าง visit
@@ -78,13 +100,31 @@ func (s *Store) CreateFromPathway(patientCode string, templateID uint) (*model.V
 
 	// สร้าง steps ตามลำดับ
 	steps := make([]*model.VisitStep, 0, len(stages))
-	for i, stage := range stages {
+	for i, st := range stages {
 		step := &model.VisitStep{
 			VisitID:   visit.ID,
 			StepOrder: i + 1,
-			Stage:     stage,
+			Stage:     st.Name,
 			Status:    "pending",
 		}
+
+		// ผูกกับ map node (ถ้ามี)
+		if st.NodeID != "" {
+			id := st.NodeID
+			step.MapNodeID = &id
+		}
+
+		// เก็บเส้นทางจาก step ก่อนหน้า
+		if i < len(routes) && routes[i] != nil {
+			d := routes[i].Distance
+			step.DistanceFromPrev = &d
+			pathJSON, mErr := json.Marshal(routes[i].Path)
+			if mErr == nil {
+				pj := string(pathJSON)
+				step.RouteFromPrev = &pj
+			}
+		}
+
 		if err := s.db.Create(step).Error; err != nil {
 			return nil, nil, fmt.Errorf("create step %d: %w", i+1, err)
 		}

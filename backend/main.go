@@ -168,11 +168,11 @@ func main() {
 	if err := pathway.Seed(pathwayStore); err != nil {
 		log.Fatalf("pathway seed error: %v", err)
 	}
-	pathwayHandler := pathway.NewHandler(pathwayStore)
+	pathwayHandler := pathway.NewHandler(pathwayStore, hospitalMapStore)
 	pathwayHandler.Register(mux)
 
-	// Visits (auto-create + tracking steps)
-	visitStore := visit.NewStore(config.DB)
+	// Visits (auto-create + tracking steps + shortest-path from HospitalMap)
+	visitStore := visit.NewStoreWithMap(config.DB, hospitalMapStore)
 	visitHandler := visit.NewHandler(visitStore)
 	visitHandler.Register(mux)
 
@@ -181,7 +181,7 @@ func main() {
 	queueHandler := queue.NewHandler(queueStore)
 	queueHandler.Register(mux)
 
-	patientHandler := patient.NewHandler(patientStore, pathwayStore, visitStore, config.DB)
+	patientHandler := patient.NewHandler(patientStore, pathwayStore, visitStore, hospitalMapStore, config.DB)
 	patientHandler.Register(mux)
 
 	addr := fmt.Sprintf(":%s", cfg.port)

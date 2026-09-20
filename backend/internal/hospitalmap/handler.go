@@ -39,6 +39,7 @@ type mapEdge struct {
 	ToNodeID   string `json:"to_node_id"`
 	Type       string `json:"type"`
 	Accessible bool   `json:"accessible"`
+	Distance   int    `json:"distance,omitempty"` // ระยะทางเป็น "เมตร" (optional)
 }
 
 type saveMapRequest struct {

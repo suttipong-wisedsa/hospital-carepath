@@ -18,4 +18,6 @@ export interface MapEdge {
   toNodeId: string;
   type: 'walkway' | 'elevator' | 'stair' | 'ramp';
   accessible: boolean;
+  /** ระยะทางหน่วย "เมตร" ระหว่าง 2 node (optional — ถ้าไม่มี จะ fallback เป็น Euclidean distance จาก x/y) */
+  distance?: number;
 }

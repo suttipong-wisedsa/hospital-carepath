@@ -55,45 +55,103 @@ func (s *Store) GetByID(id uint) (*model.PathwayTemplate, error) {
 	return &t, nil
 }
 
-// ParseStages แปลง JSON string ของ Stages ให้เป็น []string
-// ใช้ตอนส่งให้ client เพื่อให้ได้ array พร้อมใช้
+// Insert สร้าง template ใหม่
+func (s *Store) Insert(t *model.PathwayTemplate) error {
+	return s.db.Create(t).Error
+}
+
+// Update อัปเดต template ที่มีอยู่ (ใช้ row เดิม — ต้องมี ID)
+func (s *Store) Update(t *model.PathwayTemplate) error {
+	return s.db.Save(t).Error
+}
+
+// ParseStages แปลง JSON string ของ Stages ให้เป็น []string (ชื่อ stage อย่างเดียว)
+// รองรับทั้ง format เก่า ["a","b"] และใหม่ [{"name":"a","node_id":"n1"}, ...]
+// ใช้ตอนส่งให้ client เพื่อให้ได้ array ของชื่อ stage พร้อมใช้
 func ParseStages(stages string) []string {
 	out := []string{}
 	if stages == "" {
 		return out
 	}
-	if err := json.Unmarshal([]byte(stages), &out); err != nil {
+	// ลอง []string ก่อน
+	var asStrings []string
+	if err := json.Unmarshal([]byte(stages), &asStrings); err == nil {
+		return asStrings
+	}
+	// ลอง []struct{name, node_id}
+	var asStructs []struct {
+		Name   string `json:"name"`
+		NodeID string `json:"node_id"`
+	}
+	if err := json.Unmarshal([]byte(stages), &asStructs); err == nil {
+		for _, s := range asStructs {
+			out = append(out, s.Name)
+		}
 		return out
 	}
 	return out
 }
 
 // Seed ใส่ template เริ่มต้นถ้ายังไม่มี (idempotent — รันซ้ำได้)
+//
+// stage format ใหม่: [{"name":"...","node_id":"..."}, ...]
+// node_id อ้างอิง MapNode.id ใน HospitalMap (n1, n2, ..., n8 ตามที่ MapEditor seed)
+// ถ้า stage ไม่ตรงกับห้องจริง ก็ปล่อย node_id ว่างไว้ก็ได้ — ระบบจะคำนวณระยะเฉพาะ stage ที่ผูก node
 func Seed(s *Store) error {
 	templates := []model.PathwayTemplate{
 		{
 			Code:        "general_checkup",
 			Name:        "ตรวจสุขภาพทั่วไป",
 			Description: "ลำดับขั้นตอนสำหรับผู้ป่วยที่มาตรวจสุขภาพทั่วไป ไม่มีโรคประจำตัว",
-			Stages:      `["registration","vitals_check","waiting","in_consultation","pharmacy","discharge"]`,
+			Stages: `[
+				{"name":"registration","node_id":"n7"},
+				{"name":"vitals_check","node_id":"n5"},
+				{"name":"waiting","node_id":"n6"},
+				{"name":"in_consultation","node_id":"n1"},
+				{"name":"pharmacy","node_id":"n3"},
+				{"name":"discharge","node_id":"n7"}
+			]`,
 		},
 		{
 			Code:        "diabetic_followup",
 			Name:        "ติดตามผู้ป่วยเบาหวาน",
 			Description: "สำหรับผู้ป่วยเบาหวานที่มาติดตามอาการ ต้องเจาะน้ำตาลและตรวจเท้า",
-			Stages:      `["registration","vitals_check","blood_test","foot_exam","in_consultation","pharmacy","discharge"]`,
+			Stages: `[
+				{"name":"registration","node_id":"n7"},
+				{"name":"vitals_check","node_id":"n5"},
+				{"name":"blood_test","node_id":"n1"},
+				{"name":"foot_exam","node_id":"n1"},
+				{"name":"in_consultation","node_id":"n1"},
+				{"name":"pharmacy","node_id":"n3"},
+				{"name":"discharge","node_id":"n7"}
+			]`,
 		},
 		{
 			Code:        "emergency",
 			Name:        "ผู้ป่วยฉุกเฉิน",
 			Description: "สำหรับผู้ป่วยฉุกเฉิน ต้องประเมินความรุนแรงก่อน",
-			Stages:      `["triage","vitals_check","emergency_room","in_consultation","observation","discharge"]`,
+			Stages: `[
+				{"name":"triage","node_id":"n5"},
+				{"name":"vitals_check","node_id":"n5"},
+				{"name":"emergency_room","node_id":"n1"},
+				{"name":"in_consultation","node_id":"n1"},
+				{"name":"observation","node_id":"n6"},
+				{"name":"discharge","node_id":"n7"}
+			]`,
 		},
 		{
 			Code:        "antenatal",
 			Name:        "ฝากครรภ์",
 			Description: "สำหรับหญิงตั้งครรภ์มาตรวจครรภ์ตามนัด",
-			Stages:      `["registration","vitals_check","weight_check","ultrasound","in_consultation","vaccination","discharge"]`,
+			Stages: `[
+				{"name":"registration","node_id":"n7"},
+				{"name":"vitals_check","node_id":"n5"},
+				{"name":"weight_check","node_id":"n5"},
+				{"name":"ultrasound","node_id":"n1"},
+				{"name":"in_consultation","node_id":"n1"},
+				{"name":"vaccination","node_id":"n3"},
+				{"name":"discharge","node_id":"n7"}
+			]`,
 		},
 	}
 
