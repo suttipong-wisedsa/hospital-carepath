@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -21,27 +21,32 @@ import {
 import {
   getPatient,
   getPatientPathway,
+  getHospitalMap,
   type Patient,
   type PatientPathwayResponse,
   type PathwayStepView,
 } from "../../lib/api";
+import {
+  routeDistance,
+  type HospitalMap,
+} from "../../lib/mapDistance";
 
-type LoadState ="loading" |"success" |"error" |"empty";
+type LoadState = "loading" | "success" | "error" | "empty";
 
 // helper — translate stage name to friendly Thai label
 function friendlyStage(stage: string): string {
   const map: Record<string, string> = {
-    registration:"ลงทะเบียน",
-    triage:"คัดกรองอาการ",
-    vitals_check:"วัดสัญญาณชีพ",
-    waiting:"รอพบแพทย์",
-    in_consultation:"ตรวจรักษา",
-    lab:"เจาะเลือด/ตรวจแล็บ",
-    imaging:"เอกซเรย์/ตรวจภาพ",
-    pharmacy:"รับยา",
-    payment:"ชำระเงิน",
-    discharge:"กลับบ้าน",
-    follow_up:"นัดติดตามอาการ",
+    registration: "ลงทะเบียน",
+    triage: "คัดกรองอาการ",
+    vitals_check: "วัดสัญญาณชีพ",
+    waiting: "รอพบแพทย์",
+    in_consultation: "ตรวจรักษา",
+    lab: "เจาะเลือด/ตรวจแล็บ",
+    imaging: "เอกซเรย์/ตรวจภาพ",
+    pharmacy: "รับยา",
+    payment: "ชำระเงิน",
+    discharge: "กลับบ้าน",
+    follow_up: "นัดติดตามอาการ",
   };
   return map[stage] ?? stage;
 }
@@ -49,25 +54,25 @@ function friendlyStage(stage: string): string {
 // helper — friendly Thai for status
 function statusThai(status?: string): { label: string; emoji: string } {
   switch (status) {
-    case"in_progress":
-      return { label: "กำลังตรวจ", emoji:"🔵" };
-    case"completed":
-      return { label: "เสร็จแล้ว", emoji:"✅" };
-    case"pending":
-      return { label: "รอคิว", emoji:"⏳" };
-    case"skipped":
-      return { label: "ข้าม", emoji:"⏭️" };
+    case "in_progress":
+      return { label: "กำลังตรวจ", emoji: "🔵" };
+    case "completed":
+      return { label: "เสร็จแล้ว", emoji: "✅" };
+    case "pending":
+      return { label: "รอคิว", emoji: "⏳" };
+    case "skipped":
+      return { label: "ข้าม", emoji: "⏭️" };
     default:
-      return { label: "—", emoji:"·" };
+      return { label: "—", emoji: "·" };
   }
 }
 
 // helper — time format
 function hhmm(iso?: string | null): string {
-  if (!iso) return"";
+  if (!iso) return "";
   return new Date(iso).toLocaleTimeString("th-TH", {
-    hour:"2-digit",
-    minute:"2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
@@ -75,14 +80,25 @@ function hhmm(iso?: string | null): string {
 
 export default function PatientViewPage() {
   const params = useParams<{ code: string }>();
-  const code = params?.code ??"";
+  const code = params?.code ?? "";
   const { message } = AntApp.useApp();
 
   const [state, setState] = useState<LoadState>("loading");
   const [patient, setPatient] = useState<Patient | null>(null);
   const [pathway, setPathway] = useState<PatientPathwayResponse | null>(null);
+  console.log(pathway)
+  const [hospitalMap, setHospitalMap] = useState<HospitalMap | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+
+  // map nodeId → ชื่อห้องจริง (จาก hospitalMap) — ต้องเรียกก่อน early return เพื่อรักษา hook order
+  const nodeNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    hospitalMap?.nodes.forEach((n) => {
+      if (n.id) map.set(n.id, n.name || n.id);
+    });
+    return map;
+  }, [hospitalMap]);
 
   async function load(silent = false) {
     if (!code) return;
@@ -93,6 +109,7 @@ export default function PatientViewPage() {
         getPatient(code),
         getPatientPathway(code),
       ]);
+
       setPatient(p);
       setPathway(pw);
       setState(pw.pathway_template ? "success" : "empty");
@@ -115,11 +132,11 @@ export default function PatientViewPage() {
     // กันไม่ให้ผู้ป่วยกด back ไปยังหน้า staff (/queue, /patient/*, /patients/new)
     // โดย push history state เพิ่ม 1 ชั้น แล้วดัก popstate → redirect ไป /patient-view
     if (typeof window !== "undefined") {
-      window.history.pushState({ patientView: true },"");
+      window.history.pushState({ patientView: true }, "");
 
       function onPopState() {
         // ถ้าผู้ใช้กด back → ดีดไปหน้า entry เสมอ (ไม่ทิ้งให้หลุดไปหน้า staff)
-        window.history.pushState({ patientView: true },"");
+        window.history.pushState({ patientView: true }, "");
         window.location.replace("/patient-view");
       }
 
@@ -149,6 +166,21 @@ export default function PatientViewPage() {
     }
   }
 
+  // ─── load hospital map (สำหรับแสดง route) ─────────────
+  useEffect(() => {
+    let active = true;
+    getHospitalMap()
+      .then((map) => {
+        if (active) setHospitalMap(map);
+      })
+      .catch(() => {
+        // เงียบไว้ — ถ้าโหลดไม่ได้ จะไม่แสดง route section
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // ─── loading ───────────────────────────────────────────
   if (state === "loading") {
     return (
@@ -166,7 +198,7 @@ export default function PatientViewPage() {
           status="error"
           title="ไม่พบข้อมูลผู้ป่วย"
           subTitle={
-            errorMsg ||"กรุณาตรวจสอบรหัสผู้ป่วย เช่น P0001 แล้วลองอีกครั้ง"
+            errorMsg || "กรุณาตรวจสอบรหัสผู้ป่วย เช่น P0001 แล้วลองอีกครั้ง"
           }
           extra={
             <Link href="/patient-view">
@@ -202,6 +234,23 @@ export default function PatientViewPage() {
     return null;
   })();
 
+  // ─── route summary จาก backend (BFS + edge weights จาก hospital-map ปัจจุบัน) ─
+  // ใช้ข้อมูลจาก API โดยตรง — ถ้าแก้ผัง /hospital-map ตัวเลขจะอัปเดตทันที
+  const fullRoute = (() => {
+    const rs = pathway?.route_summary;
+    if (!rs || !rs.path || rs.path.length < 2) return null;
+    return {
+      waypoints: rs.waypoints ?? [],
+      path: rs.path,
+      distance: rs.total_distance,
+      hospitalMapAt: rs.hospital_map_updated_at,
+      computedAt: rs.computed_at,
+      source: rs.source,
+    };
+  })();
+
+  console.log(fullRoute)
+
   return (
     <main className="mx-auto max-w-2xl px-4 py-6 sm:py-10">
       {/* ─── top bar (ไม่มี link ไปยังหน้า staff) ─────── */}
@@ -236,7 +285,7 @@ export default function PatientViewPage() {
               ยินดีต้อนรับ
             </p>
             <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-              {patient?.name ??"ผู้ป่วย"}
+              {patient?.name ?? "ผู้ป่วย"}
             </h1>
           </div>
         </div>
@@ -254,7 +303,7 @@ export default function PatientViewPage() {
                 : patient.gender === "F"
                   ? "หญิง"
                   : patient.gender}
-              {patient.age ?` · ${patient.age} ปี` : ""}
+              {patient.age ? ` · ${patient.age} ปี` : ""}
             </span>
           )}
           {pathway?.pathway_template && (
@@ -308,17 +357,15 @@ export default function PatientViewPage() {
         <>
           {/* ตำแหน่งปัจจุบัน — primary card */}
           <section
-            className={`mt-5 rounded-3xl p-7 shadow-lg ring-1 sm:p-8 ${
-              current.status === "in_progress"
-                ? "bg-linear-to-br from-teal-500 to-emerald-600 text-white shadow-teal-500/40 ring-teal-300"
-                : "bg-white text-zinc-900 ring-zinc-200"
+            className={`mt-5 rounded-3xl p-7 shadow-lg ring-1 sm:p-8 ${current.status === "in_progress"
+              ? "bg-linear-to-br from-teal-500 to-emerald-600 text-white shadow-teal-500/40 ring-teal-300"
+              : "bg-white text-zinc-900 ring-zinc-200"
               }`}
           >
             <p
-              className={`text-xs font-black uppercase tracking-[0.15em] ${
-                current.status === "in_progress"
-                  ? "text-white/80"
-                  : "text-teal-700"
+              className={`text-xs font-black uppercase tracking-[0.15em] ${current.status === "in_progress"
+                ? "text-white/80"
+                : "text-teal-700"
                 }`}
             >
               📍 ตำแหน่งปัจจุบัน
@@ -330,22 +377,20 @@ export default function PatientViewPage() {
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-black ${
-                  current.status === "in_progress"
-                    ? "bg-white/25 text-white"
-                    : currentStepInfo.emoji === "⏳"
-                      ? "bg-amber-100 text-amber-900"
-                      : "bg-teal-100 text-teal-900"
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-black ${current.status === "in_progress"
+                  ? "bg-white/25 text-white"
+                  : currentStepInfo.emoji === "⏳"
+                    ? "bg-amber-100 text-amber-900"
+                    : "bg-teal-100 text-teal-900"
                   }`}
               >
                 <span className="text-base">{currentStepInfo.emoji}</span>
                 {currentStepInfo.label}
               </span>
               <span
-                className={`text-sm font-bold ${
-                  current.status === "in_progress"
-                    ? "text-white/80"
-                    : "text-zinc-600"
+                className={`text-sm font-bold ${current.status === "in_progress"
+                  ? "text-white/80"
+                  : "text-zinc-600"
                   }`}
               >
                 ขั้นตอนที่ {current.step_order} จาก {totalSteps}
@@ -354,10 +399,9 @@ export default function PatientViewPage() {
 
             {current.started_at && current.status === "in_progress" && (
               <p
-                className={`mt-3 text-sm font-bold ${
-                  current.status === "in_progress"
-                    ? "text-white/90"
-                    : "text-teal-700"
+                className={`mt-3 text-sm font-bold ${current.status === "in_progress"
+                  ? "text-white/90"
+                  : "text-teal-700"
                   }`}
               >
                 ▶ เริ่มเมื่อ {hhmm(current.started_at)}
@@ -378,7 +422,7 @@ export default function PatientViewPage() {
             <div className="mt-3 h-3 overflow-hidden rounded-full bg-zinc-200">
               <div
                 className="h-full rounded-full bg-linear-to-r from-teal-500 to-emerald-500 transition-all duration-700"
-                style={{ width:`${percent}%` }}
+                style={{ width: `${percent}%` }}
               />
             </div>
             <p className="mt-2 text-xs font-bold text-zinc-600">
@@ -429,22 +473,89 @@ export default function PatientViewPage() {
             </section>
           )}
 
-          {/* ลำดับขั้นตอนทั้งหมด — read-only timeline */}
-          <section className="mt-5 rounded-3xl border border-zinc-200 bg-white p-5 sm:p-6">
-            <p className="mb-4 text-sm font-black uppercase tracking-wider text-zinc-700">
-              🛣️ ลำดับขั้นตอนทั้งหมด
-            </p>
-            <ol className="space-y-3">
-              {visit.steps?.map((step, idx) => (
-                <PatientStepRow
-                  key={`${step.step_order}-${step.stage}`}
-                  step={step}
-                  isLast={idx === (visit.steps?.length ?? 0) - 1}
-                  isCurrent={current?.step_order === step.step_order}
-                />
-              ))}
-            </ol>
-          </section>
+          {/* 🗺️ เส้นทางรวม — compact summary ใน timeline section */}
+          {fullRoute && (
+            <section className="mt-5 rounded-3xl border border-zinc-200 bg-white p-5 sm:p-6">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <p className="text-sm font-black uppercase tracking-wider text-zinc-700">
+                  🛣️ ลำดับขั้นตอนทั้งหมด
+                </p>
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-black text-rose-700 ring-1 ring-rose-200"
+                  title="ระยะทางรวมทั้ง visit คำนวณด้วย BFS shortest path"
+                >
+                  🗺️ รวม {fullRoute.distance} เมตร
+                </span>
+              </div>
+
+              {/* mini path summary (compact, ไม่มี SVG ใหญ่) */}
+              <div className="mb-4 flex flex-wrap items-center gap-1 rounded-xl bg-zinc-50 px-3 py-2 ring-1 ring-zinc-100">
+                <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500">
+                  เส้นทาง
+                </span>
+                {fullRoute.path.map((nodeId, i) => {
+                  const isWaypoint = fullRoute.waypoints.includes(nodeId);
+                  const roomName = nodeNameById.get(nodeId) ?? nodeId;
+                  return (
+                    <span key={`${nodeId}-${i}`} className="inline-flex items-center">
+                      <span
+                        className={`inline-flex flex-col items-center rounded px-1.5 py-0.5 ring-1 ${isWaypoint
+                          ? "bg-rose-500 text-white ring-rose-600"
+                          : "bg-rose-50 text-rose-700 ring-rose-300"
+                          }`}
+                      >
+                        <span className="text-[10px] font-black leading-tight">
+                          {/* {roomName} */}
+                        </span>
+                        {roomName !== nodeId && (
+                          <span
+                            className={`font-mono text-[8px] leading-tight ${isWaypoint ? "text-rose-100" : "text-rose-400"
+                              }`}
+                          >
+                            {nodeId}
+                          </span>
+                        )}
+                      </span>
+                      {i < fullRoute.path.length - 1 && (
+                        <span className="mx-0.5 text-rose-300">→</span>
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+
+              <ol className="space-y-3">
+                {visit.steps?.map((step, idx) => (
+                  <PatientStepRow
+                    key={`${step.step_order}-${step.stage}`}
+                    step={step}
+                    isLast={idx === (visit.steps?.length ?? 0) - 1}
+                    isCurrent={current?.step_order === step.step_order}
+                    hospitalMap={hospitalMap}
+                  />
+                ))}
+              </ol>
+            </section>
+          )}
+
+          {!fullRoute && (
+            <section className="mt-5 rounded-3xl border border-zinc-200 bg-white p-5 sm:p-6">
+              <p className="mb-4 text-sm font-black uppercase tracking-wider text-zinc-700">
+                🛣️ ลำดับขั้นตอนทั้งหมด
+              </p>
+              <ol className="space-y-3">
+                {visit.steps?.map((step, idx) => (
+                  <PatientStepRow
+                    key={`${step.step_order}-${step.stage}`}
+                    step={step}
+                    isLast={idx === (visit.steps?.length ?? 0) - 1}
+                    isCurrent={current?.step_order === step.step_order}
+                    hospitalMap={hospitalMap}
+                  />
+                ))}
+              </ol>
+            </section>
+          )}
 
           {/* ข้อมูลเพิ่มเติม */}
           {patient?.symptom && (
@@ -479,15 +590,50 @@ function PatientStepRow({
   step,
   isLast,
   isCurrent,
+  hospitalMap,
 }: {
   step: PathwayStepView;
   isLast: boolean;
   isCurrent: boolean;
+  hospitalMap: HospitalMap | null;
 }) {
+  const stepRoomName =
+    step.map_node_id && hospitalMap
+      ? hospitalMap.nodes.find((n) => n.id === step.map_node_id)?.name
+      : null;
+  const routeRoomByNode = useMemo(() => {
+    const m = new Map<string, string>();
+    hospitalMap?.nodes.forEach((n) => {
+      if (n.id) m.set(n.id, n.name || n.id);
+    });
+    return m;
+  }, [hospitalMap]);
   const isDone = step.status === "completed";
   const isSkipped = step.status === "skipped";
   const isPending = step.status === "pending";
   const isActive = step.status === "in_progress";
+  // route_from_prev มาจาก backend เป็น JSON string → parse เป็น array
+  const route: string[] = (() => {
+    if (!step.route_from_prev) return [];
+    try {
+      const parsed = JSON.parse(step.route_from_prev);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  })();
+
+  // คำนวณระยะทางจริงเป็น "เมตร" จาก route + hospitalMap (fallback ถ้า map ยังโหลดไม่เสร็จ)
+  const distanceMeters: number | null = (() => {
+    if (route.length < 2) return null;
+    if (hospitalMap) {
+      return routeDistance(route, hospitalMap.nodes, hospitalMap.edges);
+    }
+    // fallback — ใช้ค่าจาก backend (ซึ่งปัจจุบันเก็บเป็น edges/hops)
+    return step.distance_from_prev ?? null;
+  })();
+
+  const hasRoute = route.length > 0;
 
   return (
     <li className="relative flex items-start gap-4">
@@ -495,26 +641,24 @@ function PatientStepRow({
       {!isLast && (
         <span
           aria-hidden
-          className={`absolute left-5 top-11 h-[calc(100%-22px)] w-1 rounded ${
-            isDone
-              ? "bg-emerald-300"
-              : "bg-zinc-200"
+          className={`absolute left-5 top-11 h-[calc(100%-22px)] w-1 rounded ${isDone
+            ? "bg-emerald-300"
+            : "bg-zinc-200"
             }`}
         />
       )}
 
       {/* dot */}
       <span
-        className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl shadow-md ring-4 ring-white ${
-          isDone
-            ? "bg-emerald-500 text-white"
-            : isSkipped
-              ? "bg-zinc-300 text-zinc-600"
-              : isActive
-                ? "bg-teal-500 text-white ring-teal-200"
-                : isCurrent && isPending
-                  ? "bg-amber-400 text-white ring-amber-200"
-                  : "bg-white text-zinc-500 ring-zinc-200"
+        className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl shadow-md ring-4 ring-white ${isDone
+          ? "bg-emerald-500 text-white"
+          : isSkipped
+            ? "bg-zinc-300 text-zinc-600"
+            : isActive
+              ? "bg-teal-500 text-white ring-teal-200"
+              : isCurrent && isPending
+                ? "bg-amber-400 text-white ring-amber-200"
+                : "bg-white text-zinc-500 ring-zinc-200"
           }`}
       >
         {isDone ? (
@@ -531,19 +675,28 @@ function PatientStepRow({
       {/* content */}
       <div className="min-w-0 flex-1 pb-1 pt-1">
         <p
-          className={`text-lg ${
-            isSkipped
-              ? "font-medium text-zinc-500 line-through decoration-zinc-400"
-              : isPending && !isCurrent
-                ? "font-bold text-zinc-700"
-                : isActive || (isCurrent && isPending)
-                  ? "font-black text-zinc-950"
-                  : isDone
-                    ? "font-extrabold text-emerald-900"
-                    : "font-extrabold text-zinc-950"
+          className={`text-lg ${isSkipped
+            ? "font-medium text-zinc-500 line-through decoration-zinc-400"
+            : isPending && !isCurrent
+              ? "font-bold text-zinc-700"
+              : isActive || (isCurrent && isPending)
+                ? "font-black text-zinc-950"
+                : isDone
+                  ? "font-extrabold text-emerald-900"
+                  : "font-extrabold text-zinc-950"
             }`}
         >
           {friendlyStage(step.stage)}
+          {step.map_node_id && (
+            <span className="ml-2 inline-flex flex-col items-start rounded-md bg-rose-50 px-1.5 py-0.5 align-middle text-xs font-bold text-rose-700 ring-1 ring-rose-200">
+              {/* <span>📍 {stepRoomName ?? step.map_node_id}</span> */}
+              {stepRoomName && (
+                <span className="font-mono text-[10px] font-medium text-rose-500">
+                  {step.map_node_id}
+                </span>
+              )}
+            </span>
+          )}
         </p>
         <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs font-bold">
           {isDone && step.completed_at && (
@@ -566,6 +719,50 @@ function PatientStepRow({
             <span className="text-zinc-500">ยังไม่ถึงคิว</span>
           )}
         </div>
+
+        {/* ─── route + distance (FloorPlan) ───────────────── */}
+        {hasRoute && (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 rounded-lg bg-rose-50 px-2.5 py-1.5 text-xs ring-1 ring-rose-100">
+            <span className="inline-flex items-center gap-1 font-black text-rose-700">
+              📏 {distanceMeters ?? step.distance_from_prev ?? 0} ม.
+            </span>
+            <span className="text-rose-300">•</span>
+            <div className="flex flex-wrap items-center gap-1 font-bold text-rose-900">
+              {route.map((node, i) => {
+                const roomName = routeRoomByNode.get(node) ?? node;
+                const showId = roomName !== node;
+                return (
+                  <span key={`${node}-${i}`} className="inline-flex items-center">
+                    <span className="inline-flex flex-col items-center rounded bg-white px-1.5 py-0.5 text-[10px] shadow-sm ring-1 ring-rose-300">
+                      <span className="font-bold leading-tight">{roomName}</span>
+                      {showId && (
+                        <span className="font-mono text-[8px] font-medium leading-tight text-rose-500">
+                          {node}
+                        </span>
+                      )}
+                    </span>
+                    {i < route.length - 1 && (
+                      <span className="mx-0.5 text-rose-400">→</span>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {!hasRoute && step.map_node_id && step.step_order > 1 && (
+          <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-rose-50 px-2.5 py-1.5 text-xs ring-1 ring-rose-100">
+            <span className="font-bold text-rose-700">
+              📍 อยู่ที่ {stepRoomName ?? step.map_node_id}
+              {stepRoomName && (
+                <span className="ml-1 font-mono text-[10px] font-medium text-rose-400">
+                  ({step.map_node_id})
+                </span>
+              )}{" "}
+              แล้ว
+            </span>
+          </div>
+        )}
       </div>
     </li>
   );

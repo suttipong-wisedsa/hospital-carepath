@@ -20,11 +20,14 @@ var (
 
 // QueueStepView มุมมองของ step ที่ใช้ใน response
 type QueueStepView struct {
-	StepOrder   int        `json:"step_order"`
-	Stage       string     `json:"stage"`
-	Status      string     `json:"status"`
-	StartedAt   *time.Time `json:"started_at,omitempty"`
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	StepOrder        int        `json:"step_order"`
+	Stage            string     `json:"stage"`
+	Status           string     `json:"status"`
+	MapNodeID        *string    `json:"map_node_id,omitempty"`
+	DistanceFromPrev *int       `json:"distance_from_prev,omitempty"`
+	RouteFromPrev    *string    `json:"route_from_prev,omitempty"`
+	StartedAt        *time.Time `json:"started_at,omitempty"`
+	CompletedAt      *time.Time `json:"completed_at,omitempty"`
 }
 
 // QueueEntry คือข้อมูล visit ในคิว พร้อม patient + current step
@@ -156,11 +159,14 @@ func (s *Store) buildEntry(v *model.Visit) (*QueueEntry, error) {
 		}
 		if entry.CurrentStep == nil && (step.Status == "pending" || step.Status == "in_progress") {
 			entry.CurrentStep = &QueueStepView{
-				StepOrder:   step.StepOrder,
-				Stage:       step.Stage,
-				Status:      step.Status,
-				StartedAt:   step.StartedAt,
-				CompletedAt: step.CompletedAt,
+				StepOrder:        step.StepOrder,
+				Stage:            step.Stage,
+				Status:           step.Status,
+				MapNodeID:        step.MapNodeID,
+				DistanceFromPrev: step.DistanceFromPrev,
+				RouteFromPrev:    step.RouteFromPrev,
+				StartedAt:        step.StartedAt,
+				CompletedAt:      step.CompletedAt,
 			}
 		}
 	}

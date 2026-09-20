@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/suttipong/hospital-carepath/internal/hospitalmap"
 	"github.com/suttipong/hospital-carepath/internal/model"
 	"github.com/suttipong/hospital-carepath/internal/pathway"
 	"github.com/suttipong/hospital-carepath/internal/visit"
@@ -18,12 +19,13 @@ type Handler struct {
 	store        *Store
 	pathwayStore *pathway.Store
 	visitStore   *visit.Store
+	mapStore     *hospitalmap.Store // สำหรับคำนวณ route summary จากผังปัจจุบัน
 	db           *gorm.DB
 }
 
 // NewHandler สร้าง handler ใหม่
-func NewHandler(store *Store, pathwayStore *pathway.Store, visitStore *visit.Store, db *gorm.DB) *Handler {
-	return &Handler{store: store, pathwayStore: pathwayStore, visitStore: visitStore, db: db}
+func NewHandler(store *Store, pathwayStore *pathway.Store, visitStore *visit.Store, mapStore *hospitalmap.Store, db *gorm.DB) *Handler {
+	return &Handler{store: store, pathwayStore: pathwayStore, visitStore: visitStore, mapStore: mapStore, db: db}
 }
 
 // Register ลงทะเบียน route ทั้งหมดเข้ากับ mux
@@ -101,6 +103,51 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 
 type updateStatusRequest struct {
 	Status string `json:"status"`
+}
+
+// enrichStepsWithLiveRoute เขียนทับ MapNodeID/DistanceFromPrev/RouteFromPrev ของแต่ละ step
+// โดยใช้ hospital-map ปัจจุบัน (BFS) — เพื่อให้ response ตรงกับ /hospital-map เสมอ
+//
+// ถ้าหา hospital-map ไม่ได้ → คงค่าเดิมที่เก็บใน DB
+func (h *Handler) enrichStepsWithLiveRoute(steps []pathwayStepView) []pathwayStepView {
+	if h.mapStore == nil || len(steps) < 2 {
+		return steps
+	}
+	hospitalMap, err := h.mapStore.Get()
+	if err != nil || hospitalMap == nil {
+		return steps
+	}
+	nodes, _ := pathway.MapNodesFromJSON(hospitalMap.Nodes)
+	edges, _ := pathway.MapEdgesFromJSON(hospitalMap.Edges)
+
+	enriched := make([]pathwayStepView, len(steps))
+	copy(enriched, steps)
+
+	for i := 1; i < len(enriched); i++ {
+		prev := enriched[i-1]
+		curr := enriched[i]
+		if prev.MapNodeID == nil || curr.MapNodeID == nil {
+			continue
+		}
+		prevID := *prev.MapNodeID
+		currID := *curr.MapNodeID
+		if prevID == "" || currID == "" {
+			continue
+		}
+		res, err := pathway.ShortestPath(prevID, currID, nodes, edges)
+		if err != nil {
+			continue // คงค่าเดิมจาก DB
+		}
+		pathJSON, jerr := json.Marshal(res.Path)
+		if jerr != nil {
+			continue
+		}
+		dist := res.Distance
+		pj := string(pathJSON)
+		enriched[i].DistanceFromPrev = &dist
+		enriched[i].RouteFromPrev = &pj
+	}
+	return enriched
 }
 
 func (h *Handler) updateStatus(w http.ResponseWriter, r *http.Request) {
@@ -206,13 +253,16 @@ func (h *Handler) assignPathway(w http.ResponseWriter, r *http.Request) {
 
 // pathwayStepView มุมมองย่อยของ step (ใช้ใน response)
 type pathwayStepView struct {
-	StepOrder   int        `json:"step_order"`
-	Stage       string     `json:"stage"`
-	Status      string     `json:"status"`
-	StartedAt   *time.Time `json:"started_at,omitempty"`
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	PerformedBy *string    `json:"performed_by,omitempty"`
-	Notes       *string    `json:"notes,omitempty"`
+	StepOrder        int        `json:"step_order"`
+	Stage            string     `json:"stage"`
+	Status           string     `json:"status"`
+	MapNodeID        *string    `json:"map_node_id,omitempty"`
+	DistanceFromPrev *int       `json:"distance_from_prev,omitempty"`
+	RouteFromPrev    *string    `json:"route_from_prev,omitempty"` // JSON string เช่น "[\"n7\",\"n4\",\"n5\"]"
+	StartedAt        *time.Time `json:"started_at,omitempty"`
+	CompletedAt      *time.Time `json:"completed_at,omitempty"`
+	PerformedBy      *string    `json:"performed_by,omitempty"`
+	Notes            *string    `json:"notes,omitempty"`
 }
 
 // pathwayVisitView มุมมอง visit + steps สำหรับ patient pathway
@@ -225,6 +275,85 @@ type pathwayVisitView struct {
 	CompletedSteps int                `json:"completed_steps"`
 	CurrentStep    *pathwayStepView   `json:"current_step,omitempty"`
 	Steps          []pathwayStepView  `json:"steps"`
+}
+
+// pathwayRouteSummary สรุปเส้นทางทั้ง visit (BFS) — คำนวณจาก hospital-map ปัจจุบัน
+type pathwayRouteSummary struct {
+	TotalDistance int      `json:"total_distance"`
+	Hops          int      `json:"hops"`
+	Path          []string `json:"path"`
+	Waypoints     []string `json:"waypoints"`
+	ComputedAt    string   `json:"computed_at"`
+	HospitalMapAt string   `json:"hospital_map_updated_at"`
+	Source        string   `json:"source"`
+}
+
+// buildRouteSummary คำนวณ route summary จาก hospital-map ปัจจุบัน + step.map_node_id
+func (h *Handler) buildRouteSummary(visitView *pathwayVisitView) *pathwayRouteSummary {
+	if visitView == nil || len(visitView.Steps) < 2 {
+		return nil
+	}
+	if h.mapStore == nil {
+		return nil
+	}
+	hospitalMap, err := h.mapStore.Get()
+	if err != nil || hospitalMap == nil {
+		return nil
+	}
+
+	// เก็บ waypoints ตามลำดับ step (เอาเฉพาะ node ที่มีค่า)
+	waypoints := make([]string, 0, len(visitView.Steps))
+	for _, s := range visitView.Steps {
+		if s.MapNodeID != nil && *s.MapNodeID != "" {
+			waypoints = append(waypoints, *s.MapNodeID)
+		}
+	}
+	if len(waypoints) < 2 {
+		return nil
+	}
+
+	nodes, _ := pathway.MapNodesFromJSON(hospitalMap.Nodes)
+	edges, _ := pathway.MapEdgesFromJSON(hospitalMap.Edges)
+
+	// รวมระยะทาง + หาเส้นทางเต็ม
+	fullPath := []string{waypoints[0]}
+	totalDist := 0
+	totalHops := 0
+	for i := 0; i < len(waypoints)-1; i++ {
+		res, err := pathway.ShortestPath(waypoints[i], waypoints[i+1], nodes, edges)
+		if err != nil {
+			// fallback ใช้ค่าจาก step.route_from_prev ถ้ามี
+			stepIdx := i + 1
+			if stepIdx < len(visitView.Steps) &&
+				visitView.Steps[stepIdx].RouteFromPrev != nil {
+				var segPath []string
+				if jerr := json.Unmarshal(
+					[]byte(*visitView.Steps[stepIdx].RouteFromPrev),
+					&segPath,
+				); jerr == nil && len(segPath) >= 2 {
+					fullPath = append(fullPath, segPath[1:]...)
+					if visitView.Steps[stepIdx].DistanceFromPrev != nil {
+						totalDist += *visitView.Steps[stepIdx].DistanceFromPrev
+					}
+					totalHops += len(segPath) - 1
+				}
+			}
+			continue
+		}
+		fullPath = append(fullPath, res.Path[1:]...)
+		totalDist += res.Distance
+		totalHops += res.Hops
+	}
+
+	return &pathwayRouteSummary{
+		TotalDistance: totalDist,
+		Hops:          totalHops,
+		Path:          fullPath,
+		Waypoints:     waypoints,
+		ComputedAt:    time.Now().UTC().Format(time.RFC3339),
+		HospitalMapAt: hospitalMap.UpdatedAt.UTC().Format(time.RFC3339),
+		Source:        "hospital_map",
+	}
 }
 
 // getPathway ดู pathway ปัจจุบันของผู้ป่วย พร้อมตำแหน่งปัจจุบันใน visit
@@ -272,13 +401,16 @@ func (h *Handler) getPathway(w http.ResponseWriter, r *http.Request) {
 			var current *pathwayStepView
 			for _, s := range steps {
 				sv := pathwayStepView{
-					StepOrder:   s.StepOrder,
-					Stage:       s.Stage,
-					Status:      s.Status,
-					StartedAt:   s.StartedAt,
-					CompletedAt: s.CompletedAt,
-					PerformedBy: s.PerformedBy,
-					Notes:       s.Notes,
+					StepOrder:        s.StepOrder,
+					Stage:            s.Stage,
+					Status:           s.Status,
+					MapNodeID:        s.MapNodeID,
+					DistanceFromPrev: s.DistanceFromPrev,
+					RouteFromPrev:    s.RouteFromPrev,
+					StartedAt:        s.StartedAt,
+					CompletedAt:      s.CompletedAt,
+					PerformedBy:      s.PerformedBy,
+					Notes:            s.Notes,
 				}
 				stepsView = append(stepsView, sv)
 				if s.Status == "completed" {
@@ -297,7 +429,7 @@ func (h *Handler) getPathway(w http.ResponseWriter, r *http.Request) {
 				TotalSteps:     len(steps),
 				CompletedSteps: completed,
 				CurrentStep:    current,
-				Steps:          stepsView,
+				Steps:          h.enrichStepsWithLiveRoute(stepsView),
 			}
 		}
 	}
@@ -314,13 +446,16 @@ func (h *Handler) getPathway(w http.ResponseWriter, r *http.Request) {
 				completed := 0
 				for _, s := range steps {
 					sv := pathwayStepView{
-						StepOrder:   s.StepOrder,
-						Stage:       s.Stage,
-						Status:      s.Status,
-						StartedAt:   s.StartedAt,
-						CompletedAt: s.CompletedAt,
-						PerformedBy: s.PerformedBy,
-						Notes:       s.Notes,
+						StepOrder:        s.StepOrder,
+						Stage:            s.Stage,
+						Status:           s.Status,
+						MapNodeID:        s.MapNodeID,
+						DistanceFromPrev: s.DistanceFromPrev,
+						RouteFromPrev:    s.RouteFromPrev,
+						StartedAt:        s.StartedAt,
+						CompletedAt:      s.CompletedAt,
+						PerformedBy:      s.PerformedBy,
+						Notes:            s.Notes,
 					}
 					stepsView = append(stepsView, sv)
 					if s.Status == "completed" {
@@ -334,10 +469,16 @@ func (h *Handler) getPathway(w http.ResponseWriter, r *http.Request) {
 					CompletedAt:    lastVisit.CompletedAt,
 					TotalSteps:     len(steps),
 					CompletedSteps: completed,
-					Steps:          stepsView,
+					Steps:          h.enrichStepsWithLiveRoute(stepsView),
 				}
 			}
 		}
+	}
+
+	// คำนวณ route summary จาก hospital-map ปัจจุบัน (BFS, หน่วยเมตร)
+	var routeSummary *pathwayRouteSummary
+	if visitView != nil {
+		routeSummary = h.buildRouteSummary(visitView)
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
@@ -346,6 +487,7 @@ func (h *Handler) getPathway(w http.ResponseWriter, r *http.Request) {
 		"pathway_template":   template,
 		"special_conditions": conditions,
 		"visit":              visitView, // มี active visit หรือ visit ล่าสุด
+		"route_summary":      routeSummary,
 	})
 }
 
