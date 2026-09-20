@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/suttipong/hospital-carepath/config"
+	"github.com/suttipong/hospital-carepath/internal/hospitalmap"
 	"github.com/suttipong/hospital-carepath/internal/model"
 	"github.com/suttipong/hospital-carepath/internal/pathway"
 	"github.com/suttipong/hospital-carepath/internal/patient"
@@ -103,6 +104,8 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		"endpoints": []string{
 			"GET    /",
 			"GET    /health",
+			"GET    /hospital-map                  - ดูผังโรงพยาบาล",
+			"PUT    /hospital-map                  - บันทึกผังโรงพยาบาล",
 			"POST   /patients                      - ลงทะเบียนผู้ป่วยเข้ารับบริการ",
 			"GET    /patients                      - ดูรายการผู้ป่วยทั้งหมด",
 			"GET    /patients/{id}                 - ดูข้อมูลผู้ป่วยตาม ID",
@@ -143,6 +146,7 @@ func main() {
 		&model.PathwayTemplate{},
 		&model.Visit{},
 		&model.VisitStep{},
+		&model.HospitalMap{},
 	); err != nil {
 		log.Fatalf("db migrate error: %v", err)
 	}
@@ -150,6 +154,11 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", rootHandler)
 	mux.HandleFunc("/health", healthHandler)
+
+	// Hospital map (หน้า admin)
+	hospitalMapStore := hospitalmap.NewStore(config.DB)
+	hospitalMapHandler := hospitalmap.NewHandler(hospitalMapStore)
+	hospitalMapHandler.Register(mux)
 
 	// ลงทะเบียน patient routes (ใช้ GORM ต่อ DB จริง)
 	patientStore := patient.NewStore(config.DB)
