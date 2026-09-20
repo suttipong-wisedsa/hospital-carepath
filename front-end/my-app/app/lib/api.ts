@@ -5,8 +5,111 @@
  *   (ดู next.config.ts) — วิธีนี้หลีกเลี่ยงปัญหา CORS เพราะ browser มองเป็น same-origin
  * - Production: ตั้ง NEXT_PUBLIC_API_BASE_URL เป็น URL จริงของ backend (เช่น https://api.example.com)
  */
+import type { MapEdge, MapNode } from "@/app/interface/map";
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api";
+
+interface HospitalMapApiResponse {
+  nodes: Array<{
+    id: string;
+    name: string;
+    type: MapNode["type"];
+    floor_id: string;
+    x_ratio: number;
+    y_ratio: number;
+    accessible: boolean;
+  }>;
+  edges: Array<{
+    id: string;
+    from_node_id: string;
+    to_node_id: string;
+    type: MapEdge["type"];
+    accessible: boolean;
+  }>;
+  updated_at: string;
+}
+
+export interface HospitalMap {
+  nodes: MapNode[];
+  edges: MapEdge[];
+  updatedAt: string;
+}
+
+async function getApiError(res: Response): Promise<string> {
+  const text = await res.text();
+  if (!text) return `HTTP ${res.status}`;
+  try {
+    const body = JSON.parse(text) as { error?: string };
+    return body.error ?? text;
+  } catch {
+    return text;
+  }
+}
+
+function mapHospitalMapResponse(data: HospitalMapApiResponse): HospitalMap {
+  return {
+    nodes: data.nodes.map((node) => ({
+      id: node.id,
+      name: node.name,
+      type: node.type,
+      floorId: node.floor_id,
+      xRatio: node.x_ratio,
+      yRatio: node.y_ratio,
+      accessible: node.accessible,
+    })),
+    edges: data.edges.map((edge) => ({
+      id: edge.id,
+      fromNodeId: edge.from_node_id,
+      toNodeId: edge.to_node_id,
+      type: edge.type,
+      accessible: edge.accessible,
+    })),
+    updatedAt: data.updated_at,
+  };
+}
+
+/** โหลดผังโรงพยาบาล — คืน null เมื่อยังไม่เคยบันทึก */
+export async function getHospitalMap(): Promise<HospitalMap | null> {
+  const res = await fetch(`${API_BASE_URL}/hospital-map`, {
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(await getApiError(res));
+  return mapHospitalMapResponse((await res.json()) as HospitalMapApiResponse);
+}
+
+/** บันทึกผังโรงพยาบาลทั้งชุด */
+export async function saveHospitalMap(
+  nodes: MapNode[],
+  edges: MapEdge[]
+): Promise<HospitalMap> {
+  const res = await fetch(`${API_BASE_URL}/hospital-map`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      nodes: nodes.map((node) => ({
+        id: node.id,
+        name: node.name,
+        type: node.type,
+        floor_id: node.floorId,
+        x_ratio: node.xRatio,
+        y_ratio: node.yRatio,
+        accessible: node.accessible,
+      })),
+      edges: edges.map((edge) => ({
+        id: edge.id,
+        from_node_id: edge.fromNodeId,
+        to_node_id: edge.toNodeId,
+        type: edge.type,
+        accessible: edge.accessible,
+      })),
+    }),
+  });
+  if (!res.ok) throw new Error(await getApiError(res));
+  return mapHospitalMapResponse((await res.json()) as HospitalMapApiResponse);
+}
 
 /** Type ของ request ตามที่ backend คาดหวัง */
 export interface CreatePatientRequest {

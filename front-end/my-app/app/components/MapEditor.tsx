@@ -5,7 +5,6 @@ import {
   DeleteOutlined,
   EnvironmentOutlined,
   HomeOutlined,
-  PlusCircleFilled,
   PlusOutlined,
   SaveOutlined,
   ShareAltOutlined,
@@ -22,6 +21,7 @@ import {
 } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import FloorPlan from './FloorPlan';
+import { getHospitalMap, saveHospitalMap } from '@/app/lib/api';
 import type {
   EditorMode,
   MapEdge,
@@ -30,8 +30,6 @@ import type {
 } from '@/app/interface/map';
 
 const { Header, Sider, Content } = Layout;
-const STORAGE_KEY = 'carepath-map-v1';
-
 const initialNodes: MapNode[] = [
   {
     id: 'n1',
@@ -138,24 +136,30 @@ export default function MapEditor() {
   const [selectedId, setSelectedId] = useState<string | null>('n4');
   const [connectFromId, setConnectFromId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as {
-          nodes: MapNode[];
-          edges: MapEdge[];
-        };
-        setNodes(parsed.nodes);
-        setEdges(parsed.edges);
-      } catch {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    }
-    setHydrated(true);
-  }, []);
+    let active = true;
+    getHospitalMap()
+      .then((hospitalMap) => {
+        if (!active || !hospitalMap) return;
+        setNodes(hospitalMap.nodes);
+        setEdges(hospitalMap.edges);
+        setSelectedId(hospitalMap.nodes[0]?.id ?? null);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        const detail = error instanceof Error ? error.message : 'เกิดข้อผิดพลาด';
+        messageApi.error(`โหลดผังไม่สำเร็จ: ${detail}`);
+      })
+      .finally(() => {
+        if (active) setHydrated(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [messageApi]);
 
   const selectedNode = useMemo(
     () => nodes.find((node) => node.id === selectedId) ?? null,
@@ -232,9 +236,17 @@ export default function MapEditor() {
     setSelectedId(null);
   };
 
-  const save = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes, edges }));
-    messageApi.success('บันทึกผังเรียบร้อยแล้ว');
+  const save = async () => {
+    setSaving(true);
+    try {
+      await saveHospitalMap(nodes, edges);
+      messageApi.success('บันทึกผังเรียบร้อยแล้ว');
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'เกิดข้อผิดพลาด';
+      messageApi.error(`บันทึกผังไม่สำเร็จ: ${detail}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!hydrated) return null;
@@ -326,7 +338,12 @@ export default function MapEditor() {
                 >
                   คืนค่าเริ่มต้น
                 </Button>
-                <Button type='primary' icon={<SaveOutlined />} onClick={save}>
+                <Button
+                  type='primary'
+                  icon={<SaveOutlined />}
+                  onClick={save}
+                  loading={saving}
+                >
                   บันทึก
                 </Button>
               </Space>
